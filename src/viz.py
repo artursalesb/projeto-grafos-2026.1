@@ -77,6 +77,16 @@ def gerar_graficos_analiticos():
     df_ego = pd.read_csv('out/ego_aeroportos.csv')
     plt.figure(figsize=(10, 6))
     plt.scatter(df_ego['grau'], df_ego['densidade_ego'], color='#e74c3c', s=100, alpha=0.7, edgecolors='black')
+    for _, row in df_ego.iterrows():
+        plt.annotate(
+            row['aeroporto'],
+            (row['grau'], row['densidade_ego']),
+            textcoords='offset points',
+            xytext=(5, 5),
+            fontsize=8,
+            color='#222222',
+            bbox=dict(facecolor='white', alpha=0.75, edgecolor='none', pad=0.5)
+        )
     plt.title('Análise de Rede: Conectividade vs. Densidade Local')
     plt.xlabel('Grau')
     plt.ylabel('Densidade da Ego-Network')
