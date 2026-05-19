@@ -1,431 +1,405 @@
-<html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script>function neighbourhoodHighlight(params) {
-  // console.log("in nieghbourhoodhighlight");
-  allNodes = nodes.get({ returnType: "Object" });
-  // originalNodes = JSON.parse(JSON.stringify(allNodes));
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    highlightActive = true;
-    var i, j;
-    var selectedNode = params.nodes[0];
-    var degrees = 2;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Malha Aérea Brasileira — Grafo Interativo</title>
+  <script src="../lib/vis-9.1.2/vis-network.min.js"></script>
+  <link  href="../lib/vis-9.1.2/vis-network.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body   { background: #0d1117; color: #e6edf3; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 10px 18px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    header h1 { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
+    header span { font-size: 12px; color: #8b949e; }
+    .main  { display: flex; flex: 1; overflow: hidden; }
+    /* ── Painel lateral ── */
+    .sidebar { width: 270px; min-width: 270px; background: #161b22; border-right: 1px solid #30363d;
+                overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+    .panel   { background: #21262d; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }
+    .panel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #8b949e; margin-bottom: 10px; }
+    /* Legenda de regiões */
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; cursor: pointer; border-radius: 4px; padding: 3px 5px; transition: background .15s; }
+    .legend-item:hover { background: #30363d; }
+    .legend-item.inactive { opacity: .35; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    /* Busca IATA */
+    input[type=text], select { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+                                color: #e6edf3; padding: 6px 10px; font-size: 13px; outline: none; }
+    input[type=text]:focus, select:focus { border-color: #388bfd; }
+    .autocomplete-list { background: #161b22; border: 1px solid #30363d; border-radius: 6px; margin-top: 4px;
+                          max-height: 160px; overflow-y: auto; display: none; }
+    .autocomplete-list div { padding: 6px 10px; font-size: 13px; cursor: pointer; }
+    .autocomplete-list div:hover { background: #21262d; }
+    /* Slider grau */
+    input[type=range] { width: 100%; accent-color: #388bfd; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 12px; color: #8b949e; margin-top: 4px; }
+    /* Caminhos */
+    .rota-btn { display: block; width: 100%; text-align: left; background: #0d1117; border: 1px solid #30363d;
+                 border-radius: 5px; padding: 6px 10px; font-size: 12px; color: #e6edf3; cursor: pointer;
+                 margin-bottom: 5px; transition: border-color .15s; }
+    .rota-btn:hover  { border-color: #00d4aa; }
+    .rota-btn.active { border-color: #00d4aa; background: #0a2a25; color: #00d4aa; font-weight: 600; }
+    /* Reset */
+    .btn-reset { display: block; width: 100%; padding: 7px; background: #21262d; border: 1px solid #30363d;
+                  border-radius: 6px; color: #8b949e; font-size: 13px; cursor: pointer; text-align: center; }
+    .btn-reset:hover { background: #30363d; color: #e6edf3; }
+    /* Métricas */
+    .metric { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+    .metric span:last-child { color: #388bfd; font-weight: 700; }
+    /* Info caminho */
+    #path-info { font-size: 12px; color: #00d4aa; margin-top: 6px; min-height: 16px; }
+    /* Rede */
+    #network-container { flex: 1; position: relative; }
+    #network { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
 
-    // mark all nodes as hard to read.
-    for (let nodeId in allNodes) {
-      // nodeColors[nodeId] = allNodes[nodeId].color;
-      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
-      if (allNodes[nodeId].hiddenLabel === undefined) {
-        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
-      }
-    }
-    var connectedNodes = network.getConnectedNodes(selectedNode);
-    var allConnectedNodes = [];
+<header>
+  <h1>✈️ Malha Aérea Brasileira</h1>
+  <span id="header-info">20 aeroportos · 77 conexões</span>
+</header>
 
-    // get the second degree nodes
-    for (i = 1; i < degrees; i++) {
-      for (j = 0; j < connectedNodes.length; j++) {
-        allConnectedNodes = allConnectedNodes.concat(
-          network.getConnectedNodes(connectedNodes[j])
-        );
-      }
-    }
+<div class="main">
+  <!-- ── Painel lateral ─────────────────────────────────── -->
+  <aside class="sidebar">
 
-    // all second degree nodes get a different color and their label back
-    for (i = 0; i < allConnectedNodes.length; i++) {
-      // allNodes[allConnectedNodes[i]].color = "pink";
-      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
-      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[allConnectedNodes[i]].label =
-          allNodes[allConnectedNodes[i]].hiddenLabel;
-        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
+    <!-- Legenda / Filtro por Região -->
+    <div class="panel">
+      <h3>🗺️ Filtrar por Região</h3>
+      <div id="legend"></div>
+    </div>
 
-    // all first degree nodes get their own color and their label back
-    for (i = 0; i < connectedNodes.length; i++) {
-      // allNodes[connectedNodes[i]].color = undefined;
-      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
-      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[connectedNodes[i]].label =
-          allNodes[connectedNodes[i]].hiddenLabel;
-        allNodes[connectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
+    <!-- Busca por IATA -->
+    <div class="panel">
+      <h3>🔍 Busca por Código IATA</h3>
+      <input type="text" id="iata-search" placeholder="Ex: GRU, REC, BSB…" autocomplete="off">
+      <div class="autocomplete-list" id="autocomplete"></div>
+    </div>
 
-    // the main node gets its own color and its label back.
-    // allNodes[selectedNode].color = undefined;
-    allNodes[selectedNode].color = nodeColors[selectedNode];
-    if (allNodes[selectedNode].hiddenLabel !== undefined) {
-      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
-      allNodes[selectedNode].hiddenLabel = undefined;
-    }
-  } else if (highlightActive === true) {
-    // console.log("highlightActive was true");
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      // allNodes[nodeId].color = "purple";
-      allNodes[nodeId].color = nodeColors[nodeId];
-      // delete allNodes[nodeId].color;
-      if (allNodes[nodeId].hiddenLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
-        allNodes[nodeId].hiddenLabel = undefined;
-      }
-    }
-    highlightActive = false;
-  }
+    <!-- Filtro grau mínimo -->
+    <div class="panel">
+      <h3>📊 Grau Mínimo de Conexões</h3>
+      <input type="range" id="grau-slider" min="1" max="13" value="1" step="1">
+      <div class="slider-label"><span>1</span><span id="grau-val">1</span><span>13</span></div>
+    </div>
 
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  } else {
-    // console.log("Nothing was selected");
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        // allNodes[nodeId].color = {};
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  }
-}
+    <!-- Destaque de caminho mínimo -->
+    <div class="panel">
+      <h3>🛣️ Caminho Mínimo (Dijkstra)</h3>
+      <div id="rotas-list"></div>
+      <div id="path-info"></div>
+    </div>
 
-function filterHighlight(params) {
-  allNodes = nodes.get({ returnType: "Object" });
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    filterActive = true;
-    let selectedNodes = params.nodes;
+    <!-- Métricas -->
+    <div class="panel">
+      <h3>📈 Métricas do Grafo</h3>
+      <div class="metric"><span>Nós visíveis</span><span id="m-nos">20</span></div>
+      <div class="metric"><span>Conexões visíveis</span><span id="m-arestas">77</span></div>
+      <div class="metric"><span>Densidade</span><span id="m-dens">0.4053</span></div>
+      <div class="metric"><span>Nó selecionado</span><span id="m-sel">—</span></div>
+    </div>
 
-    // hiding all nodes and saving the label
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = true;
-      if (allNodes[nodeId].savedLabel === undefined) {
-        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
-      }
-    }
+    <button class="btn-reset" onclick="resetAll()">↺ Resetar todos os filtros</button>
+  </aside>
 
-    for (let i=0; i < selectedNodes.length; i++) {
-      allNodes[selectedNodes[i]].hidden = false;
-      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
-        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
-        allNodes[selectedNodes[i]].savedLabel = undefined;
-      }
-    }
+  <!-- ── Grafo ──────────────────────────────────────────── -->
+  <div id="network-container">
+    <div id="network"></div>
+  </div>
+</div>
 
-  } else if (filterActive === true) {
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = false;
-      if (allNodes[nodeId].savedLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
-        allNodes[nodeId].savedLabel = undefined;
-      }
-    }
-    filterActive = false;
-  }
+<script>
+// ── Dados do grafo (gerados pelo Python) ──────────────────────────────────────
+const NOS_DATA     = [{"iata": "REC", "cidade": "Recife", "regiao": "Nordeste", "grau": 13}, {"iata": "SSA", "cidade": "Salvador", "regiao": "Nordeste", "grau": 13}, {"iata": "FOR", "cidade": "Fortaleza", "regiao": "Nordeste", "grau": 13}, {"iata": "NAT", "cidade": "Natal", "regiao": "Nordeste", "grau": 3}, {"iata": "JPA", "cidade": "João Pessoa", "regiao": "Nordeste", "grau": 3}, {"iata": "GRU", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 12}, {"iata": "CGH", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 3}, {"iata": "GIG", "cidade": "Rio de Janeiro", "regiao": "Sudeste", "grau": 12}, {"iata": "CNF", "cidade": "Belo Horizonte", "regiao": "Sudeste", "grau": 12}, {"iata": "VIX", "cidade": "Vitória", "regiao": "Sudeste", "grau": 3}, {"iata": "BSB", "cidade": "Brasília", "regiao": "Centro-Oeste", "grau": 11}, {"iata": "GYN", "cidade": "Goiânia", "regiao": "Centro-Oeste", "grau": 1}, {"iata": "CWB", "cidade": "Curitiba", "regiao": "Sul", "grau": 11}, {"iata": "FLN", "cidade": "Florianópolis", "regiao": "Sul", "grau": 2}, {"iata": "POA", "cidade": "Porto Alegre", "regiao": "Sul", "grau": 11}, {"iata": "MAO", "cidade": "Manaus", "regiao": "Norte", "grau": 12}, {"iata": "BEL", "cidade": "Belém", "regiao": "Norte", "grau": 12}, {"iata": "PVH", "cidade": "Porto Velho", "regiao": "Norte", "grau": 2}, {"iata": "RBR", "cidade": "Rio Branco", "regiao": "Norte", "grau": 2}, {"iata": "THE", "cidade": "Teresina", "regiao": "Nordeste", "grau": 3}];
+const ARESTAS_DATA = [{"from": "REC", "to": "NAT", "peso": 266.71, "tipo": "regional"}, {"from": "REC", "to": "JPA", "peso": 108.83, "tipo": "regional"}, {"from": "REC", "to": "THE", "peso": 936.95, "tipo": "regional"}, {"from": "REC", "to": "CWB", "peso": 2453.9, "tipo": "nacional"}, {"from": "REC", "to": "GIG", "peso": 1859.22, "tipo": "nacional"}, {"from": "REC", "to": "GRU", "peso": 2100.82, "tipo": "nacional"}, {"from": "REC", "to": "BSB", "peso": 1654.1, "tipo": "nacional"}, {"from": "REC", "to": "CNF", "peso": 1607.74, "tipo": "nacional"}, {"from": "REC", "to": "POA", "peso": 2962.75, "tipo": "nacional"}, {"from": "REC", "to": "BEL", "peso": 1677.75, "tipo": "nacional"}, {"from": "REC", "to": "MAO", "peso": 2836.85, "tipo": "nacional"}, {"from": "REC", "to": "SSA", "peso": 649.46, "tipo": "hub_intra"}, {"from": "REC", "to": "FOR", "peso": 627.12, "tipo": "hub_intra"}, {"from": "SSA", "to": "NAT", "peso": 858.17, "tipo": "regional"}, {"from": "SSA", "to": "JPA", "peso": 739.98, "tipo": "regional"}, {"from": "SSA", "to": "THE", "peso": 1002.66, "tipo": "regional"}, {"from": "SSA", "to": "CWB", "peso": 1804.74, "tipo": "nacional"}, {"from": "SSA", "to": "GIG", "peso": 1217.24, "tipo": "nacional"}, {"from": "SSA", "to": "GRU", "peso": 1451.36, "tipo": "nacional"}, {"from": "SSA", "to": "BSB", "peso": 1083.74, "tipo": "nacional"}, {"from": "SSA", "to": "CNF", "peso": 958.74, "tipo": "nacional"}, {"from": "SSA", "to": "POA", "peso": 2313.79, "tipo": "nacional"}, {"from": "SSA", "to": "BEL", "peso": 1700.28, "tipo": "nacional"}, {"from": "SSA", "to": "MAO", "peso": 2628.74, "tipo": "nacional"}, {"from": "SSA", "to": "FOR", "peso": 1016.0, "tipo": "hub_intra"}, {"from": "FOR", "to": "NAT", "peso": 414.93, "tipo": "regional"}, {"from": "FOR", "to": "JPA", "peso": 545.68, "tipo": "regional"}, {"from": "FOR", "to": "THE", "peso": 496.78, "tipo": "regional"}, {"from": "FOR", "to": "CWB", "peso": 2672.63, "tipo": "nacional"}, {"from": "FOR", "to": "GIG", "peso": 2176.55, "tipo": "nacional"}, {"from": "FOR", "to": "GRU", "peso": 2346.62, "tipo": "nacional"}, {"from": "FOR", "to": "BSB", "peso": 1691.78, "tipo": "nacional"}, {"from": "FOR", "to": "CNF", "peso": 1858.44, "tipo": "nacional"}, {"from": "FOR", "to": "POA", "peso": 3204.09, "tipo": "nacional"}, {"from": "FOR", "to": "BEL", "peso": 1136.08, "tipo": "nacional"}, {"from": "FOR", "to": "MAO", "peso": 2390.01, "tipo": "nacional"}, {"from": "GRU", "to": "CGH", "peso": 28.26, "tipo": "regional"}, {"from": "GRU", "to": "VIX", "peso": 729.6, "tipo": "regional"}, {"from": "GRU", "to": "CWB", "peso": 358.95, "tipo": "nacional"}, {"from": "GRU", "to": "GIG", "peso": 336.79, "tipo": "hub_intra"}, {"from": "GRU", "to": "BSB", "peso": 854.8, "tipo": "nacional"}, {"from": "GRU", "to": "CNF", "peso": 496.46, "tipo": "hub_intra"}, {"from": "GRU", "to": "POA", "peso": 865.52, "tipo": "nacional"}, {"from": "GRU", "to": "BEL", "peso": 2461.43, "tipo": "nacional"}, {"from": "GRU", "to": "MAO", "peso": 2697.86, "tipo": "nacional"}, {"from": "CGH", "to": "GIG", "peso": 359.67, "tipo": "regional"}, {"from": "CGH", "to": "CNF", "peso": 524.36, "tipo": "regional"}, {"from": "GIG", "to": "VIX", "peso": 417.72, "tipo": "regional"}, {"from": "GIG", "to": "CWB", "peso": 672.38, "tipo": "nacional"}, {"from": "GIG", "to": "BSB", "peso": 913.92, "tipo": "nacional"}, {"from": "GIG", "to": "CNF", "peso": 362.03, "tipo": "hub_intra"}, {"from": "GIG", "to": "POA", "peso": 1121.96, "tipo": "nacional"}, {"from": "GIG", "to": "BEL", "peso": 2448.32, "tipo": "nacional"}, {"from": "GIG", "to": "MAO", "peso": 2847.97, "tipo": "nacional"}, {"from": "CNF", "to": "VIX", "peso": 391.62, "tipo": "regional"}, {"from": "CNF", "to": "CWB", "peso": 846.18, "tipo": "nacional"}, {"from": "CNF", "to": "BSB", "peso": 590.86, "tipo": "nacional"}, {"from": "CNF", "to": "POA", "peso": 1361.98, "tipo": "nacional"}, {"from": "CNF", "to": "BEL", "peso": 2086.55, "tipo": "nacional"}, {"from": "CNF", "to": "MAO", "peso": 2539.9, "tipo": "nacional"}, {"from": "BSB", "to": "GYN", "peso": 162.62, "tipo": "regional"}, {"from": "BSB", "to": "CWB", "peso": 1082.28, "tipo": "nacional"}, {"from": "BSB", "to": "POA", "peso": 1605.15, "tipo": "nacional"}, {"from": "BSB", "to": "BEL", "peso": 1611.81, "tipo": "nacional"}, {"from": "BSB", "to": "MAO", "peso": 1949.05, "tipo": "nacional"}, {"from": "CWB", "to": "FLN", "peso": 245.47, "tipo": "regional"}, {"from": "CWB", "to": "POA", "peso": 533.68, "tipo": "hub_intra"}, {"from": "CWB", "to": "BEL", "peso": 2686.16, "tipo": "nacional"}, {"from": "CWB", "to": "MAO", "peso": 2758.85, "tipo": "nacional"}, {"from": "FLN", "to": "POA", "peso": 363.06, "tipo": "regional"}, {"from": "POA", "to": "BEL", "peso": 3193.92, "tipo": "nacional"}, {"from": "POA", "to": "MAO", "peso": 3140.19, "tipo": "nacional"}, {"from": "MAO", "to": "PVH", "peso": 761.11, "tipo": "regional"}, {"from": "MAO", "to": "RBR", "peso": 1152.31, "tipo": "regional"}, {"from": "MAO", "to": "BEL", "peso": 1299.19, "tipo": "hub_intra"}, {"from": "BEL", "to": "PVH", "peso": 1891.36, "tipo": "regional"}, {"from": "BEL", "to": "RBR", "peso": 2345.17, "tipo": "regional"}];
+const CAMINHOS     = {"REC-POA": {"custo": 2962.75, "caminho": ["REC", "POA"], "label": "REC → POA  (2962.75 km)"}, "MAO-GRU": {"custo": 2697.86, "caminho": ["MAO", "GRU"], "label": "MAO → GRU  (2697.86 km)"}, "REC-SSA": {"custo": 649.46, "caminho": ["REC", "SSA"], "label": "REC → SSA  (649.46 km)"}, "GRU-BSB": {"custo": 854.8, "caminho": ["GRU", "BSB"], "label": "GRU → BSB  (854.8 km)"}, "FOR-MAO": {"custo": 2390.01, "caminho": ["FOR", "MAO"], "label": "FOR → MAO  (2390.01 km)"}, "BSB-POA": {"custo": 1605.15, "caminho": ["BSB", "POA"], "label": "BSB → POA  (1605.15 km)"}, "BEL-GRU": {"custo": 2461.43, "caminho": ["BEL", "GRU"], "label": "BEL → GRU  (2461.43 km)"}};
 
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  } else {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  }
-}
-
-function selectNode(nodes) {
-  network.selectNodes(nodes);
-  neighbourhoodHighlight({ nodes: nodes });
-  return nodes;
-}
-
-function selectNodes(nodes) {
-  network.selectNodes(nodes);
-  filterHighlight({nodes: nodes});
-  return nodes;
-}
-
-function highlightFilter(filter) {
-  let selectedNodes = []
-  let selectedProp = filter['property']
-  if (filter['item'] === 'node') {
-    let allNodes = nodes.get({ returnType: "Object" });
-    for (let nodeId in allNodes) {
-      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
-        selectedNodes.push(nodeId)
-      }
-    }
-  }
-  else if (filter['item'] === 'edge'){
-    let allEdges = edges.get({returnType: 'object'});
-    // check if the selected property exists for selected edge and select the nodes connected to the edge
-    for (let edge in allEdges) {
-      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
-        selectedNodes.push(allEdges[edge]['from'])
-        selectedNodes.push(allEdges[edge]['to'])
-      }
-    }
-  }
-  selectNodes(selectedNodes)
-}</script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-            
-            
-            
-            
-            
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-
-        
-<center>
-<h1></h1>
-</center>
-
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
-<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
-
-
-        <center>
-          <h1></h1>
-        </center>
-        <style type="text/css">
-
-             #mynetwork {
-                 width: 100%;
-                 height: 800px;
-                 background-color: #1a1a1a;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
-
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-                <div id="select-menu" class="card-header">
-                    <div class="row no-gutters">
-                        <div class="col-10 pb-2">
-                            <select
-                            class="form-select"
-                            aria-label="Default select example"
-                            onchange="selectNode([value]);"
-                            id="select-node"
-                            placeholder="Select node..."
-                            >
-                                <option selected>Select a Node by ID</option>
-                                
-                                    <option value="REC">REC</option>
-                                
-                                    <option value="SSA">SSA</option>
-                                
-                                    <option value="FOR">FOR</option>
-                                
-                                    <option value="NAT">NAT</option>
-                                
-                                    <option value="JPA">JPA</option>
-                                
-                                    <option value="GRU">GRU</option>
-                                
-                                    <option value="CGH">CGH</option>
-                                
-                                    <option value="GIG">GIG</option>
-                                
-                                    <option value="CNF">CNF</option>
-                                
-                                    <option value="VIX">VIX</option>
-                                
-                                    <option value="BSB">BSB</option>
-                                
-                                    <option value="GYN">GYN</option>
-                                
-                                    <option value="CWB">CWB</option>
-                                
-                                    <option value="FLN">FLN</option>
-                                
-                                    <option value="POA">POA</option>
-                                
-                                    <option value="MAO">MAO</option>
-                                
-                                    <option value="BEL">BEL</option>
-                                
-                                    <option value="PVH">PVH</option>
-                                
-                                    <option value="RBR">RBR</option>
-                                
-                                    <option value="THE">THE</option>
-                                
-                            </select>
-                        </div>
-                        <div class="col-2 pb-2">
-                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
-                        </div>
-                    </div>
-                </div>
-            
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-                  new TomSelect("#select-node",{
-                      create: false,
-                      sortField: {
-                          field: "text",
-                          direction: "asc"
-                      }
-                  });
-              
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#e74c3c", "font": {"color": "white"}, "id": "REC", "label": "REC", "shape": "dot", "size": 46, "title": "Aeroporto: REC\nRegi\u00e3o: Nordeste\nConex\u00f5es: 13"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "SSA", "label": "SSA", "shape": "dot", "size": 46, "title": "Aeroporto: SSA\nRegi\u00e3o: Nordeste\nConex\u00f5es: 13"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "FOR", "label": "FOR", "shape": "dot", "size": 46, "title": "Aeroporto: FOR\nRegi\u00e3o: Nordeste\nConex\u00f5es: 13"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "NAT", "label": "NAT", "shape": "dot", "size": 26, "title": "Aeroporto: NAT\nRegi\u00e3o: Nordeste\nConex\u00f5es: 3"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "JPA", "label": "JPA", "shape": "dot", "size": 26, "title": "Aeroporto: JPA\nRegi\u00e3o: Nordeste\nConex\u00f5es: 3"}, {"color": "#3498db", "font": {"color": "white"}, "id": "GRU", "label": "GRU", "shape": "dot", "size": 44, "title": "Aeroporto: GRU\nRegi\u00e3o: Sudeste\nConex\u00f5es: 12"}, {"color": "#3498db", "font": {"color": "white"}, "id": "CGH", "label": "CGH", "shape": "dot", "size": 26, "title": "Aeroporto: CGH\nRegi\u00e3o: Sudeste\nConex\u00f5es: 3"}, {"color": "#3498db", "font": {"color": "white"}, "id": "GIG", "label": "GIG", "shape": "dot", "size": 44, "title": "Aeroporto: GIG\nRegi\u00e3o: Sudeste\nConex\u00f5es: 12"}, {"color": "#3498db", "font": {"color": "white"}, "id": "CNF", "label": "CNF", "shape": "dot", "size": 44, "title": "Aeroporto: CNF\nRegi\u00e3o: Sudeste\nConex\u00f5es: 12"}, {"color": "#3498db", "font": {"color": "white"}, "id": "VIX", "label": "VIX", "shape": "dot", "size": 26, "title": "Aeroporto: VIX\nRegi\u00e3o: Sudeste\nConex\u00f5es: 3"}, {"color": "#f1c40f", "font": {"color": "white"}, "id": "BSB", "label": "BSB", "shape": "dot", "size": 42, "title": "Aeroporto: BSB\nRegi\u00e3o: Centro-Oeste\nConex\u00f5es: 11"}, {"color": "#f1c40f", "font": {"color": "white"}, "id": "GYN", "label": "GYN", "shape": "dot", "size": 22, "title": "Aeroporto: GYN\nRegi\u00e3o: Centro-Oeste\nConex\u00f5es: 1"}, {"color": "#9b59b6", "font": {"color": "white"}, "id": "CWB", "label": "CWB", "shape": "dot", "size": 42, "title": "Aeroporto: CWB\nRegi\u00e3o: Sul\nConex\u00f5es: 11"}, {"color": "#9b59b6", "font": {"color": "white"}, "id": "FLN", "label": "FLN", "shape": "dot", "size": 24, "title": "Aeroporto: FLN\nRegi\u00e3o: Sul\nConex\u00f5es: 2"}, {"color": "#9b59b6", "font": {"color": "white"}, "id": "POA", "label": "POA", "shape": "dot", "size": 42, "title": "Aeroporto: POA\nRegi\u00e3o: Sul\nConex\u00f5es: 11"}, {"color": "#2ecc71", "font": {"color": "white"}, "id": "MAO", "label": "MAO", "shape": "dot", "size": 44, "title": "Aeroporto: MAO\nRegi\u00e3o: Norte\nConex\u00f5es: 12"}, {"color": "#2ecc71", "font": {"color": "white"}, "id": "BEL", "label": "BEL", "shape": "dot", "size": 44, "title": "Aeroporto: BEL\nRegi\u00e3o: Norte\nConex\u00f5es: 12"}, {"color": "#2ecc71", "font": {"color": "white"}, "id": "PVH", "label": "PVH", "shape": "dot", "size": 24, "title": "Aeroporto: PVH\nRegi\u00e3o: Norte\nConex\u00f5es: 2"}, {"color": "#2ecc71", "font": {"color": "white"}, "id": "RBR", "label": "RBR", "shape": "dot", "size": 24, "title": "Aeroporto: RBR\nRegi\u00e3o: Norte\nConex\u00f5es: 2"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "THE", "label": "THE", "shape": "dot", "size": 26, "title": "Aeroporto: THE\nRegi\u00e3o: Nordeste\nConex\u00f5es: 3"}]);
-                  edges = new vis.DataSet([{"color": "#555555", "from": "REC", "title": "266.71 km", "to": "NAT", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "108.83 km", "to": "JPA", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "936.95 km", "to": "THE", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "2453.9 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "1859.22 km", "to": "GIG", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "2100.82 km", "to": "GRU", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "1654.1 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "1607.74 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "2962.75 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "1677.75 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "2836.85 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "649.46 km", "to": "SSA", "width": 1.5}, {"color": "#555555", "from": "REC", "title": "627.12 km", "to": "FOR", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "858.17 km", "to": "NAT", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "739.98 km", "to": "JPA", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1002.66 km", "to": "THE", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1804.74 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1217.24 km", "to": "GIG", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1451.36 km", "to": "GRU", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1083.74 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "958.74 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "2313.79 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1700.28 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "2628.74 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "SSA", "title": "1016.0 km", "to": "FOR", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "414.93 km", "to": "NAT", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "545.68 km", "to": "JPA", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "496.78 km", "to": "THE", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "2672.63 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "2176.55 km", "to": "GIG", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "2346.62 km", "to": "GRU", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "1691.78 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "1858.44 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "3204.09 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "1136.08 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "FOR", "title": "2390.01 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "28.26 km", "to": "CGH", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "729.6 km", "to": "VIX", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "358.95 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "336.79 km", "to": "GIG", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "854.8 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "496.46 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "865.52 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "2461.43 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "GRU", "title": "2697.86 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "CGH", "title": "359.67 km", "to": "GIG", "width": 1.5}, {"color": "#555555", "from": "CGH", "title": "524.36 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "417.72 km", "to": "VIX", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "672.38 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "913.92 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "362.03 km", "to": "CNF", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "1121.96 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "2448.32 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "GIG", "title": "2847.97 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "391.62 km", "to": "VIX", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "846.18 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "590.86 km", "to": "BSB", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "1361.98 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "2086.55 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "CNF", "title": "2539.9 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "BSB", "title": "162.62 km", "to": "GYN", "width": 1.5}, {"color": "#555555", "from": "BSB", "title": "1082.28 km", "to": "CWB", "width": 1.5}, {"color": "#555555", "from": "BSB", "title": "1605.15 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "BSB", "title": "1611.81 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "BSB", "title": "1949.05 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "CWB", "title": "245.47 km", "to": "FLN", "width": 1.5}, {"color": "#555555", "from": "CWB", "title": "533.68 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "CWB", "title": "2686.16 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "CWB", "title": "2758.85 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "FLN", "title": "363.06 km", "to": "POA", "width": 1.5}, {"color": "#555555", "from": "POA", "title": "3193.92 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "POA", "title": "3140.19 km", "to": "MAO", "width": 1.5}, {"color": "#555555", "from": "MAO", "title": "761.11 km", "to": "PVH", "width": 1.5}, {"color": "#555555", "from": "MAO", "title": "1152.31 km", "to": "RBR", "width": 1.5}, {"color": "#555555", "from": "MAO", "title": "1299.19 km", "to": "BEL", "width": 1.5}, {"color": "#555555", "from": "BEL", "title": "1891.36 km", "to": "PVH", "width": 1.5}, {"color": "#555555", "from": "BEL", "title": "2345.17 km", "to": "RBR", "width": 1.5}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {
-    "configure": {
-        "enabled": false
-    },
-    "edges": {
-        "color": {
-            "inherit": true
-        },
-        "smooth": {
-            "enabled": true,
-            "type": "dynamic"
-        }
-    },
-    "interaction": {
-        "dragNodes": true,
-        "hideEdgesOnDrag": false,
-        "hideNodesOnDrag": false
-    },
-    "physics": {
-        "enabled": true,
-        "forceAtlas2Based": {
-            "avoidOverlap": 0,
-            "centralGravity": 0.01,
-            "damping": 0.4,
-            "gravitationalConstant": -50,
-            "springConstant": 0.08,
-            "springLength": 100
-        },
-        "solver": "forceAtlas2Based",
-        "stabilization": {
-            "enabled": true,
-            "fit": true,
-            "iterations": 1000,
-            "onlyDynamicEdges": false,
-            "updateInterval": 50
-        }
-    }
+// ── Paleta de cores por região (consistente com o projeto) ────────────────────
+const COR_REGIAO = {
+  'Norte':        '#2ecc71',
+  'Nordeste':     '#e74c3c',
+  'Centro-Oeste': '#f1c40f',
+  'Sudeste':      '#3498db',
+  'Sul':          '#9b59b6'
 };
 
-                  
+// ── Estado global ─────────────────────────────────────────────────────────────
+let network, nodesDS, edgesDS;
+let regioesAtivas   = new Set(Object.keys(COR_REGIAO));
+let grauMinimo      = 1;
+let rotaAtiva       = null;
+let nosOriginalColors = {};
+
+// ── Inicializa vis.js ─────────────────────────────────────────────────────────
+function initNetwork() {
+  const container = document.getElementById('network');
+
+  nodesDS = new vis.DataSet(NOS_DATA.map(n => buildVisNode(n)));
+  edgesDS = new vis.DataSet(ARESTAS_DATA.map(a => buildVisEdge(a)));
+
+  NOS_DATA.forEach(n => { nosOriginalColors[n.iata] = COR_REGIAO[n.regiao] || '#ffffff'; });
+
+  const data    = { nodes: nodesDS, edges: edgesDS };
+  const options = {
+    physics: {
+      enabled: true,
+      solver: 'forceAtlas2Based',
+      forceAtlas2Based: { gravitationalConstant: -60, springLength: 130, springConstant: 0.08, damping: 0.4 },
+      stabilization: { iterations: 800, fit: true }
+    },
+    edges: {
+      smooth: { type: 'continuous' },
+      color: { color: '#444c56', highlight: '#00d4aa', hover: '#888' },
+      width: 1.5
+    },
+    nodes: {
+      shape: 'dot',
+      font: { color: 'white', size: 13 },
+      borderWidth: 2
+    },
+    interaction: { hover: true, tooltipDelay: 100 }
+  };
+
+  network = new vis.Network(container, data, options);
+
+  network.on('selectNode', params => {
+    if (params.nodes.length) {
+      const id = params.nodes[0];
+      const no = NOS_DATA.find(n => n.iata === id);
+      document.getElementById('m-sel').textContent = `${id} (${no?.cidade})`;
+    }
+  });
+  network.on('deselectNode', () => {
+    document.getElementById('m-sel').textContent = '—';
+  });
+}
+
+function buildVisNode(n) {
+  const hidden = !regioesAtivas.has(n.regiao) || n.grau < grauMinimo;
+  return {
+    id:     n.iata,
+    label:  n.iata,
+    title:  `✈️ ${n.iata} — ${n.cidade}\nRegião: ${n.regiao}\nConexões: ${n.grau}`,
+    color:  COR_REGIAO[n.regiao] || '#ffffff',
+    size:   14 + n.grau * 2,
+    hidden: hidden,
+    font:   { color: 'white' }
+  };
+}
+
+function buildVisEdge(a) {
+  return {
+    from:  a.from, to: a.to,
+    title: `${a.peso} km`,
+    color: { color: '#444c56', highlight: '#00d4aa' },
+    width: 1.5,
+    hidden: false
+  };
+}
+
+// ── Legenda / Filtro por Região ───────────────────────────────────────────────
+function buildLegend() {
+  const container = document.getElementById('legend');
+  Object.entries(COR_REGIAO).forEach(([regiao, cor]) => {
+    const div = document.createElement('div');
+    div.className = 'legend-item';
+    div.innerHTML = `<div class="dot" style="background:${cor}"></div><span>${regiao}</span>`;
+    div.addEventListener('click', () => toggleRegiao(regiao, div));
+    container.appendChild(div);
+  });
+}
+
+function toggleRegiao(regiao, el) {
+  if (regioesAtivas.has(regiao)) {
+    regioesAtivas.delete(regiao);
+    el.classList.add('inactive');
+  } else {
+    regioesAtivas.add(regiao);
+    el.classList.remove('inactive');
+  }
+  aplicarFiltros();
+}
+
+// ── Filtro grau mínimo ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const slider = document.getElementById('grau-slider');
+  slider.addEventListener('input', () => {
+    grauMinimo = parseInt(slider.value);
+    document.getElementById('grau-val').textContent = grauMinimo;
+    aplicarFiltros();
+  });
+});
+
+// ── Busca por IATA ────────────────────────────────────────────────────────────
+function initBusca() {
+  const input = document.getElementById('iata-search');
+  const list  = document.getElementById('autocomplete');
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toUpperCase();
+    list.innerHTML = '';
+    if (!q) { list.style.display = 'none'; return; }
+
+    const matches = NOS_DATA.filter(n =>
+      n.iata.includes(q) || n.cidade.toUpperCase().includes(q)
+    );
+    if (!matches.length) { list.style.display = 'none'; return; }
+
+    matches.slice(0, 8).forEach(n => {
+      const div = document.createElement('div');
+      div.textContent = `${n.iata} — ${n.cidade} (${n.regiao})`;
+      div.addEventListener('click', () => {
+        input.value = n.iata;
+        list.style.display = 'none';
+        selecionarNo(n.iata);
+      });
+      list.appendChild(div);
+    });
+    list.style.display = 'block';
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target)) list.style.display = 'none';
+  });
+}
+
+function selecionarNo(iata) {
+  network.selectNodes([iata]);
+  network.focus(iata, { scale: 1.4, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+  const no = NOS_DATA.find(n => n.iata === iata);
+  if (no) document.getElementById('m-sel').textContent = `${iata} (${no.cidade})`;
+}
+
+// ── Destaque de caminho mínimo ────────────────────────────────────────────────
+function buildRotas() {
+  const container = document.getElementById('rotas-list');
+  Object.entries(CAMINHOS).forEach(([key, info]) => {
+    const btn = document.createElement('button');
+    btn.className = 'rota-btn';
+    btn.textContent = info.label;
+    btn.dataset.key = key;
+    btn.addEventListener('click', () => toggleRota(key, btn));
+    container.appendChild(btn);
+  });
+}
+
+function toggleRota(key, btn) {
+  if (rotaAtiva === key) {
+    rotaAtiva = null;
+    btn.classList.remove('active');
+    limparDestaqueCaminho();
+    document.getElementById('path-info').textContent = '';
+  } else {
+    document.querySelectorAll('.rota-btn').forEach(b => b.classList.remove('active'));
+    rotaAtiva = key;
+    btn.classList.add('active');
+    destacarCaminho(CAMINHOS[key]);
+  }
+}
+
+function destacarCaminho(info) {
+  // Restaura todas as cores
+  const updates = NOS_DATA.map(n => ({
+    id: n.iata,
+    color: nosOriginalColors[n.iata],
+    opacity: regioesAtivas.has(n.regiao) && n.grau >= grauMinimo ? 1 : 0
+  }));
+  nodesDS.update(updates);
+
+  const caminho = info.caminho;
+  const nosNoPath = new Set(caminho);
+  const nosEmFoco = [];
+
+  // Colore os nós do caminho
+  caminho.forEach((iata, i) => {
+    const cor = (i === 0 || i === caminho.length - 1) ? '#f39c12' : '#00d4aa';
+    nodesDS.update({ id: iata, color: cor, size: 38 });
+    nosEmFoco.push(iata);
+  });
+
+  // Colore as arestas do caminho
+  edgesDS.forEach(edge => {
+    const noCaminho = nosNoPath.has(edge.from) && nosNoPath.has(edge.to);
+    edgesDS.update({
+      id: edge.id,
+      color: { color: noCaminho ? '#00d4aa' : '#2a2f37' },
+      width: noCaminho ? 4 : 1
+    });
+  });
+
+  network.fit({ nodes: nosEmFoco, animation: { duration: 700, easingFunction: 'easeInOutQuad' } });
+  document.getElementById('path-info').textContent =
+    `${caminho.join(' → ')}  ·  ${info.custo} km`;
+}
+
+function limparDestaqueCaminho() {
+  const updates = NOS_DATA.map(n => ({
+    id: n.iata,
+    color: nosOriginalColors[n.iata],
+    size: 14 + n.grau * 2
+  }));
+  nodesDS.update(updates);
+  edgesDS.forEach(edge => {
+    edgesDS.update({ id: edge.id, color: { color: '#444c56' }, width: 1.5 });
+  });
+}
 
 
-                  
+function aplicarFiltros() {
+  let nosVisiveis = 0, arestasVisiveis = 0;
 
-                  network = new vis.Network(container, data, options);
+  NOS_DATA.forEach(n => {
+    const vis = regioesAtivas.has(n.regiao) && n.grau >= grauMinimo;
+    nodesDS.update({ id: n.iata, hidden: !vis });
+    if (vis) nosVisiveis++;
+  });
 
-                  
+  const nosVis = new Set(NOS_DATA.filter(n => !nodesDS.get(n.iata).hidden).map(n => n.iata));
+  ARESTAS_DATA.forEach(a => {
+    const vis = nosVis.has(a.from) && nosVis.has(a.to);
+    edgesDS.update({ id: edgesDS.getIds().find(id => {
+      const e = edgesDS.get(id);
+      return e.from === a.from && e.to === a.to;
+    }), hidden: !vis });
+    if (vis) arestasVisiveis++;
+  });
 
-                  
-                    network.on("selectNode", neighbourhoodHighlight);
-                  
+  const v = nosVisiveis;
+  const e = arestasVisiveis;
+  const dens = v >= 2 ? ((2 * e) / (v * (v - 1))).toFixed(4) : '0.0000';
 
-                  
+  document.getElementById('m-nos').textContent     = nosVisiveis;
+  document.getElementById('m-arestas').textContent = arestasVisiveis;
+  document.getElementById('m-dens').textContent    = dens;
+}
 
 
-                  
+function resetAll() {
+  regioesAtivas = new Set(Object.keys(COR_REGIAO));
+  grauMinimo    = 1;
+  rotaAtiva     = null;
 
-                  return network;
+  document.getElementById('grau-slider').value = 1;
+  document.getElementById('grau-val').textContent = 1;
+  document.getElementById('iata-search').value = '';
+  document.getElementById('autocomplete').style.display = 'none';
+  document.getElementById('path-info').textContent = '';
+  document.querySelectorAll('.rota-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('inactive'));
 
-              }
-              drawGraph();
-        </script>
-    </body>
+  limparDestaqueCaminho();
+  aplicarFiltros();
+  network.fit({ animation: true });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildLegend();
+  buildRotas();
+  initBusca();
+  initNetwork();
+});
+</script>
+</body>
 </html>
