@@ -2,6 +2,9 @@ import csv
 import math
 from src.graphs.graph import Graph
 
+#PARTE 1 DO PROJETO
+
+
 # Coordenadas reais aproximadas (Lat, Lon) para calcular os pesos (km)
 COORDS = {
     'REC': (-8.1267, -34.9230), 'SSA': (-12.9111, -38.3316), 'FOR': (-3.7761, -38.5322),
@@ -98,3 +101,87 @@ def load_graph(caminho_aeroportos='data/aeroportos_data.csv', caminho_adjacencia
             g.add_edge(origem, destino, peso, tipo)
             
     return g
+
+
+
+#PARTE 2 DO PROJETO
+
+def load_transferencias(filepath, limite_arestas=None):
+    """
+    Lê o CSV, agrupa todas as transferências entre os mesmos clubes,
+    soma o valor total e monta o grafo ordenado pelo volume financeiro.
+    """
+    from src.graphs.graph import Graph
+    import csv
+    
+    grafo = Graph()
+    
+    # Dicionário para agrupar as transferências. 
+    # A chave será uma tupla: (clube_vendedor, clube_comprador)
+    conexoes = {}
+    
+    with open(filepath, mode='r', encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f)
+        
+        for row in reader:
+            try:
+                valor = float(row.get('transfer_fee', 0))
+            except (ValueError, TypeError):
+                valor = 0.0
+                
+            if valor > 0:
+                vendedor = row.get('from_club_name', 'Desconhecido')
+                comprador = row.get('to_club_name', 'Desconhecido')
+                jogador = row.get('player_name', 'Desconhecido')
+                
+                par = (vendedor, comprador)
+                
+                # Se é a primeira vez que esses dois times negociam, cria o registro
+                if par not in conexoes:
+                    conexoes[par] = {'valor_total': 0.0, 'jogadores': []}
+                
+                # Soma o dinheiro e guarda o nome do jogador
+                conexoes[par]['valor_total'] += valor
+                conexoes[par]['jogadores'].append(jogador)
+                
+    # Transforma o dicionário em uma lista para podermos ordenar
+    lista_conexoes = []
+    for (vend, comp), dados in conexoes.items():
+        qtd_jogadores = len(dados['jogadores'])
+        
+        # Se foram poucos jogadores, guarda os nomes. Se foram muitos, guarda só a quantidade para não poluir
+        if qtd_jogadores <= 2:
+            info_jogadores = ", ".join(dados['jogadores'])
+        else:
+            info_jogadores = f"{qtd_jogadores} jogadores transferidos"
+            
+        lista_conexoes.append({
+            'vendedor': vend,
+            'comprador': comp,
+            'valor_total': dados['valor_total'],
+            'info_conexao': info_jogadores
+        })
+        
+    # Ordena para colocar as rotas mais milionárias no topo
+    lista_conexoes.sort(key=lambda x: x['valor_total'], reverse=True)
+    
+    # Aplica o limite se houver (se limite_arestas for None, ele pega tudo)
+    if limite_arestas is not None:
+        top_conexoes = lista_conexoes[:limite_arestas]
+    else:
+        top_conexoes = lista_conexoes
+        
+# Finalmente, monta o grafo
+    for t in top_conexoes:
+        grafo.add_node(t['vendedor'], cidade="N/A", regiao="N/A")
+        grafo.add_node(t['comprador'], cidade="N/A", regiao="N/A")
+        
+        # Guardamos tanto em 'info_conexao' quanto em 'tipo_conexao' para garantir compatibilidade total
+        grafo.add_edge(
+            t['vendedor'], 
+            t['comprador'], 
+            peso=t['valor_total'], 
+            tipo_conexao=t['info_conexao'],
+        )
+                
+    return grafo
