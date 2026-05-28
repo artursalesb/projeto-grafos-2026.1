@@ -1,0 +1,12 @@
+{
+  "algorithm": "Dijkstra",
+  "source": "REC",
+  "target": "POA",
+  "cost": 2962.75,
+  "path": [
+    "REC",
+    "POA"
+  ],
+  "nodes_visited": 18,
+  "edges_relaxed": 139
+}

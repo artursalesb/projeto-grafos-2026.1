@@ -74,7 +74,7 @@ def calcular_rotas_dijkstra(grafo):
     
     print("\n🗺️  Calculando rotas com Dijkstra:")
     for origem, destino in rotas:
-        custo, caminho = dijkstra(grafo, origem, destino)
+        custo, caminho, _, _ = dijkstra(grafo, origem, destino)
         
         # Guardando o trajeto apenas das rotas obrigatórias para a visualização
         if origem == 'REC' and destino == 'POA':

@@ -40,6 +40,7 @@ export default function App() {
   const [feeStepIdx, setFeeStepIdx] = useState(3);
   const [league, setLeague] = useState("Todas");
   const [focusMode, setFocusMode] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const searchTimer = useRef(null);
 
   useEffect(() => {
@@ -197,18 +198,29 @@ export default function App() {
         <div className="loading">⚽ Carregando 17 mil transferências…</div>
       )}
 
-      <aside className="sidebar">
+      <button
+        className={`sidebar-toggle ${sidebarOpen ? "open" : "closed"}`}
+        onClick={() => setSidebarOpen((v) => !v)}
+        title={sidebarOpen ? "Recolher painel" : "Abrir painel"}
+        aria-label={sidebarOpen ? "Recolher painel" : "Abrir painel"}
+      >
+        {sidebarOpen ? "‹" : "›"}
+      </button>
+
+      <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
         <h1>⚽ Mercado da Bola</h1>
         <div className="subtitle">Grafo das transferências (fee {">"} 0)</div>
 
         <div className="stats">
           <div className="stat">
-            <div className="label">Clubes visíveis</div>
+            <div className="label">Vértices (clubes)</div>
             <div className="value">{formatNum(filtered?.nodes.length)}</div>
+            <div className="stat-sub">de {formatNum(raw?.stats.nodes)}</div>
           </div>
           <div className="stat">
-            <div className="label">Transferências</div>
+            <div className="label">Arestas (transf.)</div>
             <div className="value">{formatNum(filtered?.links.length)}</div>
+            <div className="stat-sub">de {formatNum(raw?.stats.links)}</div>
           </div>
         </div>
 

@@ -1,0 +1,411 @@
+{
+  "dataset": {
+    "path": "data/dataset_parte2/transferencias.csv",
+    "description": "Transferências reais (Transfermarkt) com transfer_fee > 0. Vértices = clubes; arestas = transferências, dirigidas do clube vendedor para o comprador. Peso = transfer_fee em €. Em caso de múltiplas transferências entre o mesmo par, mantemos a de maior fee como aresta canônica.",
+    "stats": {
+      "directed": true,
+      "weighted": true,
+      "num_vertices": 3166,
+      "num_edges": 15451,
+      "density": 0.001542,
+      "out_degree": {
+        "min": 0,
+        "max": 69,
+        "mean": 4.88,
+        "hist_edges": [
+          0,
+          1,
+          2,
+          5,
+          10,
+          25,
+          50,
+          100,
+          250,
+          1000
+        ],
+        "hist_counts": [
+          338,
+          1258,
+          730,
+          384,
+          314,
+          134,
+          8,
+          0,
+          0
+        ]
+      },
+      "in_degree": {
+        "min": 0,
+        "max": 69,
+        "mean": 4.88,
+        "hist_edges": [
+          0,
+          1,
+          2,
+          5,
+          10,
+          25,
+          50,
+          100,
+          250,
+          1000
+        ],
+        "hist_counts": [
+          1489,
+          542,
+          457,
+          221,
+          255,
+          161,
+          41,
+          0,
+          0
+        ]
+      },
+      "weights": {
+        "min": 400.0,
+        "max": 222000000.0,
+        "mean": 4673864.91,
+        "total": 72215886752.0
+      }
+    }
+  },
+  "bfs_dfs": {
+    "sources": [
+      "Benfica",
+      "Chelsea",
+      "Palmeiras"
+    ],
+    "bfs": [
+      {
+        "source": "Benfica",
+        "reachable": 1196,
+        "max_level": 7,
+        "level_distribution": {
+          "0": 1,
+          "1": 69,
+          "2": 445,
+          "3": 432,
+          "4": 179,
+          "5": 54,
+          "6": 14,
+          "7": 2
+        },
+        "first_10_order": [
+          "Benfica",
+          "Besiktas",
+          "Slavia Praha",
+          "FC Luzern",
+          "Fenerbahçe",
+          "Elche CF",
+          "Feyenoord",
+          "Real Madrid",
+          "PAOK",
+          "Botafogo"
+        ],
+        "time_ms": 7.508,
+        "peak_kb": 70.0
+      },
+      {
+        "source": "Chelsea",
+        "reachable": 1196,
+        "max_level": 7,
+        "level_distribution": {
+          "0": 1,
+          "1": 42,
+          "2": 311,
+          "3": 477,
+          "4": 266,
+          "5": 77,
+          "6": 19,
+          "7": 3
+        },
+        "first_10_order": [
+          "Chelsea",
+          "AC Milan",
+          "Dortmund",
+          "Villarreal",
+          "Burnley",
+          "Everton",
+          "Al-Nassr",
+          "Arsenal",
+          "Bournemouth",
+          "R. Strasbourg"
+        ],
+        "time_ms": 7.937,
+        "peak_kb": 70.2
+      },
+      {
+        "source": "Palmeiras",
+        "reachable": 1196,
+        "max_level": 7,
+        "level_distribution": {
+          "0": 1,
+          "1": 38,
+          "2": 373,
+          "3": 489,
+          "4": 219,
+          "5": 66,
+          "6": 8,
+          "7": 2
+        },
+        "first_10_order": [
+          "Palmeiras",
+          "Austin",
+          "River Plate",
+          "RB Bragantino",
+          "Benfica",
+          "Chelsea",
+          "Famalicão",
+          "Santos",
+          "Atlético-MG",
+          "Man City"
+        ],
+        "time_ms": 7.687,
+        "peak_kb": 69.9
+      }
+    ],
+    "dfs": [
+      {
+        "source": "Benfica",
+        "has_cycle": true,
+        "edges_total": 12243,
+        "edges_by_kind": {
+          "tree": 1195,
+          "back": 6233,
+          "cross": 819,
+          "forward": 3996
+        },
+        "discovered": 1196,
+        "time_ms": 18.413,
+        "peak_kb": 1144.1
+      },
+      {
+        "source": "Chelsea",
+        "has_cycle": true,
+        "edges_total": 12243,
+        "edges_by_kind": {
+          "tree": 1195,
+          "back": 6320,
+          "cross": 815,
+          "forward": 3913
+        },
+        "discovered": 1196,
+        "time_ms": 20.743,
+        "peak_kb": 1115.4
+      },
+      {
+        "source": "Palmeiras",
+        "has_cycle": true,
+        "edges_total": 12243,
+        "edges_by_kind": {
+          "tree": 1195,
+          "back": 6364,
+          "cross": 824,
+          "forward": 3860
+        },
+        "discovered": 1196,
+        "time_ms": 20.007,
+        "peak_kb": 990.4
+      }
+    ]
+  },
+  "dijkstra": {
+    "pairs": [
+      {
+        "source": "Barcelona",
+        "target": "PSG",
+        "cost": 6620000.0,
+        "reachable": true,
+        "path_length": 9,
+        "path": [
+          "Barcelona",
+          "Inter",
+          "1.FC Magdeburg",
+          "E. Braunschweig",
+          "Grasshoppers",
+          "SC Paderborn",
+          "Würzb. Kickers",
+          "PSV",
+          "PSG"
+        ],
+        "nodes_visited": 1164,
+        "edges_relaxed": 12129,
+        "time_ms": 27.729,
+        "peak_kb": 367.4,
+        "error": null
+      },
+      {
+        "source": "Real Madrid",
+        "target": "Liverpool",
+        "cost": 4050000.0,
+        "reachable": true,
+        "path_length": 11,
+        "path": [
+          "Real Madrid",
+          "Elche CF",
+          "PAOK",
+          "Slo. Bratislava",
+          "Wisla Kraków",
+          "Widzew Lodz",
+          "Jagiellonia",
+          "Wisla Plock",
+          "Ruch Chorzow",
+          "Leeds",
+          "Liverpool"
+        ],
+        "nodes_visited": 1000,
+        "edges_relaxed": 10912,
+        "time_ms": 22.334,
+        "peak_kb": 350.3,
+        "error": null
+      },
+      {
+        "source": "Chelsea",
+        "target": "Man City",
+        "cost": 1550000.0,
+        "reachable": true,
+        "path_length": 6,
+        "path": [
+          "Chelsea",
+          "Real Valladolid",
+          "Rio Ave",
+          "Anorthosis",
+          "Gimnàstic",
+          "Man City"
+        ],
+        "nodes_visited": 55,
+        "edges_relaxed": 629,
+        "time_ms": 3.412,
+        "peak_kb": 350.3,
+        "error": null
+      },
+      {
+        "source": "Juventus",
+        "target": "Bayern Munich",
+        "cost": 2959000.0,
+        "reachable": true,
+        "path_length": 12,
+        "path": [
+          "Juventus",
+          "Hibernian FC",
+          "Bidvest Wits FC",
+          "Braga B",
+          "Boavista",
+          "Radomiak",
+          "Wisla Kraków",
+          "Widzew Lodz",
+          "Jagiellonia",
+          "Wisla Plock",
+          "Greuther Fürth",
+          "Bayern Munich"
+        ],
+        "nodes_visited": 1058,
+        "edges_relaxed": 11539,
+        "time_ms": 23.531,
+        "peak_kb": 350.3,
+        "error": null
+      },
+      {
+        "source": "Benfica",
+        "target": "Tottenham",
+        "cost": 2905000.0,
+        "reachable": true,
+        "path_length": 8,
+        "path": [
+          "Benfica",
+          "Legia Warszawa",
+          "Górnik Zabrze",
+          "Wisla Plock",
+          "Widzew Lodz",
+          "FC Luzern",
+          "FC Schalke 04",
+          "Tottenham"
+        ],
+        "nodes_visited": 1102,
+        "edges_relaxed": 11782,
+        "time_ms": 26.29,
+        "peak_kb": 350.3,
+        "error": null
+      }
+    ]
+  },
+  "dijkstra_negative_rejection": {
+    "rejected": true,
+    "tested_pair": [
+      "Independiente",
+      "EC Vitória"
+    ],
+    "error": "Dijkstra recusou aresta com peso negativo: Independiente -> Pisa (peso=-2500000.0). Use Bellman-Ford.",
+    "note": "Dijkstra recusou corretamente o peso negativo."
+  },
+  "bellman_ford": {
+    "cases": [
+      {
+        "name": "Top-30 clubes com peso = fee - market_value",
+        "directed": true,
+        "weights_can_be_negative": true,
+        "source": "Benfica",
+        "target": "Monaco",
+        "has_negative_cycle": true,
+        "cost": null,
+        "path_length": 0,
+        "path": [],
+        "time_ms": 7.087,
+        "peak_kb": 39.1,
+        "interpretation": "Caminho minimiza o saldo (fee - market_value). Saldo total negativo = série de transferências em que clubes pagaram abaixo do valor de mercado."
+      },
+      {
+        "name": "Grafo inteiro com peso = fee - market_value",
+        "directed": true,
+        "weights_can_be_negative": true,
+        "source": "Benfica",
+        "target": "Salzburg",
+        "has_negative_cycle": true,
+        "cost": null,
+        "path_length": 0,
+        "time_ms": 91222.748,
+        "peak_kb": 2586.3,
+        "interpretation": "Se has_negative_cycle=True, existe um ciclo de transferências em que a soma dos saldos é negativa — arbitragem de mercado."
+      },
+      {
+        "name": "SINTÉTICO: ciclo negativo (A→B→C→A com soma -1)",
+        "directed": true,
+        "weights_can_be_negative": true,
+        "source": "A",
+        "target": "D",
+        "has_negative_cycle": true,
+        "cost": null,
+        "path_length": 0,
+        "time_ms": 0.045,
+        "interpretation": "Esperado has_negative_cycle=True."
+      },
+      {
+        "name": "SINTÉTICO: peso negativo SEM ciclo (S→B→A→T com -1+1=0)",
+        "directed": true,
+        "weights_can_be_negative": true,
+        "source": "S",
+        "target": "T",
+        "has_negative_cycle": false,
+        "cost": 0.0,
+        "path": [
+          "S",
+          "B",
+          "A",
+          "T"
+        ],
+        "time_ms": 0.039,
+        "interpretation": "Esperado: cost=0 via S→B→A→T, has_negative_cycle=False."
+      }
+    ]
+  },
+  "discussion": {
+    "BFS": "Caminho mínimo em arestas. O(V+E). Útil quando todos os pesos são iguais ou só interessa o número de saltos.",
+    "DFS": "Não encontra caminho mínimo. Útil para detectar ciclos, ordenação topológica e classificação de arestas.",
+    "Dijkstra": "Caminho mínimo ponderado com pesos >= 0. O((V+E) log V) com heap. Recusa peso negativo.",
+    "BellmanFord": "Caminho mínimo com pesos arbitrários. O(V·E). Detecta ciclos negativos. Mais lento que Dijkstra mas obrigatório quando há pesos negativos.",
+    "design_limits": "Nosso 'peso = fee' é positivo, então Dijkstra é a escolha natural. Para Bellman-Ford derivamos peso = fee - market_value (saldo da transferência). Não há razão semântica para um ciclo negativo nesse grafo (não é fechado como câmbio), mas o algoritmo é validado em mini-grafos sintéticos."
+  }
+}
