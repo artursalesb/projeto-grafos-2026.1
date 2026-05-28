@@ -49,150 +49,126 @@
     </head>
 
 
-    <body style="margin:0;padding:0;overflow:hidden;">
+    <body style="margin:0; padding:0; overflow:hidden;">
 
-    <div style="position:absolute;top:0;left:0;width:300px;height:100vh;background:#1e1e24;
-         border-right:1px solid #333;padding:20px;box-sizing:border-box;z-index:1000;
-         font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#e0e0e0;
-         box-shadow:4px 0 15px rgba(0,0,0,.6);overflow-y:auto;">
-
-      <h2 style="font-size:18px;margin-top:0;border-bottom:1px solid #444;padding-bottom:12px;color:#fff;">
-        ⚽ Mercado da Bola
-      </h2>
-
-      <!-- Legenda por liga (Gestalt: Similaridade) -->
-      <div style="margin-top:16px;">
-        <label style="font-size:10px;font-weight:bold;color:#888;letter-spacing:1px;text-transform:uppercase;">
-          🏆 Ligas (cores por similaridade)
-        </label>
-        <div style="margin-top:8px;background:#111;padding:10px;border-radius:6px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#e67e22;flex-shrink:0"></div><span>Bundesliga</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#f39c12;flex-shrink:0"></div><span>La Liga</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#27ae60;flex-shrink:0"></div><span>Liga Portugal</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#9b59b6;flex-shrink:0"></div><span>Ligue 1</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#e74c3c;flex-shrink:0"></div><span>Premier League</span></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px;"><div style="width:12px;height:12px;border-radius:50%;background:#3498db;flex-shrink:0"></div><span>Serie A</span></div>
+    <div style="position: absolute; top: 0; left: 0; width: 320px; height: 100vh; background-color: #1e1e24; border-right: 1px solid #333; padding: 25px; box-sizing: border-box; z-index: 1000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #e0e0e0; box-shadow: 4px 0 15px rgba(0,0,0,0.6);">
+        <h2 style="font-size: 20px; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 15px; color: #fff;">⚽ Mercado da Bola</h2>
+        
+        <div style="margin-top: 30px;">
+            <label style="font-size: 11px; font-weight: bold; color: #888; letter-spacing: 1px; text-transform: uppercase;">🔍 Buscar Clube ou Atleta</label>
+            <input type="text" id="searchBox" placeholder="Ex: Neymar, Real Madrid..." style="width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px; background-color: #111; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; font-size: 14px;">
+            <button onclick="buscar()" style="width: 100%; padding: 12px; background-color: #4169E1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s;">Pesquisar e Destacar</button>
         </div>
-      </div>
-
-      <!-- Busca -->
-      <div style="margin-top:16px;">
-        <label style="font-size:10px;font-weight:bold;color:#888;letter-spacing:1px;text-transform:uppercase;">
-          🔍 Buscar Clube ou Jogador
-        </label>
-        <input type="text" id="searchBox"
-          placeholder="Ex: Neymar, Real Madrid..."
-          style="width:100%;padding:10px;margin-top:6px;margin-bottom:10px;
-                 background:#111;border:1px solid #444;color:white;
-                 border-radius:6px;box-sizing:border-box;font-size:13px;">
-        <button onclick="buscar()"
-          style="width:100%;padding:10px;background:#4169E1;color:white;border:none;
-                 border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;">
-          Pesquisar e Destacar
-        </button>
-      </div>
-
-      <!-- Métricas -->
-      <div style="margin-top:16px;">
-        <label style="font-size:10px;font-weight:bold;color:#888;letter-spacing:1px;text-transform:uppercase;">
-          📊 Métricas do Grafo
-        </label>
-        <div style="background:#111;padding:14px;border-radius:6px;margin-top:6px;font-size:13px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-            <span>Clubes (nós)</span>
-            <span style="color:#4169E1;font-weight:bold;">22</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-            <span>Transferências (arestas)</span>
-            <span style="color:#FFD700;font-weight:bold;">20</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-            <span>Valor total (Top 20)</span>
-            <span style="color:#2ecc71;font-weight:bold;">€2520M</span>
-          </div>
+        
+        <div style="margin-top: 40px;">
+            <label style="font-size: 11px; font-weight: bold; color: #888; letter-spacing: 1px; text-transform: uppercase;">📊 Métricas do Grafo</label>
+            <div style="background-color: #111; padding: 20px; border-radius: 6px; margin-top: 8px; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><span>Clubes Visíveis</span> <span style="color: #4169E1; font-weight: bold;">22</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Top Transferências</span> <span style="color: #FFD700; font-weight: bold;">20</span></div>
+            </div>
         </div>
-        <p style="font-size:10px;color:#666;margin-top:6px;">
-          ↔ Espessura da aresta ∝ valor da transferência (Gestalt: Conectividade)
-        </p>
-      </div>
-
-      <!-- Reset -->
-      <div style="margin-top:12px;">
-        <button onclick="resetarVisao()"
-          style="width:100%;padding:9px;background:transparent;border:1px solid #555;
-                 color:#ccc;border-radius:6px;cursor:pointer;font-size:12px;">
-          ↺ Limpar Pesquisa
-        </button>
-      </div>
+        
+        <div style="margin-top: 40px;">
+            <button onclick="resetarVisao()" style="width: 100%; padding: 10px; background-color: transparent; border: 1px solid #555; color: #ccc; border-radius: 6px; cursor: pointer; font-size: 13px;">↺ Limpar Pesquisa</button>
+        </div>
     </div>
 
     <script>
     function buscar() {
-      var input = document.getElementById('searchBox').value.toLowerCase().trim();
-      var nodesDataset = network.body.data.nodes;
-      var edgesDataset = network.body.data.edges;
-
-      if (!input) { resetarVisao(); return; }
-
-      var allNodes = nodesDataset.get();
-      var allEdges = edgesDataset.get();
-      var nodesToHighlight = new Set();
-      var edgesToHighlight = new Set();
-
-      // Busca por clube (nó)
-      allNodes.forEach(function(n) {
-        if (n.label && n.label.toLowerCase().includes(input)) {
-          nodesToHighlight.add(n.id);
-          network.getConnectedEdges(n.id).forEach(function(eId) { edgesToHighlight.add(eId); });
-          network.getConnectedNodes(n.id).forEach(function(nId) { nodesToHighlight.add(nId); });
+        var input = document.getElementById('searchBox').value.toLowerCase().trim();
+        var nodesDataset = network.body.data.nodes;
+        var edgesDataset = network.body.data.edges;
+        
+        if (!input) {
+            resetarVisao();
+            return;
         }
-      });
-
-      // Busca por jogador (via campo jogadores_json na aresta)
-      allEdges.forEach(function(e) {
-        var jStr = e.jogadores_json || '';
-        if (jStr.toLowerCase().includes(input)) {
-          edgesToHighlight.add(e.id);
-          nodesToHighlight.add(e.from);
-          nodesToHighlight.add(e.to);
+        
+        var allNodes = nodesDataset.get();
+        var allEdges = edgesDataset.get();
+        
+        var nodesToHighlight = new Set();
+        var edgesToHighlight = new Set();
+        var foundSomething = false;
+        
+        // 1. Procura por Clubes (Nós)
+        for (var i = 0; i < allNodes.length; i++) {
+            if (allNodes[i].label.toLowerCase().includes(input)) {
+                nodesToHighlight.add(allNodes[i].id);
+                
+                // Pega as linhas e clubes conectados a ele
+                var connectedEdges = network.getConnectedEdges(allNodes[i].id);
+                connectedEdges.forEach(eId => edgesToHighlight.add(eId));
+                
+                var connectedNodes = network.getConnectedNodes(allNodes[i].id);
+                connectedNodes.forEach(nId => nodesToHighlight.add(nId));
+                
+                foundSomething = true;
+            }
         }
-      });
-
-      if (nodesToHighlight.size === 0 && edgesToHighlight.size === 0) {
-        alert('Nenhum clube ou jogador encontrado!');
-        return;
-      }
-
-      nodesDataset.update(allNodes.map(function(n) {
-        return nodesToHighlight.has(n.id)
-          ? {id: n.id, opacity: 1.0}
-          : {id: n.id, color: '#2b2b2b', font: {color: '#444'}};
-      }));
-      edgesDataset.update(allEdges.map(function(e) {
-        return edgesToHighlight.has(e.id)
-          ? {id: e.id, color: {color: '#FFD700', opacity: 1.0}}
-          : {id: e.id, color: {color: '#2b2b2b', opacity: 0.1}};
-      }));
-
-      network.fit({
-        nodes: Array.from(nodesToHighlight),
-        animation: {duration: 900, easingFunction: 'easeInOutQuad'}
-      });
+        
+        // 2. Procura por Jogadores (Arestas)
+        for (var i = 0; i < allEdges.length; i++) {
+            if (allEdges[i].jogador && allEdges[i].jogador.toLowerCase().includes(input)) {
+                edgesToHighlight.add(allEdges[i].id);
+                nodesToHighlight.add(allEdges[i].from);
+                nodesToHighlight.add(allEdges[i].to);
+                foundSomething = true;
+            }
+        }
+        
+        if (!foundSomething) {
+            alert('Nenhum clube ou jogador encontrado na visualização atual!');
+            return;
+        }
+        
+        // 3. Aplica a cor padrão nos destaques e CINZA ESCURO no resto
+        var updatedNodes = allNodes.map(n => {
+            if (nodesToHighlight.has(n.id)) {
+                return {id: n.id, color: '#4169E1', font: {color: 'white'}};
+            } else {
+                return {id: n.id, color: '#2b2b2b', font: {color: '#444444'}};
+            }
+        });
+        
+        var updatedEdges = allEdges.map(e => {
+            if (edgesToHighlight.has(e.id)) {
+                return {id: e.id, color: '#FFD700'};
+            } else {
+                return {id: e.id, color: '#2b2b2b'};
+            }
+        });
+        
+        nodesDataset.update(updatedNodes);
+        edgesDataset.update(updatedEdges);
+        
+        // Foca a câmera nos elementos encontrados
+        network.fit({
+            nodes: Array.from(nodesToHighlight),
+            animation: { duration: 1000, easingFunction: 'easeInOutQuad' }
+        });
     }
 
     function resetarVisao() {
-      var nodesDataset = network.body.data.nodes;
-      var edgesDataset = network.body.data.edges;
-      nodesDataset.update(nodesDataset.get().map(function(n) {
-        return {id: n.id, color: n._originalColor || undefined, font: {color: 'white'}};
-      }));
-      edgesDataset.update(edgesDataset.get().map(function(e) {
-        return {id: e.id, color: {color: '#FFD700', opacity: 0.75}};
-      }));
-      network.fit({animation: {duration: 800}});
-      document.getElementById('searchBox').value = '';
+        var nodesDataset = network.body.data.nodes;
+        var edgesDataset = network.body.data.edges;
+        
+        // Restaura as cores originais
+        var updatedNodes = nodesDataset.get().map(n => ({id: n.id, color: '#4169E1', font: {color: 'white'}}));
+        var updatedEdges = edgesDataset.get().map(e => ({id: e.id, color: '#FFD700'}));
+        
+        nodesDataset.update(updatedNodes);
+        edgesDataset.update(updatedEdges);
+        
+        network.fit({animation: {duration: 1000}});
+        document.getElementById('searchBox').value = '';
     }
     </script>
     
         <div class="card" style="width: 100%">
             
             
-            <div id="mynetwork" style="margin-left:300px;width:calc(100% - 300px);height:100vh;" class="card-body"></div>
+            <div id="mynetwork" style="margin-left: 320px; width: calc(100% - 320px); height: 100vh;" class="card-body"></div>
         </div>
 
         
@@ -227,8 +203,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#e74c3c", "font": {"color": "white"}, "id": "Man City", "label": "Man City", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#e67e22", "font": {"color": "white"}, "id": "Leverkusen", "label": "Leverkusen", "shape": "dot", "size": 30, "title": "Liga: Bundesliga"}, {"color": "#e67e22", "font": {"color": "white"}, "id": "Bayern Munich", "label": "Bayern Munich", "shape": "dot", "size": 30, "title": "Liga: Bundesliga"}, {"color": "#f39c12", "font": {"color": "white"}, "id": "Atl\u00e9tico", "label": "Atl\u00e9tico", "shape": "dot", "size": 30, "title": "Liga: La Liga"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Brighton", "label": "Brighton", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#9b59b6", "font": {"color": "white"}, "id": "Monaco", "label": "Monaco", "shape": "dot", "size": 30, "title": "Liga: Ligue 1"}, {"color": "#f39c12", "font": {"color": "white"}, "id": "Barcelona", "label": "Barcelona", "shape": "dot", "size": 30, "title": "Liga: La Liga"}, {"color": "#e67e22", "font": {"color": "white"}, "id": "Dortmund", "label": "Dortmund", "shape": "dot", "size": 30, "title": "Liga: Bundesliga"}, {"color": "#e67e22", "font": {"color": "white"}, "id": "Frankfurt", "label": "Frankfurt", "shape": "dot", "size": 30, "title": "Liga: Bundesliga"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Newcastle", "label": "Newcastle", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Liverpool", "label": "Liverpool", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#27ae60", "font": {"color": "white"}, "id": "Benfica", "label": "Benfica", "shape": "dot", "size": 30, "title": "Liga: Liga Portugal"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "West Ham", "label": "West Ham", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#3498db", "font": {"color": "white"}, "id": "Inter", "label": "Inter", "shape": "dot", "size": 30, "title": "Liga: Serie A"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Aston Villa", "label": "Aston Villa", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Tottenham", "label": "Tottenham", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#f39c12", "font": {"color": "white"}, "id": "Real Madrid", "label": "Real Madrid", "shape": "dot", "size": 30, "title": "Liga: La Liga"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Arsenal", "label": "Arsenal", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#9b59b6", "font": {"color": "white"}, "id": "PSG", "label": "PSG", "shape": "dot", "size": 30, "title": "Liga: Ligue 1"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Man Utd", "label": "Man Utd", "shape": "dot", "size": 30, "title": "Liga: Premier League"}, {"color": "#3498db", "font": {"color": "white"}, "id": "Juventus", "label": "Juventus", "shape": "dot", "size": 30, "title": "Liga: Serie A"}, {"color": "#e74c3c", "font": {"color": "white"}, "id": "Chelsea", "label": "Chelsea", "shape": "dot", "size": 30, "title": "Liga: Premier League"}]);
-                  edges = new vis.DataSet([{"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Barcelona", "jogadores_json": "[\u0027Neymar\u0027]", "title": "Valor total: \u20ac222.0M\nPrincipais:\n  Neymar \u2014 \u20ac222.0M", "to": "PSG", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Monaco", "jogadores_json": "[\u0027Kylian Mbapp\u00e9\u0027]", "title": "Valor total: \u20ac180.0M\nPrincipais:\n  Kylian Mbapp\u00e9 \u2014 \u20ac180.0M", "to": "PSG", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Dortmund", "jogadores_json": "[\u0027Ousmane Demb\u00e9l\u00e9\u0027]", "title": "Valor total: \u20ac148.0M\nPrincipais:\n  Ousmane Demb\u00e9l\u00e9 \u2014 \u20ac148.0M", "to": "Barcelona", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Newcastle", "jogadores_json": "[\u0027Alexander Isak\u0027]", "title": "Valor total: \u20ac145.0M\nPrincipais:\n  Alexander Isak \u2014 \u20ac145.0M", "to": "Liverpool", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Liverpool", "jogadores_json": "[\u0027Philippe Coutinho\u0027]", "title": "Valor total: \u20ac135.0M\nPrincipais:\n  Philippe Coutinho \u2014 \u20ac135.0M", "to": "Barcelona", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Benfica", "jogadores_json": "[\u0027Jo\u00e3o F\u00e9lix\u0027]", "title": "Valor total: \u20ac127.2M\nPrincipais:\n  Jo\u00e3o F\u00e9lix \u2014 \u20ac127.2M", "to": "Atl\u00e9tico", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Dortmund", "jogadores_json": "[\u0027Jude Bellingham\u0027]", "title": "Valor total: \u20ac127.0M\nPrincipais:\n  Jude Bellingham \u2014 \u20ac127.0M", "to": "Real Madrid", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Leverkusen", "jogadores_json": "[\u0027Florian Wirtz\u0027]", "title": "Valor total: \u20ac125.0M\nPrincipais:\n  Florian Wirtz \u2014 \u20ac125.0M", "to": "Liverpool", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Benfica", "jogadores_json": "[\u0027Enzo Fern\u00e1ndez\u0027]", "title": "Valor total: \u20ac121.0M\nPrincipais:\n  Enzo Fern\u00e1ndez \u2014 \u20ac121.0M", "to": "Chelsea", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Atl\u00e9tico", "jogadores_json": "[\u0027Antoine Griezmann\u0027]", "title": "Valor total: \u20ac120.0M\nPrincipais:\n  Antoine Griezmann \u2014 \u20ac120.0M", "to": "Barcelona", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Aston Villa", "jogadores_json": "[\u0027Jack Grealish\u0027]", "title": "Valor total: \u20ac117.5M\nPrincipais:\n  Jack Grealish \u2014 \u20ac117.5M", "to": "Man City", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Real Madrid", "jogadores_json": "[\u0027Cristiano Ronaldo\u0027]", "title": "Valor total: \u20ac117.0M\nPrincipais:\n  Cristiano Ronaldo \u2014 \u20ac117.0M", "to": "Juventus", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "West Ham", "jogadores_json": "[\u0027Declan Rice\u0027]", "title": "Valor total: \u20ac116.6M\nPrincipais:\n  Declan Rice \u2014 \u20ac116.6M", "to": "Arsenal", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Brighton", "jogadores_json": "[\u0027Mois\u00e9s Caicedo\u0027]", "title": "Valor total: \u20ac116.0M\nPrincipais:\n  Mois\u00e9s Caicedo \u2014 \u20ac116.0M", "to": "Chelsea", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Inter", "jogadores_json": "[\u0027Romelu Lukaku\u0027]", "title": "Valor total: \u20ac113.0M\nPrincipais:\n  Romelu Lukaku \u2014 \u20ac113.0M", "to": "Chelsea", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Juventus", "jogadores_json": "[\u0027Paul Pogba\u0027]", "title": "Valor total: \u20ac105.0M\nPrincipais:\n  Paul Pogba \u2014 \u20ac105.0M", "to": "Man Utd", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Leverkusen", "jogadores_json": "[\u0027Kai Havertz\u0027]", "title": "Valor total: \u20ac100.0M\nPrincipais:\n  Kai Havertz \u2014 \u20ac100.0M", "to": "Chelsea", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Frankfurt", "jogadores_json": "[\u0027Hugo Ekitik\u00e9\u0027]", "title": "Valor total: \u20ac95.0M\nPrincipais:\n  Hugo Ekitik\u00e9 \u2014 \u20ac95.0M", "to": "Liverpool", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Frankfurt", "jogadores_json": "[\u0027Randal Kolo Muani\u0027]", "title": "Valor total: \u20ac95.0M\nPrincipais:\n  Randal Kolo Muani \u2014 \u20ac95.0M", "to": "PSG", "width": 8.0}, {"arrows": "to", "color": {"color": "#FFD700", "opacity": 0.75}, "from": "Tottenham", "jogadores_json": "[\u0027Harry Kane\u0027]", "title": "Valor total: \u20ac95.0M\nPrincipais:\n  Harry Kane \u2014 \u20ac95.0M", "to": "Bayern Munich", "width": 8.0}]);
+                  nodes = new vis.DataSet([{"color": "#4169E1", "font": {"color": "white"}, "id": "Barcelona", "label": "Barcelona", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "PSG", "label": "PSG", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Monaco", "label": "Monaco", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Dortmund", "label": "Dortmund", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Newcastle", "label": "Newcastle", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Liverpool", "label": "Liverpool", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Benfica", "label": "Benfica", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Atl\u00e9tico", "label": "Atl\u00e9tico", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Real Madrid", "label": "Real Madrid", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Leverkusen", "label": "Leverkusen", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Chelsea", "label": "Chelsea", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Aston Villa", "label": "Aston Villa", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Man City", "label": "Man City", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Juventus", "label": "Juventus", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "West Ham", "label": "West Ham", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Arsenal", "label": "Arsenal", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Brighton", "label": "Brighton", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Inter", "label": "Inter", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Man Utd", "label": "Man Utd", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Frankfurt", "label": "Frankfurt", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Tottenham", "label": "Tottenham", "shape": "dot", "size": 35}, {"color": "#4169E1", "font": {"color": "white"}, "id": "Bayern Munich", "label": "Bayern Munich", "shape": "dot", "size": 35}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#FFD700", "from": "Barcelona", "jogador": "Neymar", "title": "Atleta: Neymar\nValor: \u20ac 222.0 Milh\u00f5es", "to": "PSG"}, {"arrows": "to", "color": "#FFD700", "from": "Monaco", "jogador": "Kylian Mbapp\u00e9", "title": "Atleta: Kylian Mbapp\u00e9\nValor: \u20ac 180.0 Milh\u00f5es", "to": "PSG"}, {"arrows": "to", "color": "#FFD700", "from": "Dortmund", "jogador": "Ousmane Demb\u00e9l\u00e9", "title": "Atleta: Ousmane Demb\u00e9l\u00e9\nValor: \u20ac 148.0 Milh\u00f5es", "to": "Barcelona"}, {"arrows": "to", "color": "#FFD700", "from": "Newcastle", "jogador": "Alexander Isak", "title": "Atleta: Alexander Isak\nValor: \u20ac 145.0 Milh\u00f5es", "to": "Liverpool"}, {"arrows": "to", "color": "#FFD700", "from": "Liverpool", "jogador": "Philippe Coutinho", "title": "Atleta: Philippe Coutinho\nValor: \u20ac 135.0 Milh\u00f5es", "to": "Barcelona"}, {"arrows": "to", "color": "#FFD700", "from": "Benfica", "jogador": "Jo\u00e3o F\u00e9lix", "title": "Atleta: Jo\u00e3o F\u00e9lix\nValor: \u20ac 127.2 Milh\u00f5es", "to": "Atl\u00e9tico"}, {"arrows": "to", "color": "#FFD700", "from": "Dortmund", "jogador": "Jude Bellingham", "title": "Atleta: Jude Bellingham\nValor: \u20ac 127.0 Milh\u00f5es", "to": "Real Madrid"}, {"arrows": "to", "color": "#FFD700", "from": "Leverkusen", "jogador": "Florian Wirtz", "title": "Atleta: Florian Wirtz\nValor: \u20ac 125.0 Milh\u00f5es", "to": "Liverpool"}, {"arrows": "to", "color": "#FFD700", "from": "Benfica", "jogador": "Enzo Fern\u00e1ndez", "title": "Atleta: Enzo Fern\u00e1ndez\nValor: \u20ac 121.0 Milh\u00f5es", "to": "Chelsea"}, {"arrows": "to", "color": "#FFD700", "from": "Atl\u00e9tico", "jogador": "Antoine Griezmann", "title": "Atleta: Antoine Griezmann\nValor: \u20ac 120.0 Milh\u00f5es", "to": "Barcelona"}, {"arrows": "to", "color": "#FFD700", "from": "Aston Villa", "jogador": "Jack Grealish", "title": "Atleta: Jack Grealish\nValor: \u20ac 117.5 Milh\u00f5es", "to": "Man City"}, {"arrows": "to", "color": "#FFD700", "from": "Real Madrid", "jogador": "Cristiano Ronaldo", "title": "Atleta: Cristiano Ronaldo\nValor: \u20ac 117.0 Milh\u00f5es", "to": "Juventus"}, {"arrows": "to", "color": "#FFD700", "from": "West Ham", "jogador": "Declan Rice", "title": "Atleta: Declan Rice\nValor: \u20ac 116.6 Milh\u00f5es", "to": "Arsenal"}, {"arrows": "to", "color": "#FFD700", "from": "Brighton", "jogador": "Mois\u00e9s Caicedo", "title": "Atleta: Mois\u00e9s Caicedo\nValor: \u20ac 116.0 Milh\u00f5es", "to": "Chelsea"}, {"arrows": "to", "color": "#FFD700", "from": "Inter", "jogador": "Romelu Lukaku", "title": "Atleta: Romelu Lukaku\nValor: \u20ac 113.0 Milh\u00f5es", "to": "Chelsea"}, {"arrows": "to", "color": "#FFD700", "from": "Juventus", "jogador": "Paul Pogba", "title": "Atleta: Paul Pogba\nValor: \u20ac 105.0 Milh\u00f5es", "to": "Man Utd"}, {"arrows": "to", "color": "#FFD700", "from": "Leverkusen", "jogador": "Kai Havertz", "title": "Atleta: Kai Havertz\nValor: \u20ac 100.0 Milh\u00f5es", "to": "Chelsea"}, {"arrows": "to", "color": "#FFD700", "from": "Frankfurt", "jogador": "Hugo Ekitik\u00e9", "title": "Atleta: Hugo Ekitik\u00e9\nValor: \u20ac 95.0 Milh\u00f5es", "to": "Liverpool"}, {"arrows": "to", "color": "#FFD700", "from": "Frankfurt", "jogador": "Randal Kolo Muani", "title": "Atleta: Randal Kolo Muani\nValor: \u20ac 95.0 Milh\u00f5es", "to": "PSG"}, {"arrows": "to", "color": "#FFD700", "from": "Tottenham", "jogador": "Harry Kane", "title": "Atleta: Harry Kane\nValor: \u20ac 95.0 Milh\u00f5es", "to": "Bayern Munich"}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });
