@@ -3,6 +3,7 @@ import FieldBackground from "./FieldBackground.jsx";
 import GraphView from "./GraphView.jsx";
 import EdgeModal from "./EdgeModal.jsx";
 import ClubPanel from "./ClubPanel.jsx";
+import PlayerPanel from "./PlayerPanel.jsx";
 
 const FEE_STEPS = [
   { label: "Todas", value: 0 },
@@ -31,6 +32,7 @@ export default function App() {
   const [raw, setRaw] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [selectedClub, setSelectedClub] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [search, setSearch] = useState("");
   const [searchMode, setSearchMode] = useState("clube");
   const [suggestions, setSuggestions] = useState([]);
@@ -69,14 +71,12 @@ export default function App() {
       );
     }
 
-    if (focusMode && highlightLink) {
-      const hs = sourceId(highlightLink);
-      const ht = targetId(highlightLink);
-      links = links.filter((l) => {
-        const s = sourceId(l);
-        const t = targetId(l);
-        return (s === hs || s === ht) && (t === hs || t === ht);
-      });
+    if (focusMode && selectedPlayer) {
+      // Mostra TODAS as transferências desse jogador (e somente delas)
+      links = links.filter((l) => l.player === selectedPlayer);
+    } else if (focusMode && highlightLink) {
+      // Caso isolado: aresta destacada via clube ou clique direto, sem jogador
+      links = links.filter((l) => l === highlightLink);
     }
 
     const used = new Set();
@@ -93,7 +93,7 @@ export default function App() {
     return { nodes, links };
   }, [raw, minFee, league, focusMode, selectedClub, highlightLink]);
 
-  const hasSelection = !!(selectedClub || highlightLink);
+  const hasSelection = !!(selectedClub || highlightLink || selectedPlayer);
   const focusedClubId = focusMode && selectedClub ? selectedClub : null;
 
   const handleSearchChange = (e) => {
@@ -123,14 +123,16 @@ export default function App() {
         for (const l of raw.links) {
           if (hits.length >= 8) break;
           if (!l.player.toLowerCase().includes(q)) continue;
-          const key = `${l.player}-${l.source}-${l.target}-${l.date}`;
+          const s = sourceId(l);
+          const t = targetId(l);
+          const key = `${l.player}-${s}-${t}-${l.date}`;
           if (seen.has(key)) continue;
           seen.add(key);
           hits.push({
             kind: "jogador",
             link: l,
             label: l.player,
-            sub: `${l.source} → ${l.target} · €${(l.fee / 1_000_000).toFixed(1)}M`,
+            sub: `${s} → ${t} · €${(l.fee / 1_000_000).toFixed(1)}M`,
           });
         }
         setSuggestions(hits);
@@ -143,6 +145,7 @@ export default function App() {
     setSearch(sug.label);
     if (sug.kind === "clube") {
       setHighlightLink(null);
+      setSelectedPlayer(null);
       setSelectedClub(sug.id);
       setFocusMode(true);
       setTimeout(() => {
@@ -152,6 +155,7 @@ export default function App() {
     } else {
       const live = sug.link;
       setSelectedClub(null);
+      setSelectedPlayer(sug.link.player);
       setHighlightLink(live);
       setFocusMode(true);
       setTimeout(() => {
@@ -176,8 +180,15 @@ export default function App() {
 
   const clearFocus = () => {
     setSelectedClub(null);
+    setSelectedPlayer(null);
     setHighlightLink(null);
     setSearch("");
+  };
+
+  const pickAnotherTransfer = (link) => {
+    setHighlightLink(link);
+    setFocusLink(link);
+    setTimeout(() => setFocusLink(null), 50);
   };
 
   return (
@@ -193,6 +204,7 @@ export default function App() {
           highlightLink={highlightLink}
           focusedClubId={focusedClubId}
           highlightedClubId={selectedClub}
+          highlightedPlayer={selectedPlayer}
         />
       ) : (
         <div className="loading">⚽ Carregando 17 mil transferências…</div>
@@ -340,6 +352,19 @@ export default function App() {
             links={raw.links}
             onPickTransfer={handleTransferPick}
             onClose={() => setSelectedClub(null)}
+          />
+        )}
+
+        {selectedPlayer && raw && (
+          <PlayerPanel
+            player={selectedPlayer}
+            links={raw.links}
+            activeLink={highlightLink}
+            onPickTransfer={pickAnotherTransfer}
+            onClose={() => {
+              setSelectedPlayer(null);
+              setHighlightLink(null);
+            }}
           />
         )}
 

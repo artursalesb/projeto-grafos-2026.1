@@ -67,6 +67,7 @@ export default function GraphView({
   highlightLink,
   focusedClubId,
   highlightedClubId,
+  highlightedPlayer,
 }) {
   const fgRef = useRef(null);
   const [hoverLink, setHoverLink] = useState(null);
@@ -178,6 +179,7 @@ export default function GraphView({
       const t = targetId(link);
       const isIncoming = highlightedClubId && t === highlightedClubId;
       const isOutgoing = highlightedClubId && s === highlightedClubId;
+      const isPlayerEdge = highlightedPlayer && link.player === highlightedPlayer;
 
       let stroke;
       let width;
@@ -188,6 +190,10 @@ export default function GraphView({
       } else if (isHover) {
         stroke = isIncoming ? "#00ff7a" : isOutgoing ? "#ff3b4a" : "#4cd964";
         width = 3;
+      } else if (isPlayerEdge) {
+        // Padrão uniforme para todas as transferências do jogador selecionado
+        stroke = "rgba(255, 215, 0, 0.85)";
+        width = 2;
       } else if (isIncoming) {
         stroke = "rgba(76, 217, 100, 0.85)";
         width = Math.max(1.2, feeWidth(link.fee));
@@ -241,7 +247,7 @@ export default function GraphView({
       ctx.closePath();
       ctx.fill();
     },
-    [hoverLink, highlightLink, highlightedClubId]
+    [hoverLink, highlightLink, highlightedClubId, highlightedPlayer]
   );
 
   useEffect(() => {
