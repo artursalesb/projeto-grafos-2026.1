@@ -1,0 +1,20 @@
+{
+  "algorithm": "Bellman-Ford",
+  "source": "Barcelona",
+  "target": "PSG",
+  "has_negative_cycle": false,
+  "cost": 6620000.0,
+  "path": [
+    "Barcelona",
+    "Inter",
+    "1.FC Magdeburg",
+    "E. Braunschweig",
+    "Grasshoppers",
+    "SC Paderborn",
+    "Würzb. Kickers",
+    "PSV",
+    "PSG"
+  ],
+  "nodes_visited": 3166,
+  "edges_relaxed": 139059
+}

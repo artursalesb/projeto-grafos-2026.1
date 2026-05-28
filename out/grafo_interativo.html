@@ -1,405 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Malha Aérea Brasileira — Grafo Interativo</title>
-  <script src="../lib/vis-9.1.2/vis-network.min.js"></script>
-  <link  href="../lib/vis-9.1.2/vis-network.min.css" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body   { background: #0d1117; color: #e6edf3; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
-    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 10px 18px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-    header h1 { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
-    header span { font-size: 12px; color: #8b949e; }
-    .main  { display: flex; flex: 1; overflow: hidden; }
-    /* ── Painel lateral ── */
-    .sidebar { width: 270px; min-width: 270px; background: #161b22; border-right: 1px solid #30363d;
-                overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-    .panel   { background: #21262d; border: 1px solid #30363d; border-radius: 8px; padding: 12px; }
-    .panel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #8b949e; margin-bottom: 10px; }
-    /* Legenda de regiões */
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; cursor: pointer; border-radius: 4px; padding: 3px 5px; transition: background .15s; }
-    .legend-item:hover { background: #30363d; }
-    .legend-item.inactive { opacity: .35; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    /* Busca IATA */
-    input[type=text], select { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
-                                color: #e6edf3; padding: 6px 10px; font-size: 13px; outline: none; }
-    input[type=text]:focus, select:focus { border-color: #388bfd; }
-    .autocomplete-list { background: #161b22; border: 1px solid #30363d; border-radius: 6px; margin-top: 4px;
-                          max-height: 160px; overflow-y: auto; display: none; }
-    .autocomplete-list div { padding: 6px 10px; font-size: 13px; cursor: pointer; }
-    .autocomplete-list div:hover { background: #21262d; }
-    /* Slider grau */
-    input[type=range] { width: 100%; accent-color: #388bfd; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 12px; color: #8b949e; margin-top: 4px; }
-    /* Caminhos */
-    .rota-btn { display: block; width: 100%; text-align: left; background: #0d1117; border: 1px solid #30363d;
-                 border-radius: 5px; padding: 6px 10px; font-size: 12px; color: #e6edf3; cursor: pointer;
-                 margin-bottom: 5px; transition: border-color .15s; }
-    .rota-btn:hover  { border-color: #00d4aa; }
-    .rota-btn.active { border-color: #00d4aa; background: #0a2a25; color: #00d4aa; font-weight: 600; }
-    /* Reset */
-    .btn-reset { display: block; width: 100%; padding: 7px; background: #21262d; border: 1px solid #30363d;
-                  border-radius: 6px; color: #8b949e; font-size: 13px; cursor: pointer; text-align: center; }
-    .btn-reset:hover { background: #30363d; color: #e6edf3; }
-    /* Métricas */
-    .metric { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-    .metric span:last-child { color: #388bfd; font-weight: 700; }
-    /* Info caminho */
-    #path-info { font-size: 12px; color: #00d4aa; margin-top: 6px; min-height: 16px; }
-    /* Rede */
-    #network-container { flex: 1; position: relative; }
-    #network { width: 100%; height: 100%; }
-  </style>
-</head>
+<meta charset="utf-8">
+<title>Malha Aérea Brasileira — Grafo Interativo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"></script>
+<link  href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',Arial,sans-serif;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:300px;background:#161b22;border-right:1px solid #30363d;padding:16px;overflow-y:auto;flex-shrink:0}
+h1{font-size:16px;margin-bottom:6px}
+.sub{font-size:12px;color:#8b949e;margin-bottom:14px}
+.panel{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:12px}
+.panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#8b949e;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+input[type=text]{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:7px 10px;font-size:13px;outline:none}
+input[type=text]:focus{border-color:#388bfd}
+.auto{background:#161b22;border:1px solid #30363d;border-radius:6px;margin-top:4px;max-height:160px;overflow-y:auto;display:none}
+.auto div{padding:6px 10px;font-size:12px;cursor:pointer}
+.auto div:hover{background:#21262d}
+.rota-btn{display:block;width:100%;text-align:left;background:#0d1117;border:1px solid #30363d;border-radius:5px;padding:7px 10px;font-size:12px;color:#e6edf3;cursor:pointer;margin-bottom:6px}
+.rota-btn:hover{border-color:#00d4aa}
+.rota-btn.active{border-color:#00d4aa;background:#0a2a25;color:#00d4aa;font-weight:600}
+.btn-reset{display:block;width:100%;padding:7px;background:#21262d;border:1px solid #30363d;border-radius:6px;color:#8b949e;font-size:12px;cursor:pointer}
+.btn-reset:hover{background:#30363d;color:#e6edf3}
+.metric{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.metric span:last-child{color:#388bfd;font-weight:700}
+#path-info{font-size:11px;color:#00d4aa;margin-top:6px;min-height:14px}
+#network{flex:1;background:#1a1a1a}
+</style></head>
 <body>
+<aside class="sidebar">
+  <h1>✈️ Malha Aérea BR</h1>
+  <div class="sub">20 aeroportos · grafo não-direcionado</div>
 
-<header>
-  <h1>✈️ Malha Aérea Brasileira</h1>
-  <span id="header-info">20 aeroportos · 77 conexões</span>
-</header>
+  <div class="panel"><h3>🗺️ Legenda — Regiões</h3><div id="legend"></div></div>
 
-<div class="main">
-  <!-- ── Painel lateral ─────────────────────────────────── -->
-  <aside class="sidebar">
-
-    <!-- Legenda / Filtro por Região -->
-    <div class="panel">
-      <h3>🗺️ Filtrar por Região</h3>
-      <div id="legend"></div>
-    </div>
-
-    <!-- Busca por IATA -->
-    <div class="panel">
-      <h3>🔍 Busca por Código IATA</h3>
-      <input type="text" id="iata-search" placeholder="Ex: GRU, REC, BSB…" autocomplete="off">
-      <div class="autocomplete-list" id="autocomplete"></div>
-    </div>
-
-    <!-- Filtro grau mínimo -->
-    <div class="panel">
-      <h3>📊 Grau Mínimo de Conexões</h3>
-      <input type="range" id="grau-slider" min="1" max="13" value="1" step="1">
-      <div class="slider-label"><span>1</span><span id="grau-val">1</span><span>13</span></div>
-    </div>
-
-    <!-- Destaque de caminho mínimo -->
-    <div class="panel">
-      <h3>🛣️ Caminho Mínimo (Dijkstra)</h3>
-      <div id="rotas-list"></div>
-      <div id="path-info"></div>
-    </div>
-
-    <!-- Métricas -->
-    <div class="panel">
-      <h3>📈 Métricas do Grafo</h3>
-      <div class="metric"><span>Nós visíveis</span><span id="m-nos">20</span></div>
-      <div class="metric"><span>Conexões visíveis</span><span id="m-arestas">77</span></div>
-      <div class="metric"><span>Densidade</span><span id="m-dens">0.4053</span></div>
-      <div class="metric"><span>Nó selecionado</span><span id="m-sel">—</span></div>
-    </div>
-
-    <button class="btn-reset" onclick="resetAll()">↺ Resetar todos os filtros</button>
-  </aside>
-
-  <!-- ── Grafo ──────────────────────────────────────────── -->
-  <div id="network-container">
-    <div id="network"></div>
+  <div class="panel">
+    <h3>🔍 Buscar por código IATA</h3>
+    <input id="busca" placeholder="Ex.: GRU, REC, POA…" autocomplete="off"/>
+    <div class="auto" id="auto"></div>
   </div>
-</div>
+
+  <div class="panel">
+    <h3>🛣️ Caminhos obrigatórios (Dijkstra)</h3>
+    <div id="rotas-list"></div>
+    <div id="path-info"></div>
+  </div>
+
+  <div class="panel">
+    <h3>📈 Métricas</h3>
+    <div class="metric"><span>Aeroportos</span><span>20</span></div>
+    <div class="metric"><span>Conexões</span><span>77</span></div>
+    <div class="metric"><span>Selecionado</span><span id="m-sel">—</span></div>
+  </div>
+
+  <button class="btn-reset" onclick="resetarTudo()">↺ Limpar destaques</button>
+</aside>
+<div id="network"></div>
 
 <script>
-// ── Dados do grafo (gerados pelo Python) ──────────────────────────────────────
-const NOS_DATA     = [{"iata": "REC", "cidade": "Recife", "regiao": "Nordeste", "grau": 13}, {"iata": "SSA", "cidade": "Salvador", "regiao": "Nordeste", "grau": 13}, {"iata": "FOR", "cidade": "Fortaleza", "regiao": "Nordeste", "grau": 13}, {"iata": "NAT", "cidade": "Natal", "regiao": "Nordeste", "grau": 3}, {"iata": "JPA", "cidade": "João Pessoa", "regiao": "Nordeste", "grau": 3}, {"iata": "GRU", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 12}, {"iata": "CGH", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 3}, {"iata": "GIG", "cidade": "Rio de Janeiro", "regiao": "Sudeste", "grau": 12}, {"iata": "CNF", "cidade": "Belo Horizonte", "regiao": "Sudeste", "grau": 12}, {"iata": "VIX", "cidade": "Vitória", "regiao": "Sudeste", "grau": 3}, {"iata": "BSB", "cidade": "Brasília", "regiao": "Centro-Oeste", "grau": 11}, {"iata": "GYN", "cidade": "Goiânia", "regiao": "Centro-Oeste", "grau": 1}, {"iata": "CWB", "cidade": "Curitiba", "regiao": "Sul", "grau": 11}, {"iata": "FLN", "cidade": "Florianópolis", "regiao": "Sul", "grau": 2}, {"iata": "POA", "cidade": "Porto Alegre", "regiao": "Sul", "grau": 11}, {"iata": "MAO", "cidade": "Manaus", "regiao": "Norte", "grau": 12}, {"iata": "BEL", "cidade": "Belém", "regiao": "Norte", "grau": 12}, {"iata": "PVH", "cidade": "Porto Velho", "regiao": "Norte", "grau": 2}, {"iata": "RBR", "cidade": "Rio Branco", "regiao": "Norte", "grau": 2}, {"iata": "THE", "cidade": "Teresina", "regiao": "Nordeste", "grau": 3}];
-const ARESTAS_DATA = [{"from": "REC", "to": "NAT", "peso": 266.71, "tipo": "regional"}, {"from": "REC", "to": "JPA", "peso": 108.83, "tipo": "regional"}, {"from": "REC", "to": "THE", "peso": 936.95, "tipo": "regional"}, {"from": "REC", "to": "CWB", "peso": 2453.9, "tipo": "nacional"}, {"from": "REC", "to": "GIG", "peso": 1859.22, "tipo": "nacional"}, {"from": "REC", "to": "GRU", "peso": 2100.82, "tipo": "nacional"}, {"from": "REC", "to": "BSB", "peso": 1654.1, "tipo": "nacional"}, {"from": "REC", "to": "CNF", "peso": 1607.74, "tipo": "nacional"}, {"from": "REC", "to": "POA", "peso": 2962.75, "tipo": "nacional"}, {"from": "REC", "to": "BEL", "peso": 1677.75, "tipo": "nacional"}, {"from": "REC", "to": "MAO", "peso": 2836.85, "tipo": "nacional"}, {"from": "REC", "to": "SSA", "peso": 649.46, "tipo": "hub_intra"}, {"from": "REC", "to": "FOR", "peso": 627.12, "tipo": "hub_intra"}, {"from": "SSA", "to": "NAT", "peso": 858.17, "tipo": "regional"}, {"from": "SSA", "to": "JPA", "peso": 739.98, "tipo": "regional"}, {"from": "SSA", "to": "THE", "peso": 1002.66, "tipo": "regional"}, {"from": "SSA", "to": "CWB", "peso": 1804.74, "tipo": "nacional"}, {"from": "SSA", "to": "GIG", "peso": 1217.24, "tipo": "nacional"}, {"from": "SSA", "to": "GRU", "peso": 1451.36, "tipo": "nacional"}, {"from": "SSA", "to": "BSB", "peso": 1083.74, "tipo": "nacional"}, {"from": "SSA", "to": "CNF", "peso": 958.74, "tipo": "nacional"}, {"from": "SSA", "to": "POA", "peso": 2313.79, "tipo": "nacional"}, {"from": "SSA", "to": "BEL", "peso": 1700.28, "tipo": "nacional"}, {"from": "SSA", "to": "MAO", "peso": 2628.74, "tipo": "nacional"}, {"from": "SSA", "to": "FOR", "peso": 1016.0, "tipo": "hub_intra"}, {"from": "FOR", "to": "NAT", "peso": 414.93, "tipo": "regional"}, {"from": "FOR", "to": "JPA", "peso": 545.68, "tipo": "regional"}, {"from": "FOR", "to": "THE", "peso": 496.78, "tipo": "regional"}, {"from": "FOR", "to": "CWB", "peso": 2672.63, "tipo": "nacional"}, {"from": "FOR", "to": "GIG", "peso": 2176.55, "tipo": "nacional"}, {"from": "FOR", "to": "GRU", "peso": 2346.62, "tipo": "nacional"}, {"from": "FOR", "to": "BSB", "peso": 1691.78, "tipo": "nacional"}, {"from": "FOR", "to": "CNF", "peso": 1858.44, "tipo": "nacional"}, {"from": "FOR", "to": "POA", "peso": 3204.09, "tipo": "nacional"}, {"from": "FOR", "to": "BEL", "peso": 1136.08, "tipo": "nacional"}, {"from": "FOR", "to": "MAO", "peso": 2390.01, "tipo": "nacional"}, {"from": "GRU", "to": "CGH", "peso": 28.26, "tipo": "regional"}, {"from": "GRU", "to": "VIX", "peso": 729.6, "tipo": "regional"}, {"from": "GRU", "to": "CWB", "peso": 358.95, "tipo": "nacional"}, {"from": "GRU", "to": "GIG", "peso": 336.79, "tipo": "hub_intra"}, {"from": "GRU", "to": "BSB", "peso": 854.8, "tipo": "nacional"}, {"from": "GRU", "to": "CNF", "peso": 496.46, "tipo": "hub_intra"}, {"from": "GRU", "to": "POA", "peso": 865.52, "tipo": "nacional"}, {"from": "GRU", "to": "BEL", "peso": 2461.43, "tipo": "nacional"}, {"from": "GRU", "to": "MAO", "peso": 2697.86, "tipo": "nacional"}, {"from": "CGH", "to": "GIG", "peso": 359.67, "tipo": "regional"}, {"from": "CGH", "to": "CNF", "peso": 524.36, "tipo": "regional"}, {"from": "GIG", "to": "VIX", "peso": 417.72, "tipo": "regional"}, {"from": "GIG", "to": "CWB", "peso": 672.38, "tipo": "nacional"}, {"from": "GIG", "to": "BSB", "peso": 913.92, "tipo": "nacional"}, {"from": "GIG", "to": "CNF", "peso": 362.03, "tipo": "hub_intra"}, {"from": "GIG", "to": "POA", "peso": 1121.96, "tipo": "nacional"}, {"from": "GIG", "to": "BEL", "peso": 2448.32, "tipo": "nacional"}, {"from": "GIG", "to": "MAO", "peso": 2847.97, "tipo": "nacional"}, {"from": "CNF", "to": "VIX", "peso": 391.62, "tipo": "regional"}, {"from": "CNF", "to": "CWB", "peso": 846.18, "tipo": "nacional"}, {"from": "CNF", "to": "BSB", "peso": 590.86, "tipo": "nacional"}, {"from": "CNF", "to": "POA", "peso": 1361.98, "tipo": "nacional"}, {"from": "CNF", "to": "BEL", "peso": 2086.55, "tipo": "nacional"}, {"from": "CNF", "to": "MAO", "peso": 2539.9, "tipo": "nacional"}, {"from": "BSB", "to": "GYN", "peso": 162.62, "tipo": "regional"}, {"from": "BSB", "to": "CWB", "peso": 1082.28, "tipo": "nacional"}, {"from": "BSB", "to": "POA", "peso": 1605.15, "tipo": "nacional"}, {"from": "BSB", "to": "BEL", "peso": 1611.81, "tipo": "nacional"}, {"from": "BSB", "to": "MAO", "peso": 1949.05, "tipo": "nacional"}, {"from": "CWB", "to": "FLN", "peso": 245.47, "tipo": "regional"}, {"from": "CWB", "to": "POA", "peso": 533.68, "tipo": "hub_intra"}, {"from": "CWB", "to": "BEL", "peso": 2686.16, "tipo": "nacional"}, {"from": "CWB", "to": "MAO", "peso": 2758.85, "tipo": "nacional"}, {"from": "FLN", "to": "POA", "peso": 363.06, "tipo": "regional"}, {"from": "POA", "to": "BEL", "peso": 3193.92, "tipo": "nacional"}, {"from": "POA", "to": "MAO", "peso": 3140.19, "tipo": "nacional"}, {"from": "MAO", "to": "PVH", "peso": 761.11, "tipo": "regional"}, {"from": "MAO", "to": "RBR", "peso": 1152.31, "tipo": "regional"}, {"from": "MAO", "to": "BEL", "peso": 1299.19, "tipo": "hub_intra"}, {"from": "BEL", "to": "PVH", "peso": 1891.36, "tipo": "regional"}, {"from": "BEL", "to": "RBR", "peso": 2345.17, "tipo": "regional"}];
-const CAMINHOS     = {"REC-POA": {"custo": 2962.75, "caminho": ["REC", "POA"], "label": "REC → POA  (2962.75 km)"}, "MAO-GRU": {"custo": 2697.86, "caminho": ["MAO", "GRU"], "label": "MAO → GRU  (2697.86 km)"}, "REC-SSA": {"custo": 649.46, "caminho": ["REC", "SSA"], "label": "REC → SSA  (649.46 km)"}, "GRU-BSB": {"custo": 854.8, "caminho": ["GRU", "BSB"], "label": "GRU → BSB  (854.8 km)"}, "FOR-MAO": {"custo": 2390.01, "caminho": ["FOR", "MAO"], "label": "FOR → MAO  (2390.01 km)"}, "BSB-POA": {"custo": 1605.15, "caminho": ["BSB", "POA"], "label": "BSB → POA  (1605.15 km)"}, "BEL-GRU": {"custo": 2461.43, "caminho": ["BEL", "GRU"], "label": "BEL → GRU  (2461.43 km)"}};
+const NOS=[{"id": "REC", "iata": "REC", "cidade": "Recife", "regiao": "Nordeste", "grau": 13, "densidade_ego": 0.7033, "cor": "#e74c3c"}, {"id": "SSA", "iata": "SSA", "cidade": "Salvador", "regiao": "Nordeste", "grau": 13, "densidade_ego": 0.7033, "cor": "#e74c3c"}, {"id": "FOR", "iata": "FOR", "cidade": "Fortaleza", "regiao": "Nordeste", "grau": 13, "densidade_ego": 0.7033, "cor": "#e74c3c"}, {"id": "NAT", "iata": "NAT", "cidade": "Natal", "regiao": "Nordeste", "grau": 3, "densidade_ego": 1.0, "cor": "#e74c3c"}, {"id": "JPA", "iata": "JPA", "cidade": "João Pessoa", "regiao": "Nordeste", "grau": 3, "densidade_ego": 1.0, "cor": "#e74c3c"}, {"id": "GRU", "iata": "GRU", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 12, "densidade_ego": 0.7821, "cor": "#3498db"}, {"id": "CGH", "iata": "CGH", "cidade": "São Paulo", "regiao": "Sudeste", "grau": 3, "densidade_ego": 1.0, "cor": "#3498db"}, {"id": "GIG", "iata": "GIG", "cidade": "Rio de Janeiro", "regiao": "Sudeste", "grau": 12, "densidade_ego": 0.7821, "cor": "#3498db"}, {"id": "CNF", "iata": "CNF", "cidade": "Belo Horizonte", "regiao": "Sudeste", "grau": 12, "densidade_ego": 0.7821, "cor": "#3498db"}, {"id": "VIX", "iata": "VIX", "cidade": "Vitória", "regiao": "Sudeste", "grau": 3, "densidade_ego": 1.0, "cor": "#3498db"}, {"id": "BSB", "iata": "BSB", "cidade": "Brasília", "regiao": "Centro-Oeste", "grau": 11, "densidade_ego": 0.8485, "cor": "#f1c40f"}, {"id": "GYN", "iata": "GYN", "cidade": "Goiânia", "regiao": "Centro-Oeste", "grau": 1, "densidade_ego": 1.0, "cor": "#f1c40f"}, {"id": "CWB", "iata": "CWB", "cidade": "Curitiba", "regiao": "Sul", "grau": 11, "densidade_ego": 0.8636, "cor": "#9b59b6"}, {"id": "FLN", "iata": "FLN", "cidade": "Florianópolis", "regiao": "Sul", "grau": 2, "densidade_ego": 1.0, "cor": "#9b59b6"}, {"id": "POA", "iata": "POA", "cidade": "Porto Alegre", "regiao": "Sul", "grau": 11, "densidade_ego": 0.8636, "cor": "#9b59b6"}, {"id": "MAO", "iata": "MAO", "cidade": "Manaus", "regiao": "Norte", "grau": 12, "densidade_ego": 0.7564, "cor": "#2ecc71"}, {"id": "BEL", "iata": "BEL", "cidade": "Belém", "regiao": "Norte", "grau": 12, "densidade_ego": 0.7564, "cor": "#2ecc71"}, {"id": "PVH", "iata": "PVH", "cidade": "Porto Velho", "regiao": "Norte", "grau": 2, "densidade_ego": 1.0, "cor": "#2ecc71"}, {"id": "RBR", "iata": "RBR", "cidade": "Rio Branco", "regiao": "Norte", "grau": 2, "densidade_ego": 1.0, "cor": "#2ecc71"}, {"id": "THE", "iata": "THE", "cidade": "Teresina", "regiao": "Nordeste", "grau": 3, "densidade_ego": 1.0, "cor": "#e74c3c"}];
+const ARESTAS=[{"from": "REC", "to": "NAT", "peso": 266.71, "tipo": "regional"}, {"from": "REC", "to": "JPA", "peso": 108.83, "tipo": "regional"}, {"from": "REC", "to": "THE", "peso": 936.95, "tipo": "regional"}, {"from": "REC", "to": "GRU", "peso": 2100.82, "tipo": "nacional"}, {"from": "REC", "to": "CWB", "peso": 2453.9, "tipo": "nacional"}, {"from": "REC", "to": "SSA", "peso": 649.46, "tipo": "hub_intra"}, {"from": "REC", "to": "FOR", "peso": 627.12, "tipo": "hub_intra"}, {"from": "REC", "to": "GIG", "peso": 1859.22, "tipo": "nacional"}, {"from": "REC", "to": "POA", "peso": 2962.75, "tipo": "nacional"}, {"from": "REC", "to": "BSB", "peso": 1654.1, "tipo": "nacional"}, {"from": "REC", "to": "BEL", "peso": 1677.75, "tipo": "nacional"}, {"from": "REC", "to": "CNF", "peso": 1607.74, "tipo": "nacional"}, {"from": "REC", "to": "MAO", "peso": 2836.85, "tipo": "nacional"}, {"from": "SSA", "to": "NAT", "peso": 858.17, "tipo": "regional"}, {"from": "SSA", "to": "JPA", "peso": 739.98, "tipo": "regional"}, {"from": "SSA", "to": "THE", "peso": 1002.66, "tipo": "regional"}, {"from": "SSA", "to": "GRU", "peso": 1451.36, "tipo": "nacional"}, {"from": "SSA", "to": "CWB", "peso": 1804.74, "tipo": "nacional"}, {"from": "SSA", "to": "FOR", "peso": 1016.0, "tipo": "hub_intra"}, {"from": "SSA", "to": "GIG", "peso": 1217.24, "tipo": "nacional"}, {"from": "SSA", "to": "POA", "peso": 2313.79, "tipo": "nacional"}, {"from": "SSA", "to": "BSB", "peso": 1083.74, "tipo": "nacional"}, {"from": "SSA", "to": "BEL", "peso": 1700.28, "tipo": "nacional"}, {"from": "SSA", "to": "CNF", "peso": 958.74, "tipo": "nacional"}, {"from": "SSA", "to": "MAO", "peso": 2628.74, "tipo": "nacional"}, {"from": "FOR", "to": "NAT", "peso": 414.93, "tipo": "regional"}, {"from": "FOR", "to": "JPA", "peso": 545.68, "tipo": "regional"}, {"from": "FOR", "to": "THE", "peso": 496.78, "tipo": "regional"}, {"from": "FOR", "to": "GRU", "peso": 2346.62, "tipo": "nacional"}, {"from": "FOR", "to": "CWB", "peso": 2672.63, "tipo": "nacional"}, {"from": "FOR", "to": "GIG", "peso": 2176.55, "tipo": "nacional"}, {"from": "FOR", "to": "POA", "peso": 3204.09, "tipo": "nacional"}, {"from": "FOR", "to": "BSB", "peso": 1691.78, "tipo": "nacional"}, {"from": "FOR", "to": "BEL", "peso": 1136.08, "tipo": "nacional"}, {"from": "FOR", "to": "CNF", "peso": 1858.44, "tipo": "nacional"}, {"from": "FOR", "to": "MAO", "peso": 2390.01, "tipo": "nacional"}, {"from": "GRU", "to": "CGH", "peso": 28.26, "tipo": "regional"}, {"from": "GRU", "to": "VIX", "peso": 729.6, "tipo": "regional"}, {"from": "GRU", "to": "CWB", "peso": 358.95, "tipo": "nacional"}, {"from": "GRU", "to": "GIG", "peso": 336.79, "tipo": "hub_intra"}, {"from": "GRU", "to": "POA", "peso": 865.52, "tipo": "nacional"}, {"from": "GRU", "to": "BSB", "peso": 854.8, "tipo": "nacional"}, {"from": "GRU", "to": "BEL", "peso": 2461.43, "tipo": "nacional"}, {"from": "GRU", "to": "CNF", "peso": 496.46, "tipo": "hub_intra"}, {"from": "GRU", "to": "MAO", "peso": 2697.86, "tipo": "nacional"}, {"from": "CGH", "to": "GIG", "peso": 359.67, "tipo": "regional"}, {"from": "CGH", "to": "CNF", "peso": 524.36, "tipo": "regional"}, {"from": "GIG", "to": "VIX", "peso": 417.72, "tipo": "regional"}, {"from": "GIG", "to": "CWB", "peso": 672.38, "tipo": "nacional"}, {"from": "GIG", "to": "POA", "peso": 1121.96, "tipo": "nacional"}, {"from": "GIG", "to": "BSB", "peso": 913.92, "tipo": "nacional"}, {"from": "GIG", "to": "BEL", "peso": 2448.32, "tipo": "nacional"}, {"from": "GIG", "to": "CNF", "peso": 362.03, "tipo": "hub_intra"}, {"from": "GIG", "to": "MAO", "peso": 2847.97, "tipo": "nacional"}, {"from": "CNF", "to": "VIX", "peso": 391.62, "tipo": "regional"}, {"from": "CNF", "to": "CWB", "peso": 846.18, "tipo": "nacional"}, {"from": "CNF", "to": "POA", "peso": 1361.98, "tipo": "nacional"}, {"from": "CNF", "to": "BSB", "peso": 590.86, "tipo": "nacional"}, {"from": "CNF", "to": "BEL", "peso": 2086.55, "tipo": "nacional"}, {"from": "CNF", "to": "MAO", "peso": 2539.9, "tipo": "nacional"}, {"from": "BSB", "to": "GYN", "peso": 162.62, "tipo": "regional"}, {"from": "BSB", "to": "CWB", "peso": 1082.28, "tipo": "nacional"}, {"from": "BSB", "to": "POA", "peso": 1605.15, "tipo": "nacional"}, {"from": "BSB", "to": "BEL", "peso": 1611.81, "tipo": "nacional"}, {"from": "BSB", "to": "MAO", "peso": 1949.05, "tipo": "nacional"}, {"from": "CWB", "to": "FLN", "peso": 245.47, "tipo": "regional"}, {"from": "CWB", "to": "POA", "peso": 533.68, "tipo": "hub_intra"}, {"from": "CWB", "to": "BEL", "peso": 2686.16, "tipo": "nacional"}, {"from": "CWB", "to": "MAO", "peso": 2758.85, "tipo": "nacional"}, {"from": "FLN", "to": "POA", "peso": 363.06, "tipo": "regional"}, {"from": "POA", "to": "BEL", "peso": 3193.92, "tipo": "nacional"}, {"from": "POA", "to": "MAO", "peso": 3140.19, "tipo": "nacional"}, {"from": "MAO", "to": "PVH", "peso": 761.11, "tipo": "regional"}, {"from": "MAO", "to": "RBR", "peso": 1152.31, "tipo": "regional"}, {"from": "MAO", "to": "BEL", "peso": 1299.19, "tipo": "hub_intra"}, {"from": "BEL", "to": "PVH", "peso": 1891.36, "tipo": "regional"}, {"from": "BEL", "to": "RBR", "peso": 2345.17, "tipo": "regional"}];
+const CAMINHOS={"REC-POA": {"origem": "REC", "destino": "POA", "custo": 2962.75, "caminho": ["REC", "POA"]}, "MAO-GRU": {"origem": "MAO", "destino": "GRU", "custo": 2697.86, "caminho": ["MAO", "GRU"]}};
+const COR_REG={"Norte": "#2ecc71", "Nordeste": "#e74c3c", "Centro-Oeste": "#f1c40f", "Sudeste": "#3498db", "Sul": "#9b59b6"};
 
-// ── Paleta de cores por região (consistente com o projeto) ────────────────────
-const COR_REGIAO = {
-  'Norte':        '#2ecc71',
-  'Nordeste':     '#e74c3c',
-  'Centro-Oeste': '#f1c40f',
-  'Sudeste':      '#3498db',
-  'Sul':          '#9b59b6'
-};
+let network, nodesDS, edgesDS, rotaAtiva=null;
+const corOriginal={}; NOS.forEach(n=>corOriginal[n.iata]=n.cor);
 
-// ── Estado global ─────────────────────────────────────────────────────────────
-let network, nodesDS, edgesDS;
-let regioesAtivas   = new Set(Object.keys(COR_REGIAO));
-let grauMinimo      = 1;
-let rotaAtiva       = null;
-let nosOriginalColors = {};
+function tipBuilder(n){
+  return `✈ ${n.iata} — ${n.cidade}\nRegião: ${n.regiao}\nGrau: ${n.grau}\nDensidade ego: ${n.densidade_ego}`;
+}
 
-// ── Inicializa vis.js ─────────────────────────────────────────────────────────
-function initNetwork() {
-  const container = document.getElementById('network');
-
-  nodesDS = new vis.DataSet(NOS_DATA.map(n => buildVisNode(n)));
-  edgesDS = new vis.DataSet(ARESTAS_DATA.map(a => buildVisEdge(a)));
-
-  NOS_DATA.forEach(n => { nosOriginalColors[n.iata] = COR_REGIAO[n.regiao] || '#ffffff'; });
-
-  const data    = { nodes: nodesDS, edges: edgesDS };
-  const options = {
-    physics: {
-      enabled: true,
-      solver: 'forceAtlas2Based',
-      forceAtlas2Based: { gravitationalConstant: -60, springLength: 130, springConstant: 0.08, damping: 0.4 },
-      stabilization: { iterations: 800, fit: true }
-    },
-    edges: {
-      smooth: { type: 'continuous' },
-      color: { color: '#444c56', highlight: '#00d4aa', hover: '#888' },
-      width: 1.5
-    },
-    nodes: {
-      shape: 'dot',
-      font: { color: 'white', size: 13 },
-      borderWidth: 2
-    },
-    interaction: { hover: true, tooltipDelay: 100 }
-  };
-
-  network = new vis.Network(container, data, options);
-
-  network.on('selectNode', params => {
-    if (params.nodes.length) {
-      const id = params.nodes[0];
-      const no = NOS_DATA.find(n => n.iata === id);
-      document.getElementById('m-sel').textContent = `${id} (${no?.cidade})`;
+function init(){
+  nodesDS=new vis.DataSet(NOS.map(n=>({
+    id:n.iata, label:n.iata, title:tipBuilder(n),
+    color:n.cor, size:14+n.grau*2, font:{color:'#fff',size:13}
+  })));
+  edgesDS=new vis.DataSet(ARESTAS.map((a,i)=>({
+    id:i, from:a.from, to:a.to, title:`${a.peso} km · ${a.tipo}`,
+    color:{color:'#444c56',highlight:'#00d4aa'}, width:1.5
+  })));
+  network=new vis.Network(document.getElementById('network'),
+    {nodes:nodesDS,edges:edgesDS},
+    {physics:{solver:'forceAtlas2Based',forceAtlas2Based:{gravitationalConstant:-60,springLength:130,springConstant:0.08,damping:0.4},stabilization:{iterations:600}},
+      edges:{smooth:{type:'continuous'}},
+      nodes:{shape:'dot',borderWidth:2},
+      interaction:{hover:true,tooltipDelay:100}});
+  network.on('selectNode',p=>{
+    if(p.nodes.length){
+      const n=NOS.find(x=>x.iata===p.nodes[0]);
+      document.getElementById('m-sel').textContent=`${n.iata} (${n.cidade})`;
     }
   });
-  network.on('deselectNode', () => {
-    document.getElementById('m-sel').textContent = '—';
+  network.on('deselectNode',()=>document.getElementById('m-sel').textContent='—');
+}
+
+function buildLegend(){
+  const c=document.getElementById('legend');
+  Object.entries(COR_REG).forEach(([r,cor])=>{
+    const d=document.createElement('div');
+    d.className='legend-item';
+    d.innerHTML=`<div class="dot" style="background:${cor}"></div><span>${r}</span>`;
+    c.appendChild(d);
   });
 }
 
-function buildVisNode(n) {
-  const hidden = !regioesAtivas.has(n.regiao) || n.grau < grauMinimo;
-  return {
-    id:     n.iata,
-    label:  n.iata,
-    title:  `✈️ ${n.iata} — ${n.cidade}\nRegião: ${n.regiao}\nConexões: ${n.grau}`,
-    color:  COR_REGIAO[n.regiao] || '#ffffff',
-    size:   14 + n.grau * 2,
-    hidden: hidden,
-    font:   { color: 'white' }
-  };
-}
-
-function buildVisEdge(a) {
-  return {
-    from:  a.from, to: a.to,
-    title: `${a.peso} km`,
-    color: { color: '#444c56', highlight: '#00d4aa' },
-    width: 1.5,
-    hidden: false
-  };
-}
-
-// ── Legenda / Filtro por Região ───────────────────────────────────────────────
-function buildLegend() {
-  const container = document.getElementById('legend');
-  Object.entries(COR_REGIAO).forEach(([regiao, cor]) => {
-    const div = document.createElement('div');
-    div.className = 'legend-item';
-    div.innerHTML = `<div class="dot" style="background:${cor}"></div><span>${regiao}</span>`;
-    div.addEventListener('click', () => toggleRegiao(regiao, div));
-    container.appendChild(div);
-  });
-}
-
-function toggleRegiao(regiao, el) {
-  if (regioesAtivas.has(regiao)) {
-    regioesAtivas.delete(regiao);
-    el.classList.add('inactive');
-  } else {
-    regioesAtivas.add(regiao);
-    el.classList.remove('inactive');
-  }
-  aplicarFiltros();
-}
-
-// ── Filtro grau mínimo ────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const slider = document.getElementById('grau-slider');
-  slider.addEventListener('input', () => {
-    grauMinimo = parseInt(slider.value);
-    document.getElementById('grau-val').textContent = grauMinimo;
-    aplicarFiltros();
-  });
-});
-
-// ── Busca por IATA ────────────────────────────────────────────────────────────
-function initBusca() {
-  const input = document.getElementById('iata-search');
-  const list  = document.getElementById('autocomplete');
-
-  input.addEventListener('input', () => {
-    const q = input.value.trim().toUpperCase();
-    list.innerHTML = '';
-    if (!q) { list.style.display = 'none'; return; }
-
-    const matches = NOS_DATA.filter(n =>
-      n.iata.includes(q) || n.cidade.toUpperCase().includes(q)
-    );
-    if (!matches.length) { list.style.display = 'none'; return; }
-
-    matches.slice(0, 8).forEach(n => {
-      const div = document.createElement('div');
-      div.textContent = `${n.iata} — ${n.cidade} (${n.regiao})`;
-      div.addEventListener('click', () => {
-        input.value = n.iata;
-        list.style.display = 'none';
-        selecionarNo(n.iata);
-      });
-      list.appendChild(div);
+function initBusca(){
+  const inp=document.getElementById('busca'),lst=document.getElementById('auto');
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toUpperCase();
+    lst.innerHTML='';
+    if(!q){lst.style.display='none';return;}
+    const hits=NOS.filter(n=>n.iata.includes(q)||n.cidade.toUpperCase().includes(q)).slice(0,8);
+    if(!hits.length){lst.style.display='none';return;}
+    hits.forEach(n=>{
+      const d=document.createElement('div');
+      d.textContent=`${n.iata} — ${n.cidade} (${n.regiao})`;
+      d.onclick=()=>{inp.value=n.iata;lst.style.display='none';selecionar(n.iata);};
+      lst.appendChild(d);
     });
-    list.style.display = 'block';
+    lst.style.display='block';
   });
-
-  document.addEventListener('click', e => {
-    if (!input.contains(e.target)) list.style.display = 'none';
-  });
+  document.addEventListener('click',e=>{if(!inp.contains(e.target))lst.style.display='none';});
 }
 
-function selecionarNo(iata) {
+function selecionar(iata){
   network.selectNodes([iata]);
-  network.focus(iata, { scale: 1.4, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
-  const no = NOS_DATA.find(n => n.iata === iata);
-  if (no) document.getElementById('m-sel').textContent = `${iata} (${no.cidade})`;
+  network.focus(iata,{scale:1.5,animation:{duration:600}});
+  const n=NOS.find(x=>x.iata===iata);
+  if(n) document.getElementById('m-sel').textContent=`${iata} (${n.cidade})`;
 }
 
-// ── Destaque de caminho mínimo ────────────────────────────────────────────────
-function buildRotas() {
-  const container = document.getElementById('rotas-list');
-  Object.entries(CAMINHOS).forEach(([key, info]) => {
-    const btn = document.createElement('button');
-    btn.className = 'rota-btn';
-    btn.textContent = info.label;
-    btn.dataset.key = key;
-    btn.addEventListener('click', () => toggleRota(key, btn));
-    container.appendChild(btn);
+function buildRotas(){
+  const c=document.getElementById('rotas-list');
+  Object.entries(CAMINHOS).forEach(([k,info])=>{
+    const b=document.createElement('button');
+    b.className='rota-btn';
+    b.textContent=`${info.origem} → ${info.destino}  (${info.custo} km)`;
+    b.onclick=()=>toggleRota(k,b);
+    c.appendChild(b);
   });
 }
 
-function toggleRota(key, btn) {
-  if (rotaAtiva === key) {
-    rotaAtiva = null;
-    btn.classList.remove('active');
-    limparDestaqueCaminho();
-    document.getElementById('path-info').textContent = '';
-  } else {
-    document.querySelectorAll('.rota-btn').forEach(b => b.classList.remove('active'));
-    rotaAtiva = key;
-    btn.classList.add('active');
-    destacarCaminho(CAMINHOS[key]);
+function toggleRota(k,btn){
+  if(rotaAtiva===k){rotaAtiva=null;btn.classList.remove('active');limpar();document.getElementById('path-info').textContent='';}
+  else{
+    document.querySelectorAll('.rota-btn').forEach(b=>b.classList.remove('active'));
+    rotaAtiva=k; btn.classList.add('active');
+    destacar(CAMINHOS[k]);
   }
 }
 
-function destacarCaminho(info) {
-  // Restaura todas as cores
-  const updates = NOS_DATA.map(n => ({
-    id: n.iata,
-    color: nosOriginalColors[n.iata],
-    opacity: regioesAtivas.has(n.regiao) && n.grau >= grauMinimo ? 1 : 0
-  }));
-  nodesDS.update(updates);
-
-  const caminho = info.caminho;
-  const nosNoPath = new Set(caminho);
-  const nosEmFoco = [];
-
-  // Colore os nós do caminho
-  caminho.forEach((iata, i) => {
-    const cor = (i === 0 || i === caminho.length - 1) ? '#f39c12' : '#00d4aa';
-    nodesDS.update({ id: iata, color: cor, size: 38 });
-    nosEmFoco.push(iata);
+function destacar(info){
+  limpar();
+  const cam=info.caminho, set=new Set(cam);
+  cam.forEach((iata,i)=>{
+    const cor=(i===0||i===cam.length-1)?'#f39c12':'#00d4aa';
+    nodesDS.update({id:iata,color:cor,size:30});
   });
-
-  // Colore as arestas do caminho
-  edgesDS.forEach(edge => {
-    const noCaminho = nosNoPath.has(edge.from) && nosNoPath.has(edge.to);
-    edgesDS.update({
-      id: edge.id,
-      color: { color: noCaminho ? '#00d4aa' : '#2a2f37' },
-      width: noCaminho ? 4 : 1
-    });
+  edgesDS.forEach(e=>{
+    const ok=set.has(e.from)&&set.has(e.to);
+    edgesDS.update({id:e.id,color:{color:ok?'#00d4aa':'#2a2f37'},width:ok?4:1});
   });
-
-  network.fit({ nodes: nosEmFoco, animation: { duration: 700, easingFunction: 'easeInOutQuad' } });
-  document.getElementById('path-info').textContent =
-    `${caminho.join(' → ')}  ·  ${info.custo} km`;
+  network.fit({nodes:cam,animation:{duration:700}});
+  document.getElementById('path-info').textContent=`${cam.join(' → ')}  ·  ${info.custo} km`;
 }
 
-function limparDestaqueCaminho() {
-  const updates = NOS_DATA.map(n => ({
-    id: n.iata,
-    color: nosOriginalColors[n.iata],
-    size: 14 + n.grau * 2
-  }));
-  nodesDS.update(updates);
-  edgesDS.forEach(edge => {
-    edgesDS.update({ id: edge.id, color: { color: '#444c56' }, width: 1.5 });
-  });
+function limpar(){
+  nodesDS.update(NOS.map(n=>({id:n.iata,color:corOriginal[n.iata],size:14+n.grau*2})));
+  edgesDS.forEach(e=>edgesDS.update({id:e.id,color:{color:'#444c56'},width:1.5}));
 }
 
-
-function aplicarFiltros() {
-  let nosVisiveis = 0, arestasVisiveis = 0;
-
-  NOS_DATA.forEach(n => {
-    const vis = regioesAtivas.has(n.regiao) && n.grau >= grauMinimo;
-    nodesDS.update({ id: n.iata, hidden: !vis });
-    if (vis) nosVisiveis++;
-  });
-
-  const nosVis = new Set(NOS_DATA.filter(n => !nodesDS.get(n.iata).hidden).map(n => n.iata));
-  ARESTAS_DATA.forEach(a => {
-    const vis = nosVis.has(a.from) && nosVis.has(a.to);
-    edgesDS.update({ id: edgesDS.getIds().find(id => {
-      const e = edgesDS.get(id);
-      return e.from === a.from && e.to === a.to;
-    }), hidden: !vis });
-    if (vis) arestasVisiveis++;
-  });
-
-  const v = nosVisiveis;
-  const e = arestasVisiveis;
-  const dens = v >= 2 ? ((2 * e) / (v * (v - 1))).toFixed(4) : '0.0000';
-
-  document.getElementById('m-nos').textContent     = nosVisiveis;
-  document.getElementById('m-arestas').textContent = arestasVisiveis;
-  document.getElementById('m-dens').textContent    = dens;
+function resetarTudo(){
+  rotaAtiva=null;
+  document.querySelectorAll('.rota-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('busca').value='';
+  document.getElementById('auto').style.display='none';
+  document.getElementById('path-info').textContent='';
+  document.getElementById('m-sel').textContent='—';
+  limpar();
+  network.fit({animation:true});
 }
 
-
-function resetAll() {
-  regioesAtivas = new Set(Object.keys(COR_REGIAO));
-  grauMinimo    = 1;
-  rotaAtiva     = null;
-
-  document.getElementById('grau-slider').value = 1;
-  document.getElementById('grau-val').textContent = 1;
-  document.getElementById('iata-search').value = '';
-  document.getElementById('autocomplete').style.display = 'none';
-  document.getElementById('path-info').textContent = '';
-  document.querySelectorAll('.rota-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('inactive'));
-
-  limparDestaqueCaminho();
-  aplicarFiltros();
-  network.fit({ animation: true });
-}
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  buildLegend();
-  buildRotas();
-  initBusca();
-  initNetwork();
-});
+document.addEventListener('DOMContentLoaded',()=>{buildLegend();buildRotas();initBusca();init();});
 </script>
-</body>
-</html>
+</body></html>
