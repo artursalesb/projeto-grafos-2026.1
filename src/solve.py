@@ -3,7 +3,7 @@ import json
 import csv
 from src.graphs.io import load_graph , gerar_malha_csv
 from src.graphs.algorithms import dijkstra
-from src.viz import gerar_arvore_percurso, gerar_graficos_analiticos, gerar_grafo_completo, gerar_benchmark_log
+from src.viz import gerar_arvore_percurso, gerar_graficos_analiticos, gerar_grafo_completo
 
 def exportar_metricas(grafo):
     os.makedirs('out', exist_ok=True)
@@ -74,7 +74,7 @@ def calcular_rotas_dijkstra(grafo):
     
     print("\n🗺️  Calculando rotas com Dijkstra:")
     for origem, destino in rotas:
-        custo, caminho, _, _ = dijkstra(grafo, origem, destino)
+        custo, caminho = dijkstra(grafo, origem, destino)
         
         # Guardando o trajeto apenas das rotas obrigatórias para a visualização
         if origem == 'REC' and destino == 'POA':
@@ -104,7 +104,6 @@ def main():
     exportar_metricas(grafo)
     calcular_rotas_dijkstra(grafo)
     gerar_graficos_analiticos()
-    gerar_benchmark_log()
     gerar_grafo_completo(grafo)
 
 if __name__ == '__main__':
