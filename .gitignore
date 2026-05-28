@@ -1,2 +1,31 @@
+# --- Python ---
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# --- Node / Vite (frontend/) ---
+node_modules/
+dist/
+.vite/
+*.log
+npm-debug.log*
+
+# --- IDE / SO ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Observação ---
+# As saídas em out/ (PNGs, JSONs, HTMLs, CSVs) são COMMITADAS de propósito.
+# O PDF do projeto exige que essas saídas estejam no repositório para a
+# avaliação. Para regenerá-las localmente:
+#   python -m src.solve        (Parte 1: plot_01..04, htmls, csvs, jsons)
+#   python -m src.parte2       (Parte 2: parte2_report.json)
+#   python -m src.parte2_viz   (Parte 2: parte2_*.png)

@@ -28,6 +28,11 @@ import csv
 import time
 import math
 import textwrap
+import io
+
+# Garante que stdout aceita emojis no Windows (cp1252 não consegue)
+if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 import matplotlib
 matplotlib.use('Agg')           # Backend sem display (funciona em servidor)

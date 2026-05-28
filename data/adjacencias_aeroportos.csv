@@ -21,58 +21,58 @@ RBR,BEL,regional,Conexao com hub regional,2345.17
 THE,REC,regional,Conexao com hub regional,936.95
 THE,SSA,regional,Conexao com hub regional,1002.66
 THE,FOR,regional,Conexao com hub regional,496.78
-GRU,CWB,nacional,Conexao nacional entre hubs,358.95
-GRU,SSA,nacional,Conexao nacional entre hubs,1451.36
-GRU,FOR,nacional,Conexao nacional entre hubs,2346.62
-GRU,GIG,hub_intra,Conexao entre hubs da mesma regiao,336.79
-GRU,POA,nacional,Conexao nacional entre hubs,865.52
-GRU,BSB,nacional,Conexao nacional entre hubs,854.8
-GRU,BEL,nacional,Conexao nacional entre hubs,2461.43
-GRU,CNF,hub_intra,Conexao entre hubs da mesma regiao,496.46
-GRU,REC,nacional,Conexao nacional entre hubs,2100.82
-GRU,MAO,nacional,Conexao nacional entre hubs,2697.86
-CWB,SSA,nacional,Conexao nacional entre hubs,1804.74
-CWB,FOR,nacional,Conexao nacional entre hubs,2672.63
-CWB,GIG,nacional,Conexao nacional entre hubs,672.38
-CWB,POA,hub_intra,Conexao entre hubs da mesma regiao,533.68
-CWB,BSB,nacional,Conexao nacional entre hubs,1082.28
-CWB,BEL,nacional,Conexao nacional entre hubs,2686.16
-CWB,CNF,nacional,Conexao nacional entre hubs,846.18
-CWB,REC,nacional,Conexao nacional entre hubs,2453.9
-CWB,MAO,nacional,Conexao nacional entre hubs,2758.85
-SSA,FOR,hub_intra,Conexao entre hubs da mesma regiao,1016.0
-SSA,GIG,nacional,Conexao nacional entre hubs,1217.24
-SSA,POA,nacional,Conexao nacional entre hubs,2313.79
-SSA,BSB,nacional,Conexao nacional entre hubs,1083.74
-SSA,BEL,nacional,Conexao nacional entre hubs,1700.28
-SSA,CNF,nacional,Conexao nacional entre hubs,958.74
-SSA,REC,hub_intra,Conexao entre hubs da mesma regiao,649.46
-SSA,MAO,nacional,Conexao nacional entre hubs,2628.74
-FOR,GIG,nacional,Conexao nacional entre hubs,2176.55
-FOR,POA,nacional,Conexao nacional entre hubs,3204.09
-FOR,BSB,nacional,Conexao nacional entre hubs,1691.78
-FOR,BEL,nacional,Conexao nacional entre hubs,1136.08
-FOR,CNF,nacional,Conexao nacional entre hubs,1858.44
-FOR,REC,hub_intra,Conexao entre hubs da mesma regiao,627.12
-FOR,MAO,nacional,Conexao nacional entre hubs,2390.01
-GIG,POA,nacional,Conexao nacional entre hubs,1121.96
-GIG,BSB,nacional,Conexao nacional entre hubs,913.92
-GIG,BEL,nacional,Conexao nacional entre hubs,2448.32
-GIG,CNF,hub_intra,Conexao entre hubs da mesma regiao,362.03
-GIG,REC,nacional,Conexao nacional entre hubs,1859.22
-GIG,MAO,nacional,Conexao nacional entre hubs,2847.97
-POA,BSB,nacional,Conexao nacional entre hubs,1605.15
-POA,BEL,nacional,Conexao nacional entre hubs,3193.92
-POA,CNF,nacional,Conexao nacional entre hubs,1361.98
-POA,REC,nacional,Conexao nacional entre hubs,2962.75
-POA,MAO,nacional,Conexao nacional entre hubs,3140.19
+REC,BSB,nacional,Conexao nacional entre hubs,1654.1
+REC,MAO,nacional,Conexao nacional entre hubs,2836.85
+REC,GRU,nacional,Conexao nacional entre hubs,2100.82
+REC,BEL,nacional,Conexao nacional entre hubs,1677.75
+REC,CNF,nacional,Conexao nacional entre hubs,1607.74
+REC,FOR,hub_intra,Conexao entre hubs da mesma regiao,627.12
+REC,CWB,nacional,Conexao nacional entre hubs,2453.9
+REC,POA,nacional,Conexao nacional entre hubs,2962.75
+REC,GIG,nacional,Conexao nacional entre hubs,1859.22
+REC,SSA,hub_intra,Conexao entre hubs da mesma regiao,649.46
+BSB,MAO,nacional,Conexao nacional entre hubs,1949.05
+BSB,GRU,nacional,Conexao nacional entre hubs,854.8
 BSB,BEL,nacional,Conexao nacional entre hubs,1611.81
 BSB,CNF,nacional,Conexao nacional entre hubs,590.86
-BSB,REC,nacional,Conexao nacional entre hubs,1654.1
-BSB,MAO,nacional,Conexao nacional entre hubs,1949.05
+BSB,FOR,nacional,Conexao nacional entre hubs,1691.78
+BSB,CWB,nacional,Conexao nacional entre hubs,1082.28
+BSB,POA,nacional,Conexao nacional entre hubs,1605.15
+BSB,GIG,nacional,Conexao nacional entre hubs,913.92
+BSB,SSA,nacional,Conexao nacional entre hubs,1083.74
+MAO,GRU,nacional,Conexao nacional entre hubs,2697.86
+MAO,BEL,hub_intra,Conexao entre hubs da mesma regiao,1299.19
+MAO,CNF,nacional,Conexao nacional entre hubs,2539.9
+MAO,FOR,nacional,Conexao nacional entre hubs,2390.01
+MAO,CWB,nacional,Conexao nacional entre hubs,2758.85
+MAO,POA,nacional,Conexao nacional entre hubs,3140.19
+MAO,GIG,nacional,Conexao nacional entre hubs,2847.97
+MAO,SSA,nacional,Conexao nacional entre hubs,2628.74
+GRU,BEL,nacional,Conexao nacional entre hubs,2461.43
+GRU,CNF,hub_intra,Conexao entre hubs da mesma regiao,496.46
+GRU,FOR,nacional,Conexao nacional entre hubs,2346.62
+GRU,CWB,nacional,Conexao nacional entre hubs,358.95
+GRU,POA,nacional,Conexao nacional entre hubs,865.52
+GRU,GIG,hub_intra,Conexao entre hubs da mesma regiao,336.79
+GRU,SSA,nacional,Conexao nacional entre hubs,1451.36
 BEL,CNF,nacional,Conexao nacional entre hubs,2086.55
-BEL,REC,nacional,Conexao nacional entre hubs,1677.75
-BEL,MAO,hub_intra,Conexao entre hubs da mesma regiao,1299.19
-CNF,REC,nacional,Conexao nacional entre hubs,1607.74
-CNF,MAO,nacional,Conexao nacional entre hubs,2539.9
-REC,MAO,nacional,Conexao nacional entre hubs,2836.85
+BEL,FOR,nacional,Conexao nacional entre hubs,1136.08
+BEL,CWB,nacional,Conexao nacional entre hubs,2686.16
+BEL,POA,nacional,Conexao nacional entre hubs,3193.92
+BEL,GIG,nacional,Conexao nacional entre hubs,2448.32
+BEL,SSA,nacional,Conexao nacional entre hubs,1700.28
+CNF,FOR,nacional,Conexao nacional entre hubs,1858.44
+CNF,CWB,nacional,Conexao nacional entre hubs,846.18
+CNF,POA,nacional,Conexao nacional entre hubs,1361.98
+CNF,GIG,hub_intra,Conexao entre hubs da mesma regiao,362.03
+CNF,SSA,nacional,Conexao nacional entre hubs,958.74
+FOR,CWB,nacional,Conexao nacional entre hubs,2672.63
+FOR,POA,nacional,Conexao nacional entre hubs,3204.09
+FOR,GIG,nacional,Conexao nacional entre hubs,2176.55
+FOR,SSA,hub_intra,Conexao entre hubs da mesma regiao,1016.0
+CWB,POA,hub_intra,Conexao entre hubs da mesma regiao,533.68
+CWB,GIG,nacional,Conexao nacional entre hubs,672.38
+CWB,SSA,nacional,Conexao nacional entre hubs,1804.74
+POA,GIG,nacional,Conexao nacional entre hubs,1121.96
+POA,SSA,nacional,Conexao nacional entre hubs,2313.79
+GIG,SSA,nacional,Conexao nacional entre hubs,1217.24
