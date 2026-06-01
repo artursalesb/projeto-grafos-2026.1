@@ -223,6 +223,59 @@ export default function App() {
     return missing;
   }, [pathInfo, filtered]);
 
+  // Subgrafo SÓ com os nós e arestas do caminho calculado (independente dos filtros).
+  // Usado para isolar o caminho visualmente quando o user clica "Ver no grafo".
+  // Já pré-posiciona cada nó em linha horizontal (ou zig-zag se muito longo)
+  // para garantir que as arestas saiam alinhadas desde o primeiro frame.
+  const pathSubgraph = useMemo(() => {
+    if (!pathHighlight?.path?.length || !raw) return null;
+    const pathIds = new Set(pathHighlight.path);
+    const edgeKeys = new Set();
+    for (let i = 0; i < pathHighlight.path.length - 1; i++) {
+      edgeKeys.add(`${pathHighlight.path[i]}->${pathHighlight.path[i + 1]}`);
+    }
+
+    // Layout em linha(s)
+    const total = pathHighlight.path.length;
+    const SPACING = 180;
+    const MAX_PER_ROW = 7;
+    const rows = Math.ceil(total / MAX_PER_ROW);
+    const perRow = Math.ceil(total / rows);
+    const rowGap = 220;
+    const positions = new Map();
+    pathHighlight.path.forEach((id, i) => {
+      const row = Math.floor(i / perRow);
+      const colInRow = i % perRow;
+      const rowSize = Math.min(perRow, total - row * perRow);
+      // Zig-zag: linhas ímpares invertidas para manter continuidade visual
+      const idxInRow = row % 2 === 1 ? rowSize - 1 - colInRow : colInRow;
+      const x = (idxInRow - (rowSize - 1) / 2) * SPACING;
+      const y = (row - (rows - 1) / 2) * rowGap;
+      positions.set(id, { x, y });
+    });
+
+    const nodes = raw.nodes
+      .filter((n) => pathIds.has(n.id))
+      .map((n) => {
+        const p = positions.get(n.id);
+        return { ...n, x: p.x, y: p.y, fx: p.x, fy: p.y };
+      });
+    const seen = new Set();
+    const links = [];
+    for (const l of raw.links) {
+      const s = sourceId(l);
+      const t = targetId(l);
+      const k = `${s}->${t}`;
+      if (!edgeKeys.has(k) || seen.has(k)) continue;
+      seen.add(k);
+      links.push({ ...l });
+    }
+    return { nodes, links };
+  }, [pathHighlight, raw]);
+
+  // Grafo que de fato vai para a tela: subgrafo do caminho > grafo filtrado.
+  const displayData = pathSubgraph || filtered;
+
   return (
     <div className="app">
       <nav className="top-tabs">
@@ -230,19 +283,19 @@ export default function App() {
           className={activeTab === "grafo" ? "active" : ""}
           onClick={() => setActiveTab("grafo")}
         >
-          ⚽ Grafo
+          Grafo
         </button>
         <button
           className={activeTab === "split" ? "active" : ""}
           onClick={() => setActiveTab("split")}
         >
-          🔀 Split (grafo + gráficos)
+          Split (grafo + gráficos)
         </button>
         <button
           className={activeTab === "dashboard" ? "active" : ""}
           onClick={() => setActiveTab("dashboard")}
         >
-          📊 Dashboard
+          Dashboard
         </button>
       </nav>
 
@@ -254,9 +307,9 @@ export default function App() {
 
       {(activeTab === "grafo" || activeTab === "split") && (
         <div className={activeTab === "split" ? "graph-wrap split" : "graph-wrap"}>
-          {filtered ? (
+          {displayData ? (
             <GraphView
-              data={filtered}
+              data={displayData}
               onEdgeClick={setSelectedEdge}
               focusNode={focusNode}
               focusLink={focusLink}
@@ -267,13 +320,17 @@ export default function App() {
               pathHighlight={pathHighlight}
             />
           ) : (
-            <div className="loading">⚽ Carregando 17 mil transferências…</div>
+            <div className="loading">Carregando 17 mil transferências…</div>
           )}
         </div>
       )}
 
       {activeTab === "split" && (
-        <DashboardSidebar graph={filtered} raw={raw} />
+        <DashboardSidebar
+          graph={filtered}
+          raw={raw}
+          onJumpToGraph={jumpFromDashboard}
+        />
       )}
 
       {(activeTab === "grafo" || activeTab === "split") && (
@@ -297,7 +354,7 @@ export default function App() {
 
       {(activeTab === "grafo" || activeTab === "split") && (
       <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
-        <h1>⚽ Mercado da Bola</h1>
+        <h1>Mercado da Bola</h1>
         <div className="subtitle">Grafo das transferências (fee {">"} 0)</div>
 
         <div className="stats">
@@ -403,7 +460,7 @@ export default function App() {
               </div>
             )}
             <button className="clear-focus" onClick={clearFocus}>
-              ↺ Limpar seleção
+              Limpar seleção
             </button>
           </div>
         )}

@@ -14,7 +14,7 @@ export default function EdgeModal({ edge, onClose }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>⚽ {edge.player}</h2>
+        <h2>{edge.player}</h2>
         <div className="player-sub">
           Transferência · Temporada {edge.season}
         </div>

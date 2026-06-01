@@ -24,7 +24,7 @@ export default function PathBanner({ pathInfo, missingEdges, onClear }) {
 
   return (
     <div className="path-banner">
-      <div className="pb-algo">🎯 {ALGO_LABEL[algorithm] || algorithm}</div>
+      <div className="pb-algo">{ALGO_LABEL[algorithm] || algorithm}</div>
       <div className="pb-route">
         <span className="pb-club">{source}</span>
         <span className="pb-arrow">→</span>
@@ -36,12 +36,12 @@ export default function PathBanner({ pathInfo, missingEdges, onClear }) {
         {path && <span className="pb-metric"><b>{path.length}</b> nós</span>}
         {time_ms != null && <span className="pb-metric"><b>{time_ms.toFixed(2)}ms</b></span>}
         {has_negative_cycle && (
-          <span className="pb-metric pb-warn">⚠ ciclo negativo</span>
+          <span className="pb-metric pb-warn">ciclo negativo</span>
         )}
       </div>
       {missingEdges > 0 && (
         <div className="pb-warning">
-          ⚠ {missingEdges} aresta{missingEdges > 1 ? "s" : ""} do caminho fora do filtro
+          Aviso: {missingEdges} aresta{missingEdges > 1 ? "s" : ""} do caminho fora do filtro
           de valor mínimo. Baixe o filtro para ver tudo.
         </div>
       )}

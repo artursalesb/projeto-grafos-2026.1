@@ -119,7 +119,7 @@ export default function ClubPanel({ club, links, onPickTransfer, onClose }) {
             <li key={i} onClick={() => onPickTransfer(l)}>
               <div className="li-top">
                 <span className={`dir ${isOut ? "out" : "in"}`}>
-                  {isOut ? "↗ saiu" : "↙ chegou"}
+                  {isOut ? "saiu" : "chegou"}
                 </span>
                 <span className="li-fee">{fmt(l.fee)}</span>
               </div>

@@ -29,7 +29,7 @@ export default function PlayerPanel({ player, links, activeLink, onPickTransfer,
     <div className="club-panel">
       <div className="club-head">
         <div>
-          <div className="club-title">⚽ {player}</div>
+          <div className="club-title">{player}</div>
           <div className="club-sub">{transfers.length} transferência(s)</div>
         </div>
         <button className="club-close" onClick={onClose} title="Fechar">

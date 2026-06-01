@@ -9,6 +9,7 @@ import {
   XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer,
 } from "recharts";
+import AlgorithmCalculator from "./AlgorithmCalculator.jsx";
 
 function sId(l) {
   return typeof l.source === "object" ? l.source.id : l.source;
@@ -33,7 +34,7 @@ const tooltipStyle = {
   fontSize: 11,
 };
 
-export default function DashboardSidebar({ graph, raw }) {
+export default function DashboardSidebar({ graph, raw, onJumpToGraph }) {
   const stats = useMemo(() => {
     if (!graph) return null;
     const total = graph.links.reduce((s, l) => s + (l.fee || 0), 0);
@@ -135,7 +136,7 @@ export default function DashboardSidebar({ graph, raw }) {
   return (
     <div className="dash-side">
       <header className="dash-side-head">
-        <h2>📊 Dashboard ao vivo</h2>
+        <h2>Dashboard ao vivo</h2>
         <div className="dash-side-sub">reage aos filtros em tempo real</div>
       </header>
 
@@ -156,6 +157,18 @@ export default function DashboardSidebar({ graph, raw }) {
           <div className="ds-stat-label">Fee média</div>
           <div className="ds-stat-value">{fmtEUR(stats.avgFee)}</div>
         </div>
+      </div>
+
+      <div className="mini-card calc-mini">
+        <h4>Calculadora de algoritmos (ao vivo)</h4>
+        <div className="calc-mini-hint">
+          Roda sobre o grafo com os filtros aplicados.
+        </div>
+        <AlgorithmCalculator
+          graph={graph}
+          rawGraph={raw}
+          onJumpToGraph={onJumpToGraph}
+        />
       </div>
 
       <MiniChart title="Top 10 clubes que mais venderam" data={topSellers} dataKey="total" color="#ff6b6b" />

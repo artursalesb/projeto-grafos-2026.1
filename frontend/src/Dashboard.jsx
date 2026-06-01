@@ -152,7 +152,7 @@ export default function Dashboard({
   }, [graph]);
 
   if (!graph) {
-    return <div className="dashboard-loading">⚽ Carregando dados…</div>;
+    return <div className="dashboard-loading">Carregando dados…</div>;
   }
 
   return (
@@ -179,6 +179,21 @@ export default function Dashboard({
           <div className="dash-card-value">{fmtEUR(stats.avgFee)}</div>
           <div className="dash-card-sub">máx: {fmtEUR(stats.maxFee)}</div>
         </div>
+      </section>
+
+      {/* ── CALCULADORA ───────────────────────────────────── */}
+      <section className="dash-calculator">
+        <h2>Calculadora de Algoritmos</h2>
+        <p className="muted">
+          Roda BFS / DFS / Dijkstra / Bellman-Ford sobre o grafo
+          <b> com os filtros aplicados</b>. Implementação própria em JS.
+        </p>
+        <AlgorithmCalculator
+          graph={graph}
+          rawGraph={raw}
+          onResult={setCalcResult}
+          onJumpToGraph={onJumpToGraph}
+        />
       </section>
 
       {/* ── GRÁFICOS ───────────────────────────────────────── */}
@@ -274,20 +289,6 @@ export default function Dashboard({
         </div>
       </section>
 
-      {/* ── CALCULADORA ───────────────────────────────────── */}
-      <section className="dash-calculator">
-        <h2>🧮 Calculadora de Algoritmos</h2>
-        <p className="muted">
-          Roda BFS / DFS / Dijkstra / Bellman-Ford sobre o grafo
-          <b> com os filtros aplicados</b>. Implementação própria em JS
-          (espelha [src/graphs/algorithms.py]).
-        </p>
-        <AlgorithmCalculator
-          graph={graph}
-          onResult={setCalcResult}
-          onJumpToGraph={onJumpToGraph}
-        />
-      </section>
     </div>
   );
 }

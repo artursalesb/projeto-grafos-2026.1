@@ -51,6 +51,26 @@ function drawBall(node, ctx, highlightedClubId, pathInfo) {
     ctx.arc(node.x, node.y, r + 5, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.shadowBlur = 0;
+
+    // Badge com a posição no caminho (1, 2, 3, …)
+    const pos = pathInfo.positions.get(node.id);
+    if (pos != null) {
+      const bx = node.x + r * 0.95;
+      const by = node.y - r * 0.95;
+      const br = Math.max(5, r * 0.55);
+      ctx.fillStyle = isEndpoint ? "#00e5ff" : "rgba(0, 229, 255, 0.95)";
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(bx, by, br, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#001a1f";
+      ctx.font = `800 ${br * 1.2}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(pos + 1), bx, by + br * 0.05);
+    }
   }
 }
 
@@ -122,14 +142,18 @@ export default function GraphView({
     if (!pathHighlight?.path?.length) return null;
     const nodes = new Set(pathHighlight.path);
     const edges = new Set();
+    const positions = new Map();
+    pathHighlight.path.forEach((id, i) => positions.set(id, i));
     for (let i = 0; i < pathHighlight.path.length - 1; i++) {
       edges.add(`${pathHighlight.path[i]}->${pathHighlight.path[i + 1]}`);
     }
     return {
       nodes,
       edges,
+      positions,
       source: pathHighlight.path[0],
       target: pathHighlight.path[pathHighlight.path.length - 1],
+      total: pathHighlight.path.length,
     };
   }, [pathHighlight]);
 
@@ -139,8 +163,12 @@ export default function GraphView({
     const ids = new Set(pathHighlight.path);
     const nodesOnPath = data.nodes.filter((n) => ids.has(n.id));
     if (nodesOnPath.length === 0) return;
+    // Os nós já vêm pré-posicionados em fx/fy pelo pathSubgraph no App.jsx.
+    // Só precisamos enquadrar a viewport.
+    const total = pathHighlight.path.length;
+    const padding = total <= 2 ? 240 : total <= 4 ? 140 : total <= 7 ? 90 : 60;
     setTimeout(() => {
-      fg.zoomToFit(800, 60, (n) => ids.has(n.id));
+      fg.zoomToFit(900, padding, (n) => ids.has(n.id));
     }, 200);
   }, [pathHighlight, data.nodes]);
 
