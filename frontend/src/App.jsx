@@ -4,6 +4,9 @@ import GraphView from "./GraphView.jsx";
 import EdgeModal from "./EdgeModal.jsx";
 import ClubPanel from "./ClubPanel.jsx";
 import PlayerPanel from "./PlayerPanel.jsx";
+import Dashboard from "./Dashboard.jsx";
+import DashboardSidebar from "./DashboardSidebar.jsx";
+import PathBanner from "./PathBanner.jsx";
 
 const FEE_STEPS = [
   { label: "Todas", value: 0 },
@@ -43,6 +46,9 @@ export default function App() {
   const [league, setLeague] = useState("Todas");
   const [focusMode, setFocusMode] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState("grafo"); // "grafo" | "split" | "dashboard"
+  const [pathHighlight, setPathHighlight] = useState(null); // {path, ts}
+  const [pathInfo, setPathInfo] = useState(null); // info completa do algoritmo p/ banner
   const searchTimer = useRef(null);
 
   useEffect(() => {
@@ -191,34 +197,105 @@ export default function App() {
     setTimeout(() => setFocusLink(null), 50);
   };
 
+  const jumpFromDashboard = (info) => {
+    setActiveTab("grafo");
+    setPathHighlight({ path: info.path, ts: Date.now() });
+    setPathInfo(info);
+  };
+
+  const clearPath = () => {
+    setPathHighlight(null);
+    setPathInfo(null);
+  };
+
+  // Conta quantas arestas do caminho NÃO estão no grafo filtrado
+  const missingEdges = useMemo(() => {
+    if (!pathInfo?.path || !filtered) return 0;
+    const visible = new Set();
+    for (const l of filtered.links) {
+      visible.add(`${sourceId(l)}->${targetId(l)}`);
+    }
+    let missing = 0;
+    for (let i = 0; i < pathInfo.path.length - 1; i++) {
+      const key = `${pathInfo.path[i]}->${pathInfo.path[i + 1]}`;
+      if (!visible.has(key)) missing++;
+    }
+    return missing;
+  }, [pathInfo, filtered]);
+
   return (
     <div className="app">
-      <FieldBackground />
+      <nav className="top-tabs">
+        <button
+          className={activeTab === "grafo" ? "active" : ""}
+          onClick={() => setActiveTab("grafo")}
+        >
+          ⚽ Grafo
+        </button>
+        <button
+          className={activeTab === "split" ? "active" : ""}
+          onClick={() => setActiveTab("split")}
+        >
+          🔀 Split (grafo + gráficos)
+        </button>
+        <button
+          className={activeTab === "dashboard" ? "active" : ""}
+          onClick={() => setActiveTab("dashboard")}
+        >
+          📊 Dashboard
+        </button>
+      </nav>
 
-      {filtered ? (
-        <GraphView
-          data={filtered}
-          onEdgeClick={setSelectedEdge}
-          focusNode={focusNode}
-          focusLink={focusLink}
-          highlightLink={highlightLink}
-          focusedClubId={focusedClubId}
-          highlightedClubId={selectedClub}
-          highlightedPlayer={selectedPlayer}
-        />
-      ) : (
-        <div className="loading">⚽ Carregando 17 mil transferências…</div>
+      {activeTab === "dashboard" && (
+        <Dashboard graph={filtered} raw={raw} onJumpToGraph={jumpFromDashboard} />
       )}
 
-      <button
-        className={`sidebar-toggle ${sidebarOpen ? "open" : "closed"}`}
-        onClick={() => setSidebarOpen((v) => !v)}
-        title={sidebarOpen ? "Recolher painel" : "Abrir painel"}
-        aria-label={sidebarOpen ? "Recolher painel" : "Abrir painel"}
-      >
-        {sidebarOpen ? "‹" : "›"}
-      </button>
+      {(activeTab === "grafo" || activeTab === "split") && <FieldBackground />}
 
+      {(activeTab === "grafo" || activeTab === "split") && (
+        <div className={activeTab === "split" ? "graph-wrap split" : "graph-wrap"}>
+          {filtered ? (
+            <GraphView
+              data={filtered}
+              onEdgeClick={setSelectedEdge}
+              focusNode={focusNode}
+              focusLink={focusLink}
+              highlightLink={highlightLink}
+              focusedClubId={focusedClubId}
+              highlightedClubId={selectedClub}
+              highlightedPlayer={selectedPlayer}
+              pathHighlight={pathHighlight}
+            />
+          ) : (
+            <div className="loading">⚽ Carregando 17 mil transferências…</div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "split" && (
+        <DashboardSidebar graph={filtered} raw={raw} />
+      )}
+
+      {(activeTab === "grafo" || activeTab === "split") && (
+        <PathBanner
+          pathInfo={pathInfo}
+          missingEdges={missingEdges}
+          onClear={clearPath}
+        />
+      )}
+
+      {(activeTab === "grafo" || activeTab === "split") && (
+        <button
+          className={`sidebar-toggle ${sidebarOpen ? "open" : "closed"}`}
+          onClick={() => setSidebarOpen((v) => !v)}
+          title={sidebarOpen ? "Recolher painel" : "Abrir painel"}
+          aria-label={sidebarOpen ? "Recolher painel" : "Abrir painel"}
+        >
+          {sidebarOpen ? "‹" : "›"}
+        </button>
+      )}
+
+      {(activeTab === "grafo" || activeTab === "split") && (
       <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
         <h1>⚽ Mercado da Bola</h1>
         <div className="subtitle">Grafo das transferências (fee {">"} 0)</div>
@@ -375,6 +452,7 @@ export default function App() {
           <br />• Arraste qualquer bola para mover
         </div>
       </aside>
+      )}
 
       <EdgeModal edge={selectedEdge} onClose={() => setSelectedEdge(null)} />
     </div>

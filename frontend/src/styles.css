@@ -744,3 +744,650 @@ body,
 .modal .close:hover {
   background: rgba(255, 215, 0, 0.28);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Top tabs (Grafo / Dashboard)
+   ─────────────────────────────────────────────────────────── */
+.top-tabs {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 25, 15, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.top-tabs button {
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.15s;
+}
+
+.top-tabs button:hover {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.top-tabs button.active {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Dashboard
+   ─────────────────────────────────────────────────────────── */
+.dashboard {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: linear-gradient(160deg, #0a1a0a 0%, #050d05 100%);
+  overflow-y: auto;
+  padding: 70px 24px 24px 24px;
+  color: #e6edf3;
+}
+
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #ffd700;
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.dash-card {
+  background: rgba(15, 30, 15, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.dash-card-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #8bb;
+  margin-bottom: 4px;
+}
+
+.dash-card-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffd700;
+}
+
+.dash-card-sub {
+  font-size: 11px;
+  color: #99a;
+  margin-top: 2px;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 1100px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .dash-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: rgba(15, 30, 15, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.chart-card h3 {
+  font-size: 14px;
+  color: #ffd700;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.top-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.top-rank {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffd700;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.top-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.top-player {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-route {
+  font-size: 11px;
+  color: #99a;
+}
+
+.top-fee {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4cd964;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Calculadora de algoritmos
+   ─────────────────────────────────────────────────────────── */
+.dash-calculator {
+  background: rgba(15, 30, 15, 0.85);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.dash-calculator h2 {
+  font-size: 18px;
+  color: #ffd700;
+  margin-bottom: 6px;
+}
+
+.dash-calculator .muted {
+  font-size: 12px;
+  color: #99a;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.calc-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (max-width: 900px) {
+  .calc-row { grid-template-columns: 1fr 1fr; }
+}
+
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.calc-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8bb;
+}
+
+.calc-field select,
+.calc-field input {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+.calc-field select:focus,
+.calc-field input:focus {
+  border-color: #ffd700;
+}
+
+.calc-suggest {
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #1a2a1a;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.calc-suggest li {
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.calc-suggest li:hover {
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffd700;
+}
+
+.calc-run {
+  padding: 9px 18px;
+  background: linear-gradient(135deg, #ffd700, #ff9f43);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.calc-run:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.calc-run:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.calc-result {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calc-result.ok {
+  border-color: rgba(76, 217, 100, 0.4);
+}
+
+.calc-result.err {
+  border-color: rgba(255, 100, 100, 0.4);
+}
+
+.res-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.calc-result.ok .res-title { color: #4cd964; }
+.calc-result.err .res-title { color: #ff6b6b; }
+
+.res-meta {
+  font-size: 12px;
+  color: #99a;
+}
+
+.res-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.res-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  color: #ccc;
+}
+
+.res-tag b {
+  color: #ffd700;
+}
+
+.res-tag.warn { background: rgba(255, 100, 100, 0.15); }
+.res-tag.warn b { color: #ff6b6b; }
+.res-tag.time { background: rgba(255, 215, 0, 0.12); }
+
+.res-path {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.res-path-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #8bb;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.res-path-chain {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.path-node {
+  background: rgba(255, 215, 0, 0.18);
+  color: #ffd700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.path-arrow {
+  color: #4cd964;
+  margin: 0 2px;
+}
+
+.res-jump {
+  padding: 8px 16px;
+  background: rgba(0, 229, 255, 0.18);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.res-jump:hover {
+  background: rgba(0, 229, 255, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Split layout (Grafo + Dashboard sidebar)
+   ─────────────────────────────────────────────────────────── */
+.graph-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.graph-wrap.split {
+  right: 380px;
+}
+
+/* No modo split o banner e a aba ficam mais compactos para sobrar espaço */
+.app:has(.dash-side) .top-tabs {
+  top: 12px;
+}
+
+.dash-side {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  background: rgba(8, 18, 8, 0.96);
+  border-left: 1px solid rgba(255, 215, 0, 0.25);
+  z-index: 6;
+  overflow-y: auto;
+  padding: 70px 14px 16px 14px;
+  box-shadow: -6px 0 20px rgba(0, 0, 0, 0.45);
+}
+
+.dash-side::-webkit-scrollbar { width: 8px; }
+.dash-side::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.3);
+  border-radius: 4px;
+}
+
+.dash-side-head h2 {
+  font-size: 15px;
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+
+.dash-side-sub {
+  font-size: 10px;
+  color: #99a;
+  margin-bottom: 14px;
+}
+
+.dash-side-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.ds-stat {
+  background: rgba(20, 35, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.ds-stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: #8bb;
+  letter-spacing: 0.5px;
+}
+
+.ds-stat-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffd700;
+  margin-top: 2px;
+}
+
+.mini-card {
+  background: rgba(20, 35, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.mini-card h4 {
+  font-size: 11px;
+  color: #ffd700;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.mini-top-list {
+  font-size: 11px;
+}
+
+.mini-top-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mini-top-item:last-child { border-bottom: none; }
+
+.mini-rank {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffd700;
+  width: 18px;
+}
+
+.mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-player {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-route {
+  font-size: 9px;
+  color: #99a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-fee {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4cd964;
+}
+
+.mini-empty {
+  font-size: 11px;
+  color: #99a;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* No modo split, a sidebar do grafo continua à esquerda; o dashboard ao vivo
+   fica à direita. Em telas estreitas vira coluna empilhada. */
+@media (max-width: 1100px) {
+  .graph-wrap.split { right: 0; bottom: 50vh; }
+  .dash-side { top: 50vh; left: 0; width: auto; border-left: none; border-top: 1px solid rgba(255, 215, 0, 0.25); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PathBanner (banner com info do caminho calculado)
+   ─────────────────────────────────────────────────────────── */
+.path-banner {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  background: rgba(8, 22, 30, 0.96);
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  border-radius: 10px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 18px rgba(0, 229, 255, 0.18),
+              0 6px 14px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  max-width: 92vw;
+  flex-wrap: wrap;
+}
+
+.pb-algo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #00e5ff;
+}
+
+.pb-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.pb-club {
+  background: rgba(0, 229, 255, 0.18);
+  color: #bff7ff;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+
+.pb-arrow {
+  color: #00e5ff;
+  font-weight: 700;
+}
+
+.pb-metrics {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pb-metric {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ccc;
+  border-radius: 4px;
+}
+
+.pb-metric b {
+  color: #ffd700;
+}
+
+.pb-metric.pb-warn {
+  background: rgba(255, 100, 100, 0.18);
+  color: #ff6b6b;
+}
+
+.pb-warning {
+  width: 100%;
+  font-size: 11px;
+  color: #ffa94d;
+  background: rgba(255, 169, 77, 0.1);
+  padding: 5px 8px;
+  border-radius: 5px;
+  margin-top: 2px;
+}
+
+.pb-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 5px;
+  color: #ccc;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.pb-close:hover {
+  background: rgba(255, 100, 100, 0.25);
+  color: #fff;
+}

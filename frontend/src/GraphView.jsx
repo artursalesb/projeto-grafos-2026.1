@@ -15,10 +15,24 @@ function nodeRadius(node, highlightedClubId) {
   return base;
 }
 
-function drawBall(node, ctx, highlightedClubId) {
+function drawBall(node, ctx, highlightedClubId, pathInfo) {
   const sprite = getBallSprite();
-  const r = nodeRadius(node, highlightedClubId);
+  const onPath = pathInfo?.nodes.has(node.id);
+  const isEndpoint =
+    pathInfo &&
+    (node.id === pathInfo.source || node.id === pathInfo.target);
+  const dimmed = pathInfo && !onPath;
+
+  // Bola maior quando é endpoint, normal-grande quando é do caminho, normal senão
+  let r = nodeRadius(node, highlightedClubId);
+  if (isEndpoint) r *= 1.7;
+  else if (onPath) r *= 1.25;
+
+  if (dimmed) ctx.globalAlpha = 0.18;
   ctx.drawImage(sprite, node.x - r, node.y - r, 2 * r, 2 * r);
+  if (dimmed) ctx.globalAlpha = 1;
+
+  // Aro dourado para club selecionado
   if (highlightedClubId && node.id === highlightedClubId) {
     ctx.strokeStyle = "rgba(255, 215, 0, 0.95)";
     ctx.lineWidth = 2;
@@ -26,23 +40,53 @@ function drawBall(node, ctx, highlightedClubId) {
     ctx.arc(node.x, node.y, r + 4, 0, 2 * Math.PI);
     ctx.stroke();
   }
+
+  // Aros ciano para nós do caminho (mais grosso nos endpoints)
+  if (onPath) {
+    ctx.shadowColor = "#00e5ff";
+    ctx.shadowBlur = isEndpoint ? 18 : 10;
+    ctx.strokeStyle = isEndpoint ? "#00e5ff" : "rgba(0, 229, 255, 0.85)";
+    ctx.lineWidth = isEndpoint ? 3 : 2;
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, r + 5, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
 }
 
-function drawNodeLabel(node, ctx, scale, highlightedClubId) {
+function drawNodeLabel(node, ctx, scale, highlightedClubId, pathInfo) {
   const isHighlighted = highlightedClubId && node.id === highlightedClubId;
-  if (scale < 3 && !isHighlighted) return;
-  const r = nodeRadius(node, highlightedClubId);
-  const fontSize = isHighlighted
-    ? Math.max(7, 14 / scale)
-    : Math.max(2.5, 11 / scale);
-  ctx.fillStyle = isHighlighted ? "#ffd700" : "rgba(255,255,255,0.97)";
-  ctx.strokeStyle = "rgba(0,0,0,0.85)";
-  ctx.lineWidth = (isHighlighted ? 4 : 2.8) / scale;
-  ctx.font = `${isHighlighted ? 800 : 600} ${fontSize}px sans-serif`;
+  const onPath = pathInfo?.nodes.has(node.id);
+  const isEndpoint =
+    pathInfo &&
+    (node.id === pathInfo.source || node.id === pathInfo.target);
+  const dimmed = pathInfo && !onPath;
+
+  // Quando há caminho, mostra label de todos os nós do caminho mesmo em zoom baixo
+  const forceShow = onPath;
+  if (scale < 3 && !isHighlighted && !forceShow) return;
+
+  let r = nodeRadius(node, highlightedClubId);
+  if (isEndpoint) r *= 1.7;
+  else if (onPath) r *= 1.25;
+
+  const fontSize =
+    isEndpoint
+      ? Math.max(9, 16 / scale)
+      : isHighlighted || onPath
+      ? Math.max(7, 13 / scale)
+      : Math.max(2.5, 11 / scale);
+
+  if (dimmed) ctx.globalAlpha = 0.3;
+  ctx.fillStyle = isEndpoint ? "#00e5ff" : isHighlighted ? "#ffd700" : onPath ? "#bff7ff" : "rgba(255,255,255,0.97)";
+  ctx.strokeStyle = "rgba(0,0,0,0.95)";
+  ctx.lineWidth = ((isEndpoint || isHighlighted || onPath) ? 4 : 2.8) / scale;
+  ctx.font = `${(isEndpoint || isHighlighted) ? 800 : onPath ? 700 : 600} ${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.strokeText(node.name, node.x, node.y + r + 1);
   ctx.fillText(node.name, node.x, node.y + r + 1);
+  if (dimmed) ctx.globalAlpha = 1;
 }
 
 function feeColor(fee) {
@@ -68,10 +112,37 @@ export default function GraphView({
   focusedClubId,
   highlightedClubId,
   highlightedPlayer,
+  pathHighlight,
 }) {
   const fgRef = useRef(null);
   const [hoverLink, setHoverLink] = useState(null);
   const dims = useWindowSize();
+
+  const pathSet = useMemo(() => {
+    if (!pathHighlight?.path?.length) return null;
+    const nodes = new Set(pathHighlight.path);
+    const edges = new Set();
+    for (let i = 0; i < pathHighlight.path.length - 1; i++) {
+      edges.add(`${pathHighlight.path[i]}->${pathHighlight.path[i + 1]}`);
+    }
+    return {
+      nodes,
+      edges,
+      source: pathHighlight.path[0],
+      target: pathHighlight.path[pathHighlight.path.length - 1],
+    };
+  }, [pathHighlight]);
+
+  useEffect(() => {
+    if (!pathHighlight?.path?.length || !fgRef.current) return;
+    const fg = fgRef.current;
+    const ids = new Set(pathHighlight.path);
+    const nodesOnPath = data.nodes.filter((n) => ids.has(n.id));
+    if (nodesOnPath.length === 0) return;
+    setTimeout(() => {
+      fg.zoomToFit(800, 60, (n) => ids.has(n.id));
+    }, 200);
+  }, [pathHighlight, data.nodes]);
 
   const focusContext = useMemo(() => {
     if (!focusedClubId) return null;
@@ -180,11 +251,19 @@ export default function GraphView({
       const isIncoming = highlightedClubId && t === highlightedClubId;
       const isOutgoing = highlightedClubId && s === highlightedClubId;
       const isPlayerEdge = highlightedPlayer && link.player === highlightedPlayer;
+      const isPathEdge = pathSet?.edges.has(`${s}->${t}`);
+      const pathActive = !!pathSet;
+      const dimmed = pathActive && !isPathEdge;
 
       let stroke;
       let width;
+      let glow = null;
 
-      if (isHighlight) {
+      if (isPathEdge) {
+        stroke = "#00e5ff";
+        glow = "#00e5ff";
+        width = 5;
+      } else if (isHighlight) {
         stroke = "#4cd964";
         width = 3.4;
       } else if (isHover) {
@@ -223,8 +302,14 @@ export default function GraphView({
       const ax = tx - ux * tr;
       const ay = ty - uy * tr;
 
+      if (dimmed) ctx.globalAlpha = 0.12;
+      if (glow) {
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = 14;
+      }
       ctx.strokeStyle = stroke;
       ctx.lineWidth = width;
+      ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(bx, by);
       ctx.lineTo(ax, ay);
@@ -246,8 +331,15 @@ export default function GraphView({
       );
       ctx.closePath();
       ctx.fill();
+
+      if (glow) {
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = "transparent";
+      }
+      if (dimmed) ctx.globalAlpha = 1;
+      ctx.lineCap = "butt";
     },
-    [hoverLink, highlightLink, highlightedClubId, highlightedPlayer]
+    [hoverLink, highlightLink, highlightedClubId, highlightedPlayer, pathSet]
   );
 
   useEffect(() => {
@@ -281,8 +373,8 @@ export default function GraphView({
         backgroundColor="rgba(0,0,0,0)"
         nodeRelSize={3}
         nodeCanvasObject={(node, ctx, scale) => {
-          drawBall(node, ctx, highlightedClubId);
-          drawNodeLabel(node, ctx, scale, highlightedClubId);
+          drawBall(node, ctx, highlightedClubId, pathSet);
+          drawNodeLabel(node, ctx, scale, highlightedClubId, pathSet);
         }}
         nodePointerAreaPaint={(node, color, ctx) => {
           ctx.fillStyle = color;
