@@ -7,6 +7,7 @@ import PlayerPanel from "./PlayerPanel.jsx";
 import Dashboard from "./Dashboard.jsx";
 import DashboardSidebar from "./DashboardSidebar.jsx";
 import PathBanner from "./PathBanner.jsx";
+import AirportGraph from "./AirportGraph.jsx";
 
 const FEE_STEPS = [
   { label: "Todas", value: 0 },
@@ -46,7 +47,7 @@ export default function App() {
   const [league, setLeague] = useState("Todas");
   const [focusMode, setFocusMode] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("grafo"); // "grafo" | "split" | "dashboard"
+  const [activeTab, setActiveTab] = useState("grafo"); // "grafo" | "split" | "dashboard" | "aeroportos"
   const [pathHighlight, setPathHighlight] = useState(null); // {path, ts}
   const [pathInfo, setPathInfo] = useState(null); // info completa do algoritmo p/ banner
   const searchTimer = useRef(null);
@@ -294,7 +295,15 @@ export default function App() {
         >
           Dashboard
         </button>
+        <button
+          className={activeTab === "aeroportos" ? "active" : ""}
+          onClick={() => setActiveTab("aeroportos")}
+        >
+          Aeroportos
+        </button>
       </nav>
+
+      {activeTab === "aeroportos" && <AirportGraph />}
 
       {activeTab === "dashboard" && (
         <Dashboard graph={filtered} raw={raw} onJumpToGraph={jumpFromDashboard} />

@@ -1,0 +1,311 @@
+.ag-root {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ag-sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ag-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ── Sidebar ── */
+.ag-sidebar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 300px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  background: rgba(13, 27, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 16px;
+  z-index: 10;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  color: #e6edf3;
+  font-family: "Segoe UI", Arial, sans-serif;
+  transform: translateX(0);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 220ms ease;
+  opacity: 1;
+}
+
+.ag-sidebar.collapsed {
+  transform: translateX(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ag-sidebar::-webkit-scrollbar { width: 6px; }
+.ag-sidebar::-webkit-scrollbar-track { background: transparent; }
+.ag-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.4);
+  border-radius: 3px;
+}
+
+.ag-sidebar h1 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.ag-sub {
+  font-size: 12px;
+  color: #8b9eb0;
+  margin-bottom: 14px;
+}
+
+/* ── Panels ── */
+.ag-panel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.ag-panel h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #8b9eb0;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+/* ── Legend ── */
+.ag-legend { display: flex; flex-direction: column; gap: 6px; }
+
+.ag-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #e6edf3;
+}
+
+.ag-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Search ── */
+.ag-search-wrap { position: relative; }
+
+.ag-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #e6edf3;
+  padding: 7px 10px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+.ag-input:focus { border-color: #4ba3d3; }
+
+.ag-auto {
+  list-style: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  background: #0d1b2a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  z-index: 20;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.ag-auto li {
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e6edf3;
+}
+
+.ag-auto li:last-child { border-bottom: none; }
+.ag-auto li:hover { background: rgba(75, 163, 211, 0.15); color: #87ceeb; }
+
+/* ── Route buttons ── */
+.ag-rota-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: #e6edf3;
+  cursor: pointer;
+  margin-bottom: 6px;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ag-rota-btn:hover { border-color: #00d4aa; }
+
+.ag-rota-btn.active {
+  border-color: #00d4aa;
+  background: rgba(0, 212, 170, 0.1);
+  color: #00d4aa;
+  font-weight: 600;
+}
+
+.ag-path-info {
+  font-size: 11px;
+  color: #00d4aa;
+  margin-top: 6px;
+  min-height: 14px;
+  line-height: 1.5;
+}
+
+/* ── Metrics ── */
+.ag-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #c5d0da;
+}
+
+.ag-metric span:last-child {
+  color: #4ba3d3;
+  font-weight: 700;
+}
+
+/* ── Autocomplete sub-text ── */
+.ag-sug-sub { color: #6a8aa0; font-size: 11px; }
+
+/* ── Edge info panel ── */
+.ag-edge-panel { border-color: rgba(243,156,18,0.4) !important; }
+
+.ag-edge-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.ag-edge-head h3 { margin-bottom: 0; }
+
+.ag-edge-close {
+  width: 22px; height: 22px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 4px;
+  color: #aaa; font-size: 16px; line-height: 1;
+  cursor: pointer;
+}
+.ag-edge-close:hover { background: rgba(255,80,80,0.25); color: #fff; }
+
+.ag-edge-route {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ag-edge-iata {
+  background: rgba(243,156,18,0.18);
+  color: #f39c12;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ag-edge-arrow { color: #f39c12; font-size: 16px; font-weight: 700; }
+
+.ag-edge-cities {
+  font-size: 11px; color: #8b9eb0;
+  margin-bottom: 10px;
+}
+
+.ag-edge-rows { display: flex; flex-direction: column; gap: 6px; }
+
+.ag-edge-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: #c5d0da;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.ag-edge-row:last-child { border-bottom: none; }
+.ag-edge-row span:last-child { font-weight: 700; color: #e6edf3; }
+
+.ag-tipo { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
+.ag-tipo-regional  { background: rgba(46,204,113,0.18);  color: #2ecc71; }
+.ag-tipo-nacional  { background: rgba(52,152,219,0.18);  color: #4ba3d3; }
+.ag-tipo-hub_intra { background: rgba(241,196,15,0.18);  color: #f1c40f; }
+
+/* ── Reset button ── */
+.ag-reset {
+  display: block;
+  width: 100%;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: #8b9eb0;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ag-reset:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e6edf3;
+}
+
+/* ── Sidebar toggle ── */
+.ag-toggle {
+  position: absolute;
+  top: 16px;
+  z-index: 20;
+  width: 32px;
+  height: 56px;
+  border: 1px solid rgba(75, 163, 211, 0.5);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  background: rgba(13, 27, 42, 0.92);
+  color: #4ba3d3;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.35);
+  transition: left 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.15s;
+}
+
+.ag-toggle.open  { left: 332px; }
+.ag-toggle.closed {
+  left: 0;
+  border-left: 1px solid rgba(75, 163, 211, 0.5);
+  border-radius: 0 8px 8px 0;
+}
+
+.ag-toggle:hover { background: rgba(75, 163, 211, 0.18); }
