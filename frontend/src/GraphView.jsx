@@ -163,13 +163,19 @@ export default function GraphView({
     const ids = new Set(pathHighlight.path);
     const nodesOnPath = data.nodes.filter((n) => ids.has(n.id));
     if (nodesOnPath.length === 0) return;
-    // Os nós já vêm pré-posicionados em fx/fy pelo pathSubgraph no App.jsx.
-    // Só precisamos enquadrar a viewport.
+    // O force-directed precisa de uns segundos para acomodar.
+    // Faz vários ajustes de viewport conforme a simulação estabiliza.
     const total = pathHighlight.path.length;
-    const padding = total <= 2 ? 240 : total <= 4 ? 140 : total <= 7 ? 90 : 60;
-    setTimeout(() => {
-      fg.zoomToFit(900, padding, (n) => ids.has(n.id));
-    }, 200);
+    const padding = total <= 2 ? 200 : total <= 4 ? 120 : total <= 7 ? 80 : 50;
+    const fits = [500, 1200, 2200, 3500]; // 4 zooms progressivos
+    const timers = fits.map((delay) =>
+      setTimeout(() => {
+        try {
+          fg.zoomToFit(800, padding, (n) => ids.has(n.id));
+        } catch {}
+      }, delay)
+    );
+    return () => timers.forEach(clearTimeout);
   }, [pathHighlight, data.nodes]);
 
   const focusContext = useMemo(() => {

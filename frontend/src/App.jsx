@@ -225,8 +225,8 @@ export default function App() {
 
   // Subgrafo SÓ com os nós e arestas do caminho calculado (independente dos filtros).
   // Usado para isolar o caminho visualmente quando o user clica "Ver no grafo".
-  // Já pré-posiciona cada nó em linha horizontal (ou zig-zag se muito longo)
-  // para garantir que as arestas saiam alinhadas desde o primeiro frame.
+  // Estratégia simples: deixa o force-directed posicionar livremente, igual ao
+  // grafo principal. Garante 100% que as arestas conectam corretamente.
   const pathSubgraph = useMemo(() => {
     if (!pathHighlight?.path?.length || !raw) return null;
     const pathIds = new Set(pathHighlight.path);
@@ -234,32 +234,18 @@ export default function App() {
     for (let i = 0; i < pathHighlight.path.length - 1; i++) {
       edgeKeys.add(`${pathHighlight.path[i]}->${pathHighlight.path[i + 1]}`);
     }
-
-    // Layout em linha(s)
-    const total = pathHighlight.path.length;
-    const SPACING = 180;
-    const MAX_PER_ROW = 7;
-    const rows = Math.ceil(total / MAX_PER_ROW);
-    const perRow = Math.ceil(total / rows);
-    const rowGap = 220;
-    const positions = new Map();
-    pathHighlight.path.forEach((id, i) => {
-      const row = Math.floor(i / perRow);
-      const colInRow = i % perRow;
-      const rowSize = Math.min(perRow, total - row * perRow);
-      // Zig-zag: linhas ímpares invertidas para manter continuidade visual
-      const idxInRow = row % 2 === 1 ? rowSize - 1 - colInRow : colInRow;
-      const x = (idxInRow - (rowSize - 1) / 2) * SPACING;
-      const y = (row - (rows - 1) / 2) * rowGap;
-      positions.set(id, { x, y });
-    });
-
+    // Nós como objetos de dados puros — sem fx/fy/vx/vy.
+    // O force-directed do react-force-graph cuida do posicionamento.
     const nodes = raw.nodes
       .filter((n) => pathIds.has(n.id))
-      .map((n) => {
-        const p = positions.get(n.id);
-        return { ...n, x: p.x, y: p.y, fx: p.x, fy: p.y };
-      });
+      .map((n) => ({
+        id: n.id,
+        name: n.name,
+        degree: n.degree,
+        league: n.league,
+      }));
+    // Links também como dados puros (source/target como strings) — o motor
+    // resolve as referências para os objetos node corretamente.
     const seen = new Set();
     const links = [];
     for (const l of raw.links) {
@@ -268,7 +254,18 @@ export default function App() {
       const k = `${s}->${t}`;
       if (!edgeKeys.has(k) || seen.has(k)) continue;
       seen.add(k);
-      links.push({ ...l });
+      links.push({
+        source: s,
+        target: t,
+        player: l.player,
+        fee: l.fee,
+        market_value: l.market_value,
+        season: l.season,
+        date: l.date,
+        source_league: l.source_league,
+        target_league: l.target_league,
+        peso_lucro: l.peso_lucro,
+      });
     }
     return { nodes, links };
   }, [pathHighlight, raw]);
@@ -309,6 +306,7 @@ export default function App() {
         <div className={activeTab === "split" ? "graph-wrap split" : "graph-wrap"}>
           {displayData ? (
             <GraphView
+              key={pathHighlight ? `path-${pathHighlight.ts}` : "main"}
               data={displayData}
               onEdgeClick={setSelectedEdge}
               focusNode={focusNode}

@@ -10,6 +10,8 @@ import {
   CartesianGrid, ResponsiveContainer,
 } from "recharts";
 import AlgorithmCalculator from "./AlgorithmCalculator.jsx";
+import InsightsPanel from "./InsightsPanel.jsx";
+import Parte2Charts from "./Parte2Charts.jsx";
 
 function sId(l) {
   return typeof l.source === "object" ? l.source.id : l.source;
@@ -201,6 +203,10 @@ export default function DashboardSidebar({ graph, raw, onJumpToGraph }) {
         </ResponsiveContainer>
       </div>
 
+      {/* Gráficos adicionais (atividade, heatmap, amostra do grafo) */}
+      <Parte2Charts graph={graph} />
+
+      {/* Top 10 transferências (após a amostra do grafo) */}
       <div className="mini-card">
         <h4>Top 10 transferências</h4>
         <div className="mini-top-list">
@@ -218,6 +224,12 @@ export default function DashboardSidebar({ graph, raw, onJumpToGraph }) {
             <div className="mini-empty">Sem dados nos filtros atuais.</div>
           )}
         </div>
+      </div>
+
+      {/* INSIGHTS (no fim) */}
+      <div className="mini-card">
+        <h4>Insights (ao vivo)</h4>
+        <InsightsPanel graph={graph} raw={raw} />
       </div>
     </div>
   );

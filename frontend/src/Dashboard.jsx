@@ -7,6 +7,8 @@ import {
   CartesianGrid, ResponsiveContainer,
 } from "recharts";
 import AlgorithmCalculator from "./AlgorithmCalculator.jsx";
+import InsightsPanel from "./InsightsPanel.jsx";
+import Parte2Charts from "./Parte2Charts.jsx";
 
 function sId(l) {
   return typeof l.source === "object" ? l.source.id : l.source;
@@ -269,7 +271,10 @@ export default function Dashboard({
           </ResponsiveContainer>
         </div>
 
-        {/* Pizza top 10 transferências */}
+        {/* Gráficos adicionais (atividade, heatmap, amostra do grafo) — dentro do mesmo grid */}
+        <Parte2Charts graph={graph} />
+
+        {/* Top 10 transferências (após a amostra do grafo) */}
         <div className="chart-card">
           <h3>Top 10 transferências por valor</h3>
           <div className="top-list">
@@ -287,6 +292,16 @@ export default function Dashboard({
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── INSIGHTS (no fim) ─────────────────────────────── */}
+      <section className="dash-insights">
+        <h2>Insights baseados nos filtros atuais</h2>
+        <p className="muted">
+          Análises geradas automaticamente a partir do subgrafo filtrado.
+          Mude os filtros (liga, valor mínimo) e veja como cada insight reage.
+        </p>
+        <InsightsPanel graph={graph} raw={raw} />
       </section>
 
     </div>
