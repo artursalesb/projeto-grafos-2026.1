@@ -1,8 +1,16 @@
 /**
  * Insights gerados dinamicamente a partir do grafo filtrado.
- * Atualiza em tempo real conforme os filtros (liga, valor mínimo).
+ * Cada insight inclui o número observado E uma justificativa contextual
+ * (curada em insightContext.js) baseada em conhecimento do mercado.
  */
 import { useMemo } from "react";
+import {
+  leagueWhy,
+  clubWhy,
+  seasonWhy,
+  bucketWhy,
+  concentrationWhy,
+} from "./insightContext.js";
 
 function sId(l) {
   return typeof l.source === "object" ? l.source.id : l.source;
@@ -26,23 +34,21 @@ export default function InsightsPanel({ graph, raw }) {
     const links = graph.links;
     const totalFee = links.reduce((s, l) => s + (l.fee || 0), 0);
 
-    // 1. Clube que mais negociou (in + out)
+    // 1. Clube que mais negociou
     const degree = new Map();
-    const inDeg = new Map();
-    const outDeg = new Map();
     for (const l of links) {
       const s = sId(l);
       const t = tId(l);
       degree.set(s, (degree.get(s) || 0) + 1);
       degree.set(t, (degree.get(t) || 0) + 1);
-      outDeg.set(s, (outDeg.get(s) || 0) + 1);
-      inDeg.set(t, (inDeg.get(t) || 0) + 1);
     }
     const sortedDeg = [...degree.entries()].sort((a, b) => b[1] - a[1]);
     const hub = sortedDeg[0] || ["—", 0];
-    const meanDeg = degree.size > 0 ? sortedDeg.reduce((s, [, d]) => s + d, 0) / degree.size : 0;
+    const meanDeg =
+      degree.size > 0 ? sortedDeg.reduce((s, [, d]) => s + d, 0) / degree.size : 0;
+    const hubMultiplier = meanDeg > 0 ? hub[1] / meanDeg : 0;
 
-    // 2. Liga dominante (volume)
+    // 2. Liga dominante
     const leagueVol = new Map();
     for (const l of links) {
       for (const lg of new Set([l.source_league, l.target_league].filter(Boolean))) {
@@ -54,6 +60,7 @@ export default function InsightsPanel({ graph, raw }) {
       .sort((a, b) => b[1] - a[1]);
     const topLiga = ligas[0] || ["—", 0];
     const topLigaShare = totalFee > 0 ? (topLiga[1] / totalFee) * 100 : 0;
+    const segundaLiga = ligas[1] || ["—", 0];
 
     // 3. Temporada mais ativa
     const seasonCount = new Map();
@@ -67,7 +74,7 @@ export default function InsightsPanel({ graph, raw }) {
     const topSeason = [...seasonVol.entries()].sort((a, b) => b[1] - a[1])[0] || ["—", 0];
     const topSeasonCount = seasonCount.get(topSeason[0]) || 0;
 
-    // 4. Faixa de valor mais frequente
+    // 4. Faixa mais frequente
     const buckets = [
       { name: "< €100k", lo: 0, hi: 1e5, count: 0 },
       { name: "€100k–€1M", lo: 1e5, hi: 1e6, count: 0 },
@@ -82,29 +89,35 @@ export default function InsightsPanel({ graph, raw }) {
       if (b) b.count++;
     }
     const topBucket = [...buckets].sort((a, b) => b.count - a.count)[0];
-    const topBucketShare = links.length > 0 ? (topBucket.count / links.length) * 100 : 0;
+    const topBucketShare =
+      links.length > 0 ? (topBucket.count / links.length) * 100 : 0;
 
-    // 5. Saldo (top vendedor vs top comprador) — quem mais lucrou
+    // 5. Saldo (top vendedor vs top comprador)
     const balance = new Map();
     for (const l of links) {
       const s = sId(l);
       const t = tId(l);
       const f = l.fee || 0;
-      balance.set(s, (balance.get(s) || 0) + f);  // recebeu
-      balance.set(t, (balance.get(t) || 0) - f);  // pagou
+      balance.set(s, (balance.get(s) || 0) + f);
+      balance.set(t, (balance.get(t) || 0) - f);
     }
     const balSorted = [...balance.entries()].sort((a, b) => b[1] - a[1]);
     const maiorLucro = balSorted[0] || ["—", 0];
     const maiorPrejuizo = balSorted[balSorted.length - 1] || ["—", 0];
 
-    // 6. Concentração da elite — top 5% dos clubes responde por X% do volume
+    // 6. Concentração da elite
     const totalVolBuyer = new Map();
     for (const l of links) {
-      totalVolBuyer.set(tId(l), (totalVolBuyer.get(tId(l)) || 0) + (l.fee || 0));
+      totalVolBuyer.set(
+        tId(l),
+        (totalVolBuyer.get(tId(l)) || 0) + (l.fee || 0)
+      );
     }
     const sortedBuyers = [...totalVolBuyer.values()].sort((a, b) => b - a);
     const top5pctCount = Math.max(1, Math.ceil(sortedBuyers.length * 0.05));
-    const top5pctVol = sortedBuyers.slice(0, top5pctCount).reduce((s, v) => s + v, 0);
+    const top5pctVol = sortedBuyers
+      .slice(0, top5pctCount)
+      .reduce((s, v) => s + v, 0);
     const top5pctShare = totalFee > 0 ? (top5pctVol / totalFee) * 100 : 0;
 
     return [
@@ -114,7 +127,11 @@ export default function InsightsPanel({ graph, raw }) {
         text: (
           <>
             <b>{hub[0]}</b> é o clube mais ativo com <b>{hub[1]}</b> transferências
-            (média: {meanDeg.toFixed(1)} por clube).
+            (<b>{hubMultiplier.toFixed(1)}×</b> a média de {meanDeg.toFixed(1)} por clube).
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {clubWhy(hub[0])}
+            </span>
           </>
         ),
       },
@@ -123,8 +140,18 @@ export default function InsightsPanel({ graph, raw }) {
         label: "Liga dominante",
         text: (
           <>
-            <b>{topLiga[0]}</b> concentra <b>{fmtEUR(topLiga[1])}</b> em transferências —
-            <b> {topLigaShare.toFixed(0)}%</b> do volume total.
+            <b>{topLiga[0]}</b> concentra <b>{fmtEUR(topLiga[1])}</b> em transferências —{" "}
+            <b>{topLigaShare.toFixed(0)}%</b> do volume total
+            {segundaLiga[0] !== "—" && (
+              <>
+                , à frente de <b>{segundaLiga[0]}</b> (<b>{fmtEUR(segundaLiga[1])}</b>)
+              </>
+            )}
+            .
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {leagueWhy(topLiga[0])}
+            </span>
           </>
         ),
       },
@@ -135,6 +162,10 @@ export default function InsightsPanel({ graph, raw }) {
           <>
             <b>{topSeason[0]}</b> foi a temporada com maior volume:{" "}
             <b>{fmtEUR(topSeason[1])}</b> em <b>{topSeasonCount}</b> transferências.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {seasonWhy(topSeason[0])}
+            </span>
           </>
         ),
       },
@@ -144,7 +175,12 @@ export default function InsightsPanel({ graph, raw }) {
         text: (
           <>
             <b>{topBucketShare.toFixed(0)}%</b> das transferências estão na faixa{" "}
-            <b>{topBucket.name}</b> ({topBucket.count.toLocaleString("pt-BR")}).
+            <b>{topBucket.name}</b> ({topBucket.count.toLocaleString("pt-BR")}{" "}
+            operações).
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {bucketWhy(topBucket.name)}
+            </span>
           </>
         ),
       },
@@ -153,10 +189,20 @@ export default function InsightsPanel({ graph, raw }) {
         label: "Quem lucra, quem gasta",
         text: (
           <>
-            Maior saldo positivo: <b>{maiorLucro[0]}</b> ({fmtEUR(maiorLucro[1])}).
+            Maior saldo positivo: <b>{maiorLucro[0]}</b> ({fmtEUR(maiorLucro[1])}) —
+            recebeu muito mais do que pagou.
             <br />
-            Maior saldo negativo: <b>{maiorPrejuizo[0]}</b> ({fmtEUR(Math.abs(maiorPrejuizo[1]))}{" "}
-            no vermelho).
+            <span className="why">
+              <b>Por quê?</b> {clubWhy(maiorLucro[0])}
+            </span>
+            <br />
+            Maior saldo negativo: <b>{maiorPrejuizo[0]}</b> (
+            {fmtEUR(Math.abs(maiorPrejuizo[1]))} no vermelho) — gastou muito mais do que
+            arrecadou.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {clubWhy(maiorPrejuizo[0])}
+            </span>
           </>
         ),
       },
@@ -166,7 +212,11 @@ export default function InsightsPanel({ graph, raw }) {
         text: (
           <>
             Os <b>5%</b> clubes que mais compram respondem por{" "}
-            <b>{top5pctShare.toFixed(0)}%</b> do volume — distribuição típica de cauda longa.
+            <b>{top5pctShare.toFixed(0)}%</b> do volume.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {concentrationWhy(top5pctShare)}
+            </span>
           </>
         ),
       },

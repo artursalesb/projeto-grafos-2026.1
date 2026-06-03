@@ -66,36 +66,7 @@ export default function Home({ onNavigate }) {
         </header>
 
         <div className="home-cards">
-          {/* Card Mercado da Bola */}
-          <button
-            className={`home-card card-bola ${hovered === "bola" ? "is-hovered" : ""}`}
-            onMouseEnter={() => setHovered("bola")}
-            onMouseLeave={() => setHovered(null)}
-            onClick={() => onNavigate("bola")}
-            aria-label="Ir para Mercado da Bola"
-          >
-            <div className="card-bg-art bola-art">
-              <BolaSVG />
-            </div>
-            <div className="card-body">
-              <div className="card-tag">Parte 1</div>
-              <h2 className="card-title">Mercado da Bola</h2>
-              <p className="card-desc">
-                Grafo das transferências entre clubes. Filtre por campeonato,
-                valor mínimo e explore o dashboard de insights.
-              </p>
-              <div className="card-pills">
-                <span className="pill">Grafo dirigido</span>
-                <span className="pill">3.166 clubes</span>
-                <span className="pill">17.458 transf.</span>
-              </div>
-              <div className="card-cta">
-                Explorar <span className="cta-arrow">→</span>
-              </div>
-            </div>
-          </button>
-
-          {/* Card Aeroportos */}
+          {/* Card Aeroportos (Parte 1 — vem primeiro) */}
           <button
             className={`home-card card-aero ${hovered === "aero" ? "is-hovered" : ""}`}
             onMouseEnter={() => setHovered("aero")}
@@ -107,7 +78,7 @@ export default function Home({ onNavigate }) {
               <AeroSVG />
             </div>
             <div className="card-body">
-              <div className="card-tag">Parte 2</div>
+              <div className="card-tag">Parte 1</div>
               <h2 className="card-title">Malha Aérea BR</h2>
               <p className="card-desc">
                 Rede de aeroportos brasileiros com Dijkstra, métricas por
@@ -117,6 +88,35 @@ export default function Home({ onNavigate }) {
                 <span className="pill">Grafo não-dirigido</span>
                 <span className="pill">20 aeroportos</span>
                 <span className="pill">77 conexões</span>
+              </div>
+              <div className="card-cta">
+                Explorar <span className="cta-arrow">→</span>
+              </div>
+            </div>
+          </button>
+
+          {/* Card Mercado da Bola (Parte 2 — vem depois) */}
+          <button
+            className={`home-card card-bola ${hovered === "bola" ? "is-hovered" : ""}`}
+            onMouseEnter={() => setHovered("bola")}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => onNavigate("bola")}
+            aria-label="Ir para Mercado da Bola"
+          >
+            <div className="card-bg-art bola-art">
+              <BolaSVG />
+            </div>
+            <div className="card-body">
+              <div className="card-tag">Parte 2</div>
+              <h2 className="card-title">Mercado da Bola</h2>
+              <p className="card-desc">
+                Grafo das transferências entre clubes. Filtre por campeonato,
+                valor mínimo e explore o dashboard de insights.
+              </p>
+              <div className="card-pills">
+                <span className="pill">Grafo dirigido</span>
+                <span className="pill">3.166 clubes</span>
+                <span className="pill">17.458 transf.</span>
               </div>
               <div className="card-cta">
                 Explorar <span className="cta-arrow">→</span>

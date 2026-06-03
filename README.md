@@ -79,15 +79,18 @@ python -m src.cli --dataset ./data/aeroportos_data.csv --alg BELLMAN  --source M
 
 Dataset não-aéreo (cumpre a restrição do PDF), |V|=3.166, |E|=15.451 (< 200k).
 
-### Backend — benchmark dos 4 algoritmos
+### Backend — benchmark dos 4 algoritmos + visualizações
 
 ```bash
 python -m src.build_transfers_graph   # CSV → frontend/public/grafo.json
 python -m src.parte2                  # ~1,5 min (Bellman-Ford é O(V·E))
-python -m src.parte2_viz              # 4 PNGs comparativos
+python -m src.parte2_viz              # 4 PNGs comparativos (algoritmos)
+python -m src.parte2_dashboard_viz    # 8 PNGs do dashboard (mercado)
 ```
 
 Saídas em `out/`:
+
+**Análise de algoritmos** (gerados por `src.parte2` e `src.parte2_viz`):
 
 | Arquivo | O que é |
 |---|---|
@@ -97,13 +100,31 @@ Saídas em `out/`:
 | `parte2_heatmap.png` | heatmap de custos Dijkstra entre top-12 clubes |
 | `parte2_amostra_grafo.png` | amostra circular do grafo (top-25 por grau) |
 
+**Análise do mercado** (gerados por `src.parte2_dashboard_viz` — espelham os gráficos do Dashboard React):
+
+| Arquivo | O que é |
+|---|---|
+| `parte2_top_vendedores.png` | top 10 clubes que mais venderam (€ total) |
+| `parte2_top_compradores.png` | top 10 clubes que mais compraram (€ total) |
+| `parte2_top_ligas.png` | top 10 ligas por volume |
+| `parte2_volume_temporada.png` | volume de transferências por temporada (linha) |
+| `parte2_faixa_valor.png` | distribuição por faixa de valor (€100k, €1M, …, €100M+) |
+| `parte2_top10_transferencias.png` | top 10 transferências individuais por valor |
+| `parte2_atividade_mercado.png` | quantos clubes vendem/compram pouco vs muito |
+| `parte2_heatmap_transferencias.png` | heatmap de count de transferências entre top 10 clubes |
+
 ### Frontend React (bônus visual/UX)
 
 Visualização interativa do grafo das 17 mil transferências sobre um campo
-de futebol em SVG, com bolas como nós, setas direcionadas com gradiente
-vermelho→verde, filtros por liga e valor mínimo, busca por clube/jogador,
-modo foco (isola ego-network), modal de aresta clicável e sidebar
-recolhível.
+de futebol em SVG, com bolas como nós, setas direcionadas, filtros por
+liga e valor mínimo, busca por clube/jogador, modo foco (isola ego-network),
+modal de aresta clicável e sidebar recolhível.
+
+**Telas:**
+
+- **Grafo** — campo de futebol com o grafo interativo (drag, zoom, filtros).
+- **Split** — grafo + dashboard ao vivo lado a lado.
+- **Dashboard** — análise completa com calculadora de algoritmos (BFS/DFS/Dijkstra/Bellman-Ford em JS puro), 9 gráficos interativos reativos aos filtros, e 6 cards de **insights com justificativa contextual** (cada métrica vem com um "por quê?" curado do mercado).
 
 ```bash
 cd frontend
@@ -158,18 +179,19 @@ projeto-grafos-2026.1/
 │       └── transferencias.csv       (dataset maior, Parte 2)
 ├── out/                     ← todas as saídas (.json/.csv/.html/.png/.md)
 ├── src/
-│   ├── cli.py               ← CLI unificada (Parte 1 e 2)
-│   ├── solve.py             ← pipeline completo da Parte 1
-│   ├── viz.py               ← visualizações da Parte 1 (PNGs + HTML interativo)
-│   ├── parte2.py            ← benchmark BFS/DFS/Dijk/BF da Parte 2
-│   ├── parte2_viz.py        ← PNGs comparativos da Parte 2
+│   ├── cli.py                    ← CLI unificada (Parte 1 e 2)
+│   ├── solve.py                  ← pipeline completo da Parte 1
+│   ├── viz.py                    ← visualizações da Parte 1 (PNGs + HTML interativo)
+│   ├── parte2.py                 ← benchmark BFS/DFS/Dijk/BF da Parte 2
+│   ├── parte2_viz.py             ← 4 PNGs comparativos de algoritmos (Parte 2)
+│   ├── parte2_dashboard_viz.py   ← 8 PNGs do dashboard (mercado, Parte 2)
 │   ├── build_transfers_graph.py  ← CSV → JSON para o React
-│   ├── leagues.py           ← mapeamento manual clube → liga
+│   ├── leagues.py                ← mapeamento manual clube → liga
 │   └── graphs/
-│       ├── graph.py         ← Graph genérico (directed=True|False)
-│       ├── algorithms.py    ← BFS / DFS / Dijkstra / Bellman-Ford
-│       ├── io.py            ← loader da Parte 1 (aeroportos)
-│       └── transfers_io.py  ← loader da Parte 2 (transferências)
+│       ├── graph.py              ← Graph genérico (directed=True|False)
+│       ├── algorithms.py         ← BFS / DFS / Dijkstra / Bellman-Ford
+│       ├── io.py                 ← loader da Parte 1 (aeroportos)
+│       └── transfers_io.py       ← loader da Parte 2 (transferências)
 ├── tests/
 │   ├── test_bfs.py            (5)
 │   ├── test_dfs.py            (7)
