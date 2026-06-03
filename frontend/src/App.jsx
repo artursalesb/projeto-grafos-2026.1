@@ -8,6 +8,7 @@ import Dashboard from "./Dashboard.jsx";
 import DashboardSidebar from "./DashboardSidebar.jsx";
 import PathBanner from "./PathBanner.jsx";
 import AirportGraph from "./AirportGraph.jsx";
+import AirportDashboard from "./AirportDashboard.jsx";
 // 1. ALTERAÇÃO: Importando o componente Home
 import Home from "./Home.jsx";
 
@@ -297,7 +298,7 @@ export default function App() {
         ← Início
       </button>
 
-      {/* 5. ALTERAÇÃO: O menu superior agora só aparece se estiver na página do Mercado da Bola */}
+      {/* 5. ALTERAÇÃO: menus de navegação por página */}
       {page === "bola" && (
         <nav className="top-tabs">
           <button
@@ -321,7 +322,26 @@ export default function App() {
         </nav>
       )}
 
+      {page === "aero" && (
+        <nav className="top-tabs">
+          <button
+            className={activeTab === "aeroportos" ? "active" : ""}
+            onClick={() => setActiveTab("aeroportos")}
+          >
+            Grafo
+          </button>
+          <button
+            className={activeTab === "dashboard-aero" ? "active" : ""}
+            onClick={() => setActiveTab("dashboard-aero")}
+          >
+            Dashboard
+          </button>
+        </nav>
+      )}
+
       {activeTab === "aeroportos" && <AirportGraph />}
+
+      {activeTab === "dashboard-aero" && <AirportDashboard />}
 
       {activeTab === "dashboard" && (
         <Dashboard graph={filtered} raw={raw} onJumpToGraph={jumpFromDashboard} />

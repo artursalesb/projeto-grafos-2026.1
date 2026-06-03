@@ -2,16 +2,47 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import "./AirportGraph.css";
 
-const NOS = [{"id":"REC","iata":"REC","cidade":"Recife","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"SSA","iata":"SSA","cidade":"Salvador","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"FOR","iata":"FOR","cidade":"Fortaleza","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"NAT","iata":"NAT","cidade":"Natal","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"},{"id":"JPA","iata":"JPA","cidade":"João Pessoa","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"},{"id":"GRU","iata":"GRU","cidade":"São Paulo","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#3498db"},{"id":"CGH","iata":"CGH","cidade":"São Paulo","regiao":"Sudeste","grau":3,"densidade_ego":1.0,"cor":"#3498db"},{"id":"GIG","iata":"GIG","cidade":"Rio de Janeiro","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#3498db"},{"id":"CNF","iata":"CNF","cidade":"Belo Horizonte","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#3498db"},{"id":"VIX","iata":"VIX","cidade":"Vitória","regiao":"Sudeste","grau":3,"densidade_ego":1.0,"cor":"#3498db"},{"id":"BSB","iata":"BSB","cidade":"Brasília","regiao":"Centro-Oeste","grau":11,"densidade_ego":0.8485,"cor":"#f1c40f"},{"id":"GYN","iata":"GYN","cidade":"Goiânia","regiao":"Centro-Oeste","grau":1,"densidade_ego":1.0,"cor":"#f1c40f"},{"id":"CWB","iata":"CWB","cidade":"Curitiba","regiao":"Sul","grau":11,"densidade_ego":0.8636,"cor":"#9b59b6"},{"id":"FLN","iata":"FLN","cidade":"Florianópolis","regiao":"Sul","grau":2,"densidade_ego":1.0,"cor":"#9b59b6"},{"id":"POA","iata":"POA","cidade":"Porto Alegre","regiao":"Sul","grau":11,"densidade_ego":0.8636,"cor":"#9b59b6"},{"id":"MAO","iata":"MAO","cidade":"Manaus","regiao":"Norte","grau":12,"densidade_ego":0.7564,"cor":"#2ecc71"},{"id":"BEL","iata":"BEL","cidade":"Belém","regiao":"Norte","grau":12,"densidade_ego":0.7564,"cor":"#2ecc71"},{"id":"PVH","iata":"PVH","cidade":"Porto Velho","regiao":"Norte","grau":2,"densidade_ego":1.0,"cor":"#2ecc71"},{"id":"RBR","iata":"RBR","cidade":"Rio Branco","regiao":"Norte","grau":2,"densidade_ego":1.0,"cor":"#2ecc71"},{"id":"THE","iata":"THE","cidade":"Teresina","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"}];
+const NOS = [{"id":"REC","iata":"REC","cidade":"Recife","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"SSA","iata":"SSA","cidade":"Salvador","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"FOR","iata":"FOR","cidade":"Fortaleza","regiao":"Nordeste","grau":13,"densidade_ego":0.7033,"cor":"#e74c3c"},{"id":"NAT","iata":"NAT","cidade":"Natal","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"},{"id":"JPA","iata":"JPA","cidade":"João Pessoa","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"},{"id":"GRU","iata":"GRU","cidade":"São Paulo","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#ffffff"},{"id":"CGH","iata":"CGH","cidade":"São Paulo","regiao":"Sudeste","grau":3,"densidade_ego":1.0,"cor":"#ffffff"},{"id":"GIG","iata":"GIG","cidade":"Rio de Janeiro","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#ffffff"},{"id":"CNF","iata":"CNF","cidade":"Belo Horizonte","regiao":"Sudeste","grau":12,"densidade_ego":0.7821,"cor":"#ffffff"},{"id":"VIX","iata":"VIX","cidade":"Vitória","regiao":"Sudeste","grau":3,"densidade_ego":1.0,"cor":"#ffffff"},{"id":"BSB","iata":"BSB","cidade":"Brasília","regiao":"Centro-Oeste","grau":11,"densidade_ego":0.8485,"cor":"#f1c40f"},{"id":"GYN","iata":"GYN","cidade":"Goiânia","regiao":"Centro-Oeste","grau":1,"densidade_ego":1.0,"cor":"#f1c40f"},{"id":"CWB","iata":"CWB","cidade":"Curitiba","regiao":"Sul","grau":11,"densidade_ego":0.8636,"cor":"#9b59b6"},{"id":"FLN","iata":"FLN","cidade":"Florianópolis","regiao":"Sul","grau":2,"densidade_ego":1.0,"cor":"#9b59b6"},{"id":"POA","iata":"POA","cidade":"Porto Alegre","regiao":"Sul","grau":11,"densidade_ego":0.8636,"cor":"#9b59b6"},{"id":"MAO","iata":"MAO","cidade":"Manaus","regiao":"Norte","grau":12,"densidade_ego":0.7564,"cor":"#2ecc71"},{"id":"BEL","iata":"BEL","cidade":"Belém","regiao":"Norte","grau":12,"densidade_ego":0.7564,"cor":"#2ecc71"},{"id":"PVH","iata":"PVH","cidade":"Porto Velho","regiao":"Norte","grau":2,"densidade_ego":1.0,"cor":"#2ecc71"},{"id":"RBR","iata":"RBR","cidade":"Rio Branco","regiao":"Norte","grau":2,"densidade_ego":1.0,"cor":"#2ecc71"},{"id":"THE","iata":"THE","cidade":"Teresina","regiao":"Nordeste","grau":3,"densidade_ego":1.0,"cor":"#e74c3c"}];
 
 const ARESTAS = [{"from":"REC","to":"NAT","peso":266.71,"tipo":"regional"},{"from":"REC","to":"JPA","peso":108.83,"tipo":"regional"},{"from":"REC","to":"THE","peso":936.95,"tipo":"regional"},{"from":"REC","to":"BSB","peso":1654.1,"tipo":"nacional"},{"from":"REC","to":"MAO","peso":2836.85,"tipo":"nacional"},{"from":"REC","to":"GRU","peso":2100.82,"tipo":"nacional"},{"from":"REC","to":"BEL","peso":1677.75,"tipo":"nacional"},{"from":"REC","to":"CNF","peso":1607.74,"tipo":"nacional"},{"from":"REC","to":"FOR","peso":627.12,"tipo":"hub_intra"},{"from":"REC","to":"CWB","peso":2453.9,"tipo":"nacional"},{"from":"REC","to":"POA","peso":2962.75,"tipo":"nacional"},{"from":"REC","to":"GIG","peso":1859.22,"tipo":"nacional"},{"from":"REC","to":"SSA","peso":649.46,"tipo":"hub_intra"},{"from":"SSA","to":"NAT","peso":858.17,"tipo":"regional"},{"from":"SSA","to":"JPA","peso":739.98,"tipo":"regional"},{"from":"SSA","to":"THE","peso":1002.66,"tipo":"regional"},{"from":"SSA","to":"BSB","peso":1083.74,"tipo":"nacional"},{"from":"SSA","to":"MAO","peso":2628.74,"tipo":"nacional"},{"from":"SSA","to":"GRU","peso":1451.36,"tipo":"nacional"},{"from":"SSA","to":"BEL","peso":1700.28,"tipo":"nacional"},{"from":"SSA","to":"CNF","peso":958.74,"tipo":"nacional"},{"from":"SSA","to":"FOR","peso":1016.0,"tipo":"hub_intra"},{"from":"SSA","to":"CWB","peso":1804.74,"tipo":"nacional"},{"from":"SSA","to":"POA","peso":2313.79,"tipo":"nacional"},{"from":"SSA","to":"GIG","peso":1217.24,"tipo":"nacional"},{"from":"FOR","to":"NAT","peso":414.93,"tipo":"regional"},{"from":"FOR","to":"JPA","peso":545.68,"tipo":"regional"},{"from":"FOR","to":"THE","peso":496.78,"tipo":"regional"},{"from":"FOR","to":"BSB","peso":1691.78,"tipo":"nacional"},{"from":"FOR","to":"MAO","peso":2390.01,"tipo":"nacional"},{"from":"FOR","to":"GRU","peso":2346.62,"tipo":"nacional"},{"from":"FOR","to":"BEL","peso":1136.08,"tipo":"nacional"},{"from":"FOR","to":"CNF","peso":1858.44,"tipo":"nacional"},{"from":"FOR","to":"CWB","peso":2672.63,"tipo":"nacional"},{"from":"FOR","to":"POA","peso":3204.09,"tipo":"nacional"},{"from":"FOR","to":"GIG","peso":2176.55,"tipo":"nacional"},{"from":"GRU","to":"CGH","peso":28.26,"tipo":"regional"},{"from":"GRU","to":"VIX","peso":729.6,"tipo":"regional"},{"from":"GRU","to":"BSB","peso":854.8,"tipo":"nacional"},{"from":"GRU","to":"MAO","peso":2697.86,"tipo":"nacional"},{"from":"GRU","to":"BEL","peso":2461.43,"tipo":"nacional"},{"from":"GRU","to":"CNF","peso":496.46,"tipo":"hub_intra"},{"from":"GRU","to":"CWB","peso":358.95,"tipo":"nacional"},{"from":"GRU","to":"POA","peso":865.52,"tipo":"nacional"},{"from":"GRU","to":"GIG","peso":336.79,"tipo":"hub_intra"},{"from":"CGH","to":"GIG","peso":359.67,"tipo":"regional"},{"from":"CGH","to":"CNF","peso":524.36,"tipo":"regional"},{"from":"GIG","to":"VIX","peso":417.72,"tipo":"regional"},{"from":"GIG","to":"BSB","peso":913.92,"tipo":"nacional"},{"from":"GIG","to":"MAO","peso":2847.97,"tipo":"nacional"},{"from":"GIG","to":"BEL","peso":2448.32,"tipo":"nacional"},{"from":"GIG","to":"CNF","peso":362.03,"tipo":"hub_intra"},{"from":"GIG","to":"CWB","peso":672.38,"tipo":"nacional"},{"from":"GIG","to":"POA","peso":1121.96,"tipo":"nacional"},{"from":"CNF","to":"VIX","peso":391.62,"tipo":"regional"},{"from":"CNF","to":"BSB","peso":590.86,"tipo":"nacional"},{"from":"CNF","to":"MAO","peso":2539.9,"tipo":"nacional"},{"from":"CNF","to":"BEL","peso":2086.55,"tipo":"nacional"},{"from":"CNF","to":"CWB","peso":846.18,"tipo":"nacional"},{"from":"CNF","to":"POA","peso":1361.98,"tipo":"nacional"},{"from":"BSB","to":"GYN","peso":162.62,"tipo":"regional"},{"from":"BSB","to":"MAO","peso":1949.05,"tipo":"nacional"},{"from":"BSB","to":"BEL","peso":1611.81,"tipo":"nacional"},{"from":"BSB","to":"CWB","peso":1082.28,"tipo":"nacional"},{"from":"BSB","to":"POA","peso":1605.15,"tipo":"nacional"},{"from":"CWB","to":"FLN","peso":245.47,"tipo":"regional"},{"from":"CWB","to":"MAO","peso":2758.85,"tipo":"nacional"},{"from":"CWB","to":"BEL","peso":2686.16,"tipo":"nacional"},{"from":"CWB","to":"POA","peso":533.68,"tipo":"hub_intra"},{"from":"FLN","to":"POA","peso":363.06,"tipo":"regional"},{"from":"POA","to":"MAO","peso":3140.19,"tipo":"nacional"},{"from":"POA","to":"BEL","peso":3193.92,"tipo":"nacional"},{"from":"MAO","to":"PVH","peso":761.11,"tipo":"regional"},{"from":"MAO","to":"RBR","peso":1152.31,"tipo":"regional"},{"from":"MAO","to":"BEL","peso":1299.19,"tipo":"hub_intra"},{"from":"BEL","to":"PVH","peso":1891.36,"tipo":"regional"},{"from":"BEL","to":"RBR","peso":2345.17,"tipo":"regional"}];
 
 const CAMINHOS = {"REC-POA":{"origem":"REC","destino":"POA","custo":2962.75,"caminho":["REC","POA"]},"MAO-GRU":{"origem":"MAO","destino":"GRU","custo":2697.86,"caminho":["MAO","GRU"]}};
-const COR_REG  = {"Norte":"#2ecc71","Nordeste":"#e74c3c","Centro-Oeste":"#f1c40f","Sudeste":"#3498db","Sul":"#9b59b6"};
+const COR_REG  = {"Norte":"#2ecc71","Nordeste":"#e74c3c","Centro-Oeste":"#f1c40f","Sudeste":"#ffffff","Sul":"#9b59b6"};
+
+// Bright glow color used when a node is focused — one per region color
+const FOCUS_BRIGHT = {
+  "#e74c3c": "#ff2222",  // Nordeste — vermelho vivo
+  "#2ecc71": "#00ff7a",  // Norte — verde vivo
+  "#f1c40f": "#ffe000",  // Centro-Oeste — amarelo vivo
+  "#ffffff": "#c8e8ff",  // Sudeste — branco azulado para contrastar no céu
+  "#9b59b6": "#cc44ff",  // Sul — roxo vivo
+};
 const TIPO_LABEL = {"regional":"Regional","nacional":"Nacional","hub_intra":"Hub Intrarregional"};
 
+// Geographic positions approximating real Brazil coordinates
+// Mapped from lon/lat to canvas coordinates (Brazil: lon -73→-33, lat 5→-34)
+const GEO_FX = {
+  MAO: -140, BEL:  90,  PVH: -218, RBR: -296,
+  FOR:  290, NAT:  328, JPA:  365, REC:  372, THE:  204, SSA:  294,
+  BSB:  108, GYN:   68,
+  VIX:  254, CNF:  182, GIG:  196, GRU:  130, CGH:  158,
+  CWB:   76, FLN:   90, POA:   36,
+};
+const GEO_FY = {
+  MAO: -206, BEL: -235, PVH: -104, RBR:  -83,
+  FOR: -192, NAT: -168, JPA: -135, REC: -100, THE: -169, SSA:  -29,
+  BSB:   20, GYN:   45,
+  VIX:  104, CNF:   92, GIG:  149, GRU:  160, CGH:  195,
+  CWB:  197, FLN:  237, POA:  278,
+};
+
 const GRAPH_DATA = {
-  nodes: NOS.map(n => ({ id: n.iata, iata: n.iata, cidade: n.cidade, regiao: n.regiao, grau: n.grau, cor: n.cor })),
+  nodes: NOS.map(n => ({
+    id: n.iata, iata: n.iata, cidade: n.cidade,
+    regiao: n.regiao, grau: n.grau, cor: n.cor,
+    fx: GEO_FX[n.iata], fy: GEO_FY[n.iata],
+    x:  GEO_FX[n.iata], y:  GEO_FY[n.iata],
+  })),
   links: ARESTAS.map((a, i) => ({ _id: i, source: a.from, target: a.to, peso: a.peso, tipo: a.tipo })),
 };
 
@@ -23,17 +54,18 @@ function lid(l) {
   return `${s}|${t}`;
 }
 
+// Top-down airplane silhouette (nose pointing up, wings left/right)
 function drawAirplane(ctx, x, y, size, color, state) {
   ctx.save();
   ctx.translate(x, y);
-  const s = size / 22;
+  const s = size / 20;
   ctx.scale(s, s);
 
   let fill = color;
   let alpha = 1;
   ctx.shadowBlur = 0;
 
-  if (state === "focused")        { fill = "#ffd700"; ctx.shadowColor = "#ffd700"; ctx.shadowBlur = 20 / s; }
+  if (state === "focused")        { const fc = FOCUS_BRIGHT[color] ?? color; fill = fc; ctx.shadowColor = fc; ctx.shadowBlur = 22 / s; }
   else if (state === "neighbor")  { ctx.shadowColor = "#87ceeb"; ctx.shadowBlur = 8 / s; }
   else if (state === "pathEnd")   { fill = "#f39c12"; ctx.shadowColor = "#f39c12"; ctx.shadowBlur = 16 / s; }
   else if (state === "pathMid")   { fill = "#00d4aa"; ctx.shadowColor = "#00d4aa"; ctx.shadowBlur = 10 / s; }
@@ -43,13 +75,49 @@ function drawAirplane(ctx, x, y, size, color, state) {
   ctx.globalAlpha = alpha;
   ctx.fillStyle = fill;
   ctx.strokeStyle = "rgba(0,0,0,0.55)";
-  ctx.lineWidth = 1.2;
+  ctx.lineWidth = 0.9;
 
-  ctx.beginPath(); ctx.ellipse(2, 0, 14, 4.5, 0, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(2,-2); ctx.lineTo(-2,-16); ctx.lineTo(-7,-13); ctx.lineTo(0,-2); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(2, 2); ctx.lineTo(-2, 16); ctx.lineTo(-7, 13); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-10,-1); ctx.lineTo(-13,-8); ctx.lineTo(-11,-6); ctx.lineTo(-8,-1); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(-10, 1); ctx.lineTo(-13, 8); ctx.lineTo(-11, 6); ctx.lineTo(-8, 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Fuselage — pointed nose (top), tapered tail (bottom)
+  ctx.beginPath();
+  ctx.moveTo(0, -17);
+  ctx.bezierCurveTo( 4, -12,  4.5, -5,  4,  2);
+  ctx.bezierCurveTo( 3.5,  8,  2.5, 12,  2, 17);
+  ctx.lineTo(-2, 17);
+  ctx.bezierCurveTo(-2.5, 12, -3.5,  8, -4,  2);
+  ctx.bezierCurveTo(-4.5, -5,  -4, -12,  0, -17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Main wings — swept back, spanning left/right
+  ctx.beginPath();
+  ctx.moveTo(-4, -1);
+  ctx.lineTo(-22,  8);
+  ctx.lineTo(-19, 12);
+  ctx.lineTo(-12,  9);
+  ctx.lineTo( -4,  6);
+  ctx.lineTo(  4,  6);
+  ctx.lineTo( 12,  9);
+  ctx.lineTo( 19, 12);
+  ctx.lineTo( 22,  8);
+  ctx.lineTo(  4, -1);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Horizontal tail stabilizers (smaller fins at the bottom)
+  ctx.beginPath();
+  ctx.moveTo(-2, 12);
+  ctx.lineTo(-10, 17);
+  ctx.lineTo( -9, 20);
+  ctx.lineTo( -2, 16);
+  ctx.lineTo(  2, 16);
+  ctx.lineTo(  9, 20);
+  ctx.lineTo( 10, 17);
+  ctx.lineTo(  2, 12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
 
   ctx.shadowBlur = 0;
   ctx.restore();
@@ -132,11 +200,14 @@ export default function AirportGraph() {
 
     const fontSize = Math.max(5, 12 / scale);
     const labelColor =
-      st === "focused"  ? "#ffd700" :
+      st === "focused"  ? (FOCUS_BRIGHT[node.cor] ?? node.cor) :
       st === "pathEnd"  ? "#f39c12" :
       st === "pathMid"  ? "#00d4aa" :
       st === "edgeNode" ? "#f39c12" :
       "#fff";
+
+    // place label below the plane's tail fins (≈ 0.95 × node size below centre)
+    const labelY = node.y + s * 0.95 + 3;
 
     ctx.save();
     ctx.globalAlpha = st === "dimmed" ? 0.2 : 1;
@@ -145,9 +216,9 @@ export default function AirportGraph() {
     ctx.textBaseline = "top";
     ctx.strokeStyle = "rgba(0,0,0,0.9)";
     ctx.lineWidth = 3 / scale;
-    ctx.strokeText(node.iata, node.x, node.y + s / 2 + 2);
+    ctx.strokeText(node.iata, node.x, labelY);
     ctx.fillStyle = labelColor;
-    ctx.fillText(node.iata, node.x, node.y + s / 2 + 2);
+    ctx.fillText(node.iata, node.x, labelY);
     ctx.restore();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathNodes, pathEndpts, focusedIata, focusSet, selEdgeNodes]);
@@ -192,21 +263,6 @@ export default function AirportGraph() {
     ctx.lineCap = "round";
     ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke();
 
-    // Small midpoint arrowhead
-    if (len > 30 && !dimmed) {
-      const angle = Math.atan2(dy, dx);
-      const mx = (sx + tx) / 2, my = (sy + ty) / 2;
-      const al = 5, aw = Math.PI / 5.5;
-      ctx.globalAlpha = isSelEdge || onPath ? 0.75 : isFocus ? 0.55 : 0.3;
-      ctx.fillStyle = stroke;
-      ctx.beginPath();
-      ctx.moveTo(mx + al * Math.cos(angle),     my + al * Math.sin(angle));
-      ctx.lineTo(mx - al * Math.cos(angle - aw), my - al * Math.sin(angle - aw));
-      ctx.lineTo(mx - al * Math.cos(angle + aw), my - al * Math.sin(angle + aw));
-      ctx.closePath();
-      ctx.fill();
-    }
-
     ctx.shadowBlur = 0;
     ctx.restore();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -218,11 +274,10 @@ export default function AirportGraph() {
     setPathEdgeIds(new Set()); setPathInfo("");
     setFocusedIata(null); setSelEdge(null);
     setBusca(""); setSugestoes([]); setSelMetric("—");
-    if (fgRef.current) fgRef.current.zoomToFit(600, 40);
+    if (fgRef.current) fgRef.current.zoomToFit(600, 60);
   }
 
   function focusNode(iata) {
-    // Clear path & edge selection, activate node focus
     setRotaAtiva(null); setPathNodes(new Set()); setPathEndpts(new Set());
     setPathEdgeIds(new Set()); setPathInfo(""); setSelEdge(null);
     setFocusedIata(iata);
@@ -235,7 +290,13 @@ export default function AirportGraph() {
         if (a.from === iata) neighbors.add(a.to);
         if (a.to   === iata) neighbors.add(a.from);
       });
-      fgRef.current.zoomToFit(600, 60, nd => neighbors.has(nd.id));
+      fgRef.current.zoomToFit(500, 80, nd => neighbors.has(nd.id));
+      // Cap zoom so small isolated nodes don't get absurdly zoomed in
+      setTimeout(() => {
+        if (fgRef.current && fgRef.current.zoom() > 3.5) {
+          fgRef.current.zoom(3.5, 250);
+        }
+      }, 600);
     }, 300);
   }
 
@@ -251,7 +312,7 @@ export default function AirportGraph() {
     setPathInfo(`${cam.join(" → ")}  ·  ${info.custo} km`);
     setRotaAtiva(k);
     setTimeout(() => {
-      if (fgRef.current) fgRef.current.zoomToFit(600, 80, n => nodes.has(n.id));
+      if (fgRef.current) fgRef.current.zoomToFit(600, 100, n => nodes.has(n.id));
     }, 350);
   }
 
@@ -284,7 +345,7 @@ export default function AirportGraph() {
     setSelMetric(`${s} ↔ ${t}`);
     setTimeout(() => {
       if (fgRef.current)
-        fgRef.current.zoomToFit(600, 120, n => n.id === s || n.id === t);
+        fgRef.current.zoomToFit(600, 140, n => n.id === s || n.id === t);
     }, 300);
   }
 
@@ -310,7 +371,7 @@ export default function AirportGraph() {
           nodePointerAreaPaint={(node, color, ctx) => {
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(node.x, node.y, nodeSize(node.grau) / 2 + 4, 0, 2 * Math.PI);
+            ctx.arc(node.x, node.y, nodeSize(node.grau) / 2 + 6, 0, 2 * Math.PI);
             ctx.fill();
           }}
           nodeLabel={node => `✈ ${node.iata} — ${node.cidade}\nRegião: ${node.regiao}\nGrau: ${node.grau}`}
@@ -329,10 +390,10 @@ export default function AirportGraph() {
             ctx.lineTo(link.target.x, link.target.y);
             ctx.stroke();
           }}
-          cooldownTicks={300}
-          warmupTicks={80}
-          d3VelocityDecay={0.38}
-          d3AlphaDecay={0.016}
+          cooldownTicks={60}
+          warmupTicks={0}
+          d3VelocityDecay={0.9}
+          d3AlphaDecay={0.3}
         />
       </div>
 
