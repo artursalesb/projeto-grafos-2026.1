@@ -8,6 +8,8 @@ import Dashboard from "./Dashboard.jsx";
 import DashboardSidebar from "./DashboardSidebar.jsx";
 import PathBanner from "./PathBanner.jsx";
 import AirportGraph from "./AirportGraph.jsx";
+// 1. ALTERAÇÃO: Importando o componente Home
+import Home from "./Home.jsx";
 
 const FEE_STEPS = [
   { label: "Todas", value: 0 },
@@ -33,6 +35,9 @@ function targetId(l) {
 }
 
 export default function App() {
+  // 2. ALTERAÇÃO: Adicionando o estado da página (null = home | "bola" | "aero")
+  const [page, setPage] = useState(null);
+
   const [raw, setRaw] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
   const [selectedClub, setSelectedClub] = useState(null);
@@ -79,10 +84,8 @@ export default function App() {
     }
 
     if (focusMode && selectedPlayer) {
-      // Mostra TODAS as transferências desse jogador (e somente delas)
       links = links.filter((l) => l.player === selectedPlayer);
     } else if (focusMode && highlightLink) {
-      // Caso isolado: aresta destacada via clube ou clique direto, sem jogador
       links = links.filter((l) => l === highlightLink);
     }
 
@@ -209,7 +212,6 @@ export default function App() {
     setPathInfo(null);
   };
 
-  // Conta quantas arestas do caminho NÃO estão no grafo filtrado
   const missingEdges = useMemo(() => {
     if (!pathInfo?.path || !filtered) return 0;
     const visible = new Set();
@@ -224,10 +226,6 @@ export default function App() {
     return missing;
   }, [pathInfo, filtered]);
 
-  // Subgrafo SÓ com os nós e arestas do caminho calculado (independente dos filtros).
-  // Usado para isolar o caminho visualmente quando o user clica "Ver no grafo".
-  // Estratégia simples: deixa o force-directed posicionar livremente, igual ao
-  // grafo principal. Garante 100% que as arestas conectam corretamente.
   const pathSubgraph = useMemo(() => {
     if (!pathHighlight?.path?.length || !raw) return null;
     const pathIds = new Set(pathHighlight.path);
@@ -235,8 +233,6 @@ export default function App() {
     for (let i = 0; i < pathHighlight.path.length - 1; i++) {
       edgeKeys.add(`${pathHighlight.path[i]}->${pathHighlight.path[i + 1]}`);
     }
-    // Nós como objetos de dados puros — sem fx/fy/vx/vy.
-    // O force-directed do react-force-graph cuida do posicionamento.
     const nodes = raw.nodes
       .filter((n) => pathIds.has(n.id))
       .map((n) => ({
@@ -245,8 +241,6 @@ export default function App() {
         degree: n.degree,
         league: n.league,
       }));
-    // Links também como dados puros (source/target como strings) — o motor
-    // resolve as referências para os objetos node corretamente.
     const seen = new Set();
     const links = [];
     for (const l of raw.links) {
@@ -271,37 +265,61 @@ export default function App() {
     return { nodes, links };
   }, [pathHighlight, raw]);
 
-  // Grafo que de fato vai para a tela: subgrafo do caminho > grafo filtrado.
   const displayData = pathSubgraph || filtered;
+
+  // 3. ALTERAÇÃO: Early return para renderizar a Home se "page" for null
+  if (page === null) {
+    return (
+      <Home
+        onNavigate={(dest) => {
+          setPage(dest);
+          // Força a aba correta baseada na escolha da Home
+          if (dest === "bola") setActiveTab("grafo");
+          if (dest === "aero") setActiveTab("aeroportos");
+        }}
+      />
+    );
+  }
 
   return (
     <div className="app">
-      <nav className="top-tabs">
-        <button
-          className={activeTab === "grafo" ? "active" : ""}
-          onClick={() => setActiveTab("grafo")}
-        >
-          Grafo
-        </button>
-        <button
-          className={activeTab === "split" ? "active" : ""}
-          onClick={() => setActiveTab("split")}
-        >
-          Split (grafo + gráficos)
-        </button>
-        <button
-          className={activeTab === "dashboard" ? "active" : ""}
-          onClick={() => setActiveTab("dashboard")}
-        >
-          Dashboard
-        </button>
-        <button
-          className={activeTab === "aeroportos" ? "active" : ""}
-          onClick={() => setActiveTab("aeroportos")}
-        >
-          Aeroportos
-        </button>
-      </nav>
+      {/* 4. ALTERAÇÃO: Botão flutuante para voltar ao Início (Home) */}
+      <button
+        onClick={() => setPage(null)}
+        style={{
+          position: "fixed", top: 12, left: 12, zIndex: 9999,
+          background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.15)",
+          borderRadius: "999px", color: "#fff", fontSize: "13px",
+          fontWeight: 600, padding: "6px 16px", cursor: "pointer",
+          backdropFilter: "blur(8px)",
+        }}
+      >
+        ← Início
+      </button>
+
+      {/* 5. ALTERAÇÃO: O menu superior agora só aparece se estiver na página do Mercado da Bola */}
+      {page === "bola" && (
+        <nav className="top-tabs">
+          <button
+            className={activeTab === "grafo" ? "active" : ""}
+            onClick={() => setActiveTab("grafo")}
+          >
+            Grafo
+          </button>
+          <button
+            className={activeTab === "split" ? "active" : ""}
+            onClick={() => setActiveTab("split")}
+          >
+            Split (grafo + gráficos)
+          </button>
+          <button
+            className={activeTab === "dashboard" ? "active" : ""}
+            onClick={() => setActiveTab("dashboard")}
+          >
+            Dashboard
+          </button>
+        </nav>
+      )}
 
       {activeTab === "aeroportos" && <AirportGraph />}
 
@@ -360,162 +378,162 @@ export default function App() {
       )}
 
       {(activeTab === "grafo" || activeTab === "split") && (
-      <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
-        <h1>Mercado da Bola</h1>
-        <div className="subtitle">Grafo das transferências (fee {">"} 0)</div>
+        <aside className={`sidebar ${sidebarOpen ? "" : "collapsed"}`}>
+          <h1>Mercado da Bola</h1>
+          <div className="subtitle">Grafo das transferências (fee {">"} 0)</div>
 
-        <div className="stats">
-          <div className="stat">
-            <div className="label">Vértices (clubes)</div>
-            <div className="value">{formatNum(filtered?.nodes.length)}</div>
-            <div className="stat-sub">de {formatNum(raw?.stats.nodes)}</div>
+          <div className="stats">
+            <div className="stat">
+              <div className="label">Vértices (clubes)</div>
+              <div className="value">{formatNum(filtered?.nodes.length)}</div>
+              <div className="stat-sub">de {formatNum(raw?.stats.nodes)}</div>
+            </div>
+            <div className="stat">
+              <div className="label">Arestas (transf.)</div>
+              <div className="value">{formatNum(filtered?.links.length)}</div>
+              <div className="stat-sub">de {formatNum(raw?.stats.links)}</div>
+            </div>
           </div>
-          <div className="stat">
-            <div className="label">Arestas (transf.)</div>
-            <div className="value">{formatNum(filtered?.links.length)}</div>
-            <div className="stat-sub">de {formatNum(raw?.stats.links)}</div>
+
+          <div className="filter">
+            <div className="filter-label">
+              <span>Campeonato</span>
+              {league !== "Todas" && (
+                <span className="filter-value">{league}</span>
+              )}
+            </div>
+            <select
+              className="league-select"
+              value={league}
+              onChange={(e) => setLeague(e.target.value)}
+            >
+              <option value="Todas">Todas as ligas</option>
+              {raw?.leagues
+                .filter((name) => raw.league_counts[name])
+                .map((name) => (
+                  <option key={name} value={name}>
+                    {name} ({raw.league_counts[name]} clubes)
+                  </option>
+                ))}
+            </select>
           </div>
-        </div>
 
-        <div className="filter">
-          <div className="filter-label">
-            <span>Campeonato</span>
-            {league !== "Todas" && (
-              <span className="filter-value">{league}</span>
-            )}
-          </div>
-          <select
-            className="league-select"
-            value={league}
-            onChange={(e) => setLeague(e.target.value)}
-          >
-            <option value="Todas">Todas as ligas</option>
-            {raw?.leagues
-              .filter((name) => raw.league_counts[name])
-              .map((name) => (
-                <option key={name} value={name}>
-                  {name} ({raw.league_counts[name]} clubes)
-                </option>
-              ))}
-          </select>
-        </div>
-
-        <div className="search-modes">
-          <button
-            className={searchMode === "clube" ? "active" : ""}
-            onClick={() => {
-              setSearchMode("clube");
-              setSuggestions([]);
-            }}
-          >
-            Clube
-          </button>
-          <button
-            className={searchMode === "jogador" ? "active" : ""}
-            onClick={() => {
-              setSearchMode("jogador");
-              setSuggestions([]);
-            }}
-          >
-            Jogador
-          </button>
-        </div>
-
-        <div className="search-wrap">
-          <input
-            className="search"
-            placeholder={
-              searchMode === "clube"
-                ? "Buscar clube (ex: Liverpool)"
-                : "Buscar jogador (ex: Neymar)"
-            }
-            value={search}
-            onChange={handleSearchChange}
-            onKeyDown={handleKey}
-          />
-          {suggestions.length > 0 && (
-            <ul className="suggestions">
-              {suggestions.map((s, i) => (
-                <li key={i} onClick={() => pickSuggestion(s)}>
-                  <span className="sug-label">{s.label}</span>
-                  <span className="sug-sub">{s.sub}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {hasSelection && (
-          <div className="focus-toolbar">
-            <label className="focus-toggle">
-              <input
-                type="checkbox"
-                checked={focusMode}
-                onChange={(e) => setFocusMode(e.target.checked)}
-              />
-              <span>
-                Modo foco{" "}
-                <span className="focus-sub">
-                  (isola {selectedClub ? "vizinhos" : "essa transferência"})
-                </span>
-              </span>
-            </label>
-            {selectedClub && (
-              <div className="focus-legend">
-                <span className="legend-dot in"></span> chegou
-                <span className="legend-dot out"></span> saiu
-              </div>
-            )}
-            <button className="clear-focus" onClick={clearFocus}>
-              Limpar seleção
+          <div className="search-modes">
+            <button
+              className={searchMode === "clube" ? "active" : ""}
+              onClick={() => {
+                setSearchMode("clube");
+                setSuggestions([]);
+              }}
+            >
+              Clube
+            </button>
+            <button
+              className={searchMode === "jogador" ? "active" : ""}
+              onClick={() => {
+                setSearchMode("jogador");
+                setSuggestions([]);
+              }}
+            >
+              Jogador
             </button>
           </div>
-        )}
 
-        <div className="filter">
-          <div className="filter-label">
-            <span>Valor mínimo</span>
-            <span className="filter-value">{FEE_STEPS[feeStepIdx].label}</span>
+          <div className="search-wrap">
+            <input
+              className="search"
+              placeholder={
+                searchMode === "clube"
+                  ? "Buscar clube (ex: Liverpool)"
+                  : "Buscar jogador (ex: Neymar)"
+              }
+              value={search}
+              onChange={handleSearchChange}
+              onKeyDown={handleKey}
+            />
+            {suggestions.length > 0 && (
+              <ul className="suggestions">
+                {suggestions.map((s, i) => (
+                  <li key={i} onClick={() => pickSuggestion(s)}>
+                    <span className="sug-label">{s.label}</span>
+                    <span className="sug-sub">{s.sub}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <input
-            type="range"
-            min={0}
-            max={FEE_STEPS.length - 1}
-            step={1}
-            value={feeStepIdx}
-            onChange={(e) => setFeeStepIdx(parseInt(e.target.value))}
-          />
-        </div>
 
-        {selectedClub && raw && (
-          <ClubPanel
-            club={selectedClub}
-            links={raw.links}
-            onPickTransfer={handleTransferPick}
-            onClose={() => setSelectedClub(null)}
-          />
-        )}
+          {hasSelection && (
+            <div className="focus-toolbar">
+              <label className="focus-toggle">
+                <input
+                  type="checkbox"
+                  checked={focusMode}
+                  onChange={(e) => setFocusMode(e.target.checked)}
+                />
+                <span>
+                  Modo foco{" "}
+                  <span className="focus-sub">
+                    (isola {selectedClub ? "vizinhos" : "essa transferência"})
+                  </span>
+                </span>
+              </label>
+              {selectedClub && (
+                <div className="focus-legend">
+                  <span className="legend-dot in"></span> chegou
+                  <span className="legend-dot out"></span> saiu
+                </div>
+              )}
+              <button className="clear-focus" onClick={clearFocus}>
+                Limpar seleção
+              </button>
+            </div>
+          )}
 
-        {selectedPlayer && raw && (
-          <PlayerPanel
-            player={selectedPlayer}
-            links={raw.links}
-            activeLink={highlightLink}
-            onPickTransfer={pickAnotherTransfer}
-            onClose={() => {
-              setSelectedPlayer(null);
-              setHighlightLink(null);
-            }}
-          />
-        )}
+          <div className="filter">
+            <div className="filter-label">
+              <span>Valor mínimo</span>
+              <span className="filter-value">{FEE_STEPS[feeStepIdx].label}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={FEE_STEPS.length - 1}
+              step={1}
+              value={feeStepIdx}
+              onChange={(e) => setFeeStepIdx(parseInt(e.target.value))}
+            />
+          </div>
 
-        <div className="hint">
-          • Busque clube ou jogador → grafo isola só ele e suas relações
-          <br />• Desmarque <b>Modo foco</b> para ver o grafo inteiro
-          <br />• Clique numa aresta → modal
-          <br />• Arraste qualquer bola para mover
-        </div>
-      </aside>
+          {selectedClub && raw && (
+            <ClubPanel
+              club={selectedClub}
+              links={raw.links}
+              onPickTransfer={handleTransferPick}
+              onClose={() => setSelectedClub(null)}
+            />
+          )}
+
+          {selectedPlayer && raw && (
+            <PlayerPanel
+              player={selectedPlayer}
+              links={raw.links}
+              activeLink={highlightLink}
+              onPickTransfer={pickAnotherTransfer}
+              onClose={() => {
+                setSelectedPlayer(null);
+                setHighlightLink(null);
+              }}
+            />
+          )}
+
+          <div className="hint">
+            • Busque clube ou jogador → grafo isola só ele e suas relações
+            <br />• Desmarque <b>Modo foco</b> para ver o grafo inteiro
+            <br />• Clique numa aresta → modal
+            <br />• Arraste qualquer bola para mover
+          </div>
+        </aside>
       )}
 
       <EdgeModal edge={selectedEdge} onClose={() => setSelectedEdge(null)} />
