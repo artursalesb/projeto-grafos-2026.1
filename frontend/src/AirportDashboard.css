@@ -30,6 +30,11 @@
   margin: 0;
 }
 
+.ad-filter-badge {
+  color: #4ba3d3;
+  font-weight: 600;
+}
+
 /* ── Stats row ── */
 .ad-stats {
   display: grid;
@@ -179,21 +184,6 @@
   display: block;
   border-radius: 6px;
   background: #111;
-}
-
-/* ── iframe ── */
-.ad-iframe-wrap {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(75, 163, 211, 0.18);
-  background: #222;
-}
-
-.ad-iframe {
-  width: 100%;
-  height: 520px;
-  border: none;
-  display: block;
 }
 
 /* ── Insights ── */

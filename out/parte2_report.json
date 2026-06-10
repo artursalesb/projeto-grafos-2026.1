@@ -105,7 +105,7 @@
           "PAOK",
           "Botafogo"
         ],
-        "time_ms": 7.508,
+        "time_ms": 12.233,
         "peak_kb": 70.0
       },
       {
@@ -134,7 +134,7 @@
           "Bournemouth",
           "R. Strasbourg"
         ],
-        "time_ms": 7.937,
+        "time_ms": 9.486,
         "peak_kb": 70.2
       },
       {
@@ -163,7 +163,7 @@
           "Atlético-MG",
           "Man City"
         ],
-        "time_ms": 7.687,
+        "time_ms": 8.209,
         "peak_kb": 69.9
       }
     ],
@@ -179,8 +179,8 @@
           "forward": 3996
         },
         "discovered": 1196,
-        "time_ms": 18.413,
-        "peak_kb": 1144.1
+        "time_ms": 31.652,
+        "peak_kb": 1138.1
       },
       {
         "source": "Chelsea",
@@ -193,7 +193,7 @@
           "forward": 3913
         },
         "discovered": 1196,
-        "time_ms": 20.743,
+        "time_ms": 20.084,
         "peak_kb": 1115.4
       },
       {
@@ -207,7 +207,7 @@
           "forward": 3860
         },
         "discovered": 1196,
-        "time_ms": 20.007,
+        "time_ms": 17.915,
         "peak_kb": 990.4
       }
     ]
@@ -233,7 +233,7 @@
         ],
         "nodes_visited": 1164,
         "edges_relaxed": 12129,
-        "time_ms": 27.729,
+        "time_ms": 25.434,
         "peak_kb": 367.4,
         "error": null
       },
@@ -258,7 +258,7 @@
         ],
         "nodes_visited": 1000,
         "edges_relaxed": 10912,
-        "time_ms": 22.334,
+        "time_ms": 21.451,
         "peak_kb": 350.3,
         "error": null
       },
@@ -278,7 +278,7 @@
         ],
         "nodes_visited": 55,
         "edges_relaxed": 629,
-        "time_ms": 3.412,
+        "time_ms": 3.194,
         "peak_kb": 350.3,
         "error": null
       },
@@ -304,7 +304,7 @@
         ],
         "nodes_visited": 1058,
         "edges_relaxed": 11539,
-        "time_ms": 23.531,
+        "time_ms": 25.914,
         "peak_kb": 350.3,
         "error": null
       },
@@ -326,7 +326,7 @@
         ],
         "nodes_visited": 1102,
         "edges_relaxed": 11782,
-        "time_ms": 26.29,
+        "time_ms": 22.357,
         "peak_kb": 350.3,
         "error": null
       }
@@ -353,7 +353,7 @@
         "cost": null,
         "path_length": 0,
         "path": [],
-        "time_ms": 7.087,
+        "time_ms": 10.965,
         "peak_kb": 39.1,
         "interpretation": "Caminho minimiza o saldo (fee - market_value). Saldo total negativo = série de transferências em que clubes pagaram abaixo do valor de mercado."
       },
@@ -366,7 +366,7 @@
         "has_negative_cycle": true,
         "cost": null,
         "path_length": 0,
-        "time_ms": 91222.748,
+        "time_ms": 241952.012,
         "peak_kb": 2586.3,
         "interpretation": "Se has_negative_cycle=True, existe um ciclo de transferências em que a soma dos saldos é negativa — arbitragem de mercado."
       },
@@ -379,7 +379,7 @@
         "has_negative_cycle": true,
         "cost": null,
         "path_length": 0,
-        "time_ms": 0.045,
+        "time_ms": 0.115,
         "interpretation": "Esperado has_negative_cycle=True."
       },
       {
@@ -396,7 +396,7 @@
           "A",
           "T"
         ],
-        "time_ms": 0.039,
+        "time_ms": 0.047,
         "interpretation": "Esperado: cost=0 via S→B→A→T, has_negative_cycle=False."
       }
     ]

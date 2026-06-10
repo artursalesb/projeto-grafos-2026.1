@@ -9,6 +9,7 @@ import DashboardSidebar from "./DashboardSidebar.jsx";
 import PathBanner from "./PathBanner.jsx";
 import AirportGraph from "./AirportGraph.jsx";
 import AirportDashboard from "./AirportDashboard.jsx";
+import AirportDashboardSidebar from "./AirportDashboardSidebar.jsx";
 // 1. ALTERAÇÃO: Importando o componente Home
 import Home from "./Home.jsx";
 
@@ -54,6 +55,7 @@ export default function App() {
   const [focusMode, setFocusMode] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("grafo"); // "grafo" | "split" | "dashboard" | "aeroportos"
+  const [minDegree, setMinDegree] = useState(1); // airport degree filter
   const [pathHighlight, setPathHighlight] = useState(null); // {path, ts}
   const [pathInfo, setPathInfo] = useState(null); // info completa do algoritmo p/ banner
   const searchTimer = useRef(null);
@@ -331,6 +333,12 @@ export default function App() {
             Grafo
           </button>
           <button
+            className={activeTab === "split-aero" ? "active" : ""}
+            onClick={() => setActiveTab("split-aero")}
+          >
+            Split (mapa + gráficos)
+          </button>
+          <button
             className={activeTab === "dashboard-aero" ? "active" : ""}
             onClick={() => setActiveTab("dashboard-aero")}
           >
@@ -339,9 +347,17 @@ export default function App() {
         </nav>
       )}
 
-      {activeTab === "aeroportos" && <AirportGraph />}
+      {(activeTab === "aeroportos" || activeTab === "split-aero") && (
+        <AirportGraph
+          minDegree={minDegree}
+          onMinDegreeChange={setMinDegree}
+          split={activeTab === "split-aero"}
+        />
+      )}
 
-      {activeTab === "dashboard-aero" && <AirportDashboard />}
+      {activeTab === "split-aero" && <AirportDashboardSidebar minDegree={minDegree} />}
+
+      {activeTab === "dashboard-aero" && <AirportDashboard minDegree={minDegree} />}
 
       {activeTab === "dashboard" && (
         <Dashboard graph={filtered} raw={raw} onJumpToGraph={jumpFromDashboard} />

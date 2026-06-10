@@ -107,6 +107,69 @@ def gerar_graficos_analiticos():
     print("✅ 4 novos gráficos estatísticos gerados com sucesso!")
 
 
+def gerar_graficos_dashboard_aero(grafo):
+    """
+    Gera os gráficos exibidos no dashboard de Aeroportos (React) também em
+    PNG dentro de out/, espelhando "Grau dos aeroportos visíveis" e
+    "Conexões por tipo de rota".
+    """
+    os.makedirs('out', exist_ok=True)
+    print("\n📊 Gerando gráficos do dashboard de aeroportos...")
+
+    cores_regioes = {
+        'Norte': '#2ecc71', 'Nordeste': '#e74c3c', 'Centro-Oeste': '#f1c40f',
+        'Sudeste': '#3498db', 'Sul': '#9b59b6'
+    }
+
+    # --- GRÁFICO 5: Grau de cada aeroporto, colorido por região ---
+    df_graus = pd.read_csv('out/graus.csv')
+    df_graus = df_graus.sort_values(by='grau', ascending=False)
+    cores_barras = [
+        cores_regioes.get(grafo.nodes.get(aero, {}).get('regiao', ''), '#888888')
+        for aero in df_graus['aeroporto']
+    ]
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(df_graus['aeroporto'], df_graus['grau'], color=cores_barras, edgecolor='black')
+    plt.title('Grau dos Aeroportos por Região')
+    plt.xlabel('Aeroporto (IATA)')
+    plt.ylabel('Grau (Número de Conexões)')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    legenda = [plt.Rectangle((0, 0), 1, 1, color=cor) for cor in cores_regioes.values()]
+    plt.legend(legenda, cores_regioes.keys(), title='Região')
+    plt.savefig('out/plot_05_graus_por_regiao.png', bbox_inches='tight')
+    plt.close()
+
+    # --- GRÁFICO 6: Conexões por tipo de rota ---
+    cores_tipos = {'regional': '#4cd964', 'nacional': '#3498db', 'hub_intra': '#f39c12'}
+    rotulos_tipos = {'regional': 'Regional', 'nacional': 'Nacional', 'hub_intra': 'Hub Intrarregional'}
+
+    df_adj = pd.read_csv('data/adjacencias_aeroportos.csv')
+    vistas = set()
+    contagem = {tipo: 0 for tipo in cores_tipos}
+    for _, row in df_adj.iterrows():
+        par = frozenset([row['origem'], row['destino']])
+        if par in vistas:
+            continue
+        vistas.add(par)
+        contagem[row['tipo_conexao']] = contagem.get(row['tipo_conexao'], 0) + 1
+
+    nomes = [rotulos_tipos[t] for t in cores_tipos]
+    valores = [contagem[t] for t in cores_tipos]
+    cores = list(cores_tipos.values())
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(nomes, valores, color=cores, edgecolor='black')
+    plt.title('Conexões por Tipo de Rota')
+    plt.xlabel('Tipo de Rota')
+    plt.ylabel('Quantidade de Conexões')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.savefig('out/plot_06_tipos_rota.png', bbox_inches='tight')
+    plt.close()
+
+    print("✅ 2 novos gráficos do dashboard gerados com sucesso (plot_05 e plot_06)!")
+
+
 def gerar_grafo_completo(grafo):
     """
     Gera out/grafo_interativo.html com:

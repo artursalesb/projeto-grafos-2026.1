@@ -6,6 +6,19 @@
   overflow: hidden;
 }
 
+.ag-root.split {
+  right: 360px;
+  width: auto;
+}
+
+@media (max-width: 1100px) {
+  .ag-root.split {
+    right: 0;
+    bottom: 50vh;
+    height: auto;
+  }
+}
+
 .ag-sky {
   position: absolute;
   inset: 0;
@@ -24,10 +37,10 @@
 /* ── Sidebar ── */
 .ag-sidebar {
   position: absolute;
-  top: 16px;
+  top: 60px;
   left: 16px;
   width: 300px;
-  max-height: calc(100vh - 90px);
+  max-height: calc(100vh - 134px);
   overflow-y: auto;
   background: rgba(13, 27, 42, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -258,6 +271,47 @@
 .ag-tipo-nacional  { background: rgba(52,152,219,0.18);  color: #4ba3d3; }
 .ag-tipo-hub_intra { background: rgba(241,196,15,0.18);  color: #f1c40f; }
 
+/* ── Degree filter slider ── */
+.ag-filter-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #c5d0da;
+  margin-bottom: 8px;
+}
+
+.ag-filter-value {
+  color: #4ba3d3;
+  font-weight: 700;
+}
+
+.ag-range {
+  width: 100%;
+  accent-color: #4ba3d3;
+  cursor: pointer;
+  margin-bottom: 8px;
+  height: 4px;
+}
+
+.ag-filter-counts {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6a8aa0;
+  margin-top: 2px;
+}
+
+.ag-rota-btn.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.ag-rota-hidden {
+  font-size: 10px;
+  color: #f39c12;
+  opacity: 0.8;
+}
+
 /* ── Reset button ── */
 .ag-reset {
   display: block;
@@ -281,7 +335,7 @@
 /* ── Sidebar toggle ── */
 .ag-toggle {
   position: absolute;
-  top: 16px;
+  top: 60px;
   z-index: 20;
   width: 32px;
   height: 56px;

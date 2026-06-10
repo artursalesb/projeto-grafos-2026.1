@@ -43,6 +43,8 @@ Saídas em `out/`:
 | `arvore_percurso.html` | subgrafo dos caminhos obrigatórios em verde/azul |
 | `grafo_interativo.html` | **HTML interativo** (tooltip, busca por IATA, botões de realce dos caminhos obrigatórios) |
 | `plot_01..04_*.png` | 4 visualizações analíticas (barras, pizza, dispersão, histograma) |
+| `plot_05_graus_por_regiao.png` | grau de cada aeroporto, colorido por região (espelha o gráfico "Aeroportos visíveis" do dashboard React) |
+| `plot_06_tipos_rota.png` | conexões por tipo de rota — regional/nacional/hub intrarregional (espelha o gráfico "Conexões por tipo de rota" do dashboard React) |
 | `notas_analiticas.md` | classificação exploratórias/explanatórias + interpretação |
 
 ### Benchmark dos algoritmos sobre o grafo de aeroportos

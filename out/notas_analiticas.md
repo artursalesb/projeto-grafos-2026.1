@@ -2,7 +2,7 @@
 
 Este documento acompanha as visualizações geradas em `out/`. Cada nota segue
 o esquema pedido no PDF: **o que mostra → insight → por que esse tipo de
-gráfico**. As 8 visualizações (4 da Parte 1 + 4 da Parte 2) estão
+gráfico**. As 10 visualizações (6 da Parte 1 + 4 da Parte 2) estão
 classificadas como **exploratórias** (entender o comportamento dos dados) ou
 **explanatórias** (comunicar uma mensagem clara para quem não conhece o
 projeto).
@@ -61,6 +61,33 @@ da aresta = distância em km (Haversine).
 - **Por que histograma:** queremos ver a forma da distribuição de uma
   variável contínua. Histograma é o gráfico padrão para isso.
 
+### 5. `plot_05_graus_por_regiao.png` — Grau de cada aeroporto por região *(EXPLANATÓRIA)*
+
+- **O que mostra:** barras verticais com **todos os 20 aeroportos**
+  ordenados por grau decrescente, coloridas conforme a região (mesma
+  paleta do dashboard React e do grafo interativo).
+- **Insight:** confirma o padrão do `plot_01`, mas em escala completa —
+  REC/SSA/FOR (Nordeste) e GRU/GIG/CNF (Sudeste) puxam a fila com grau
+  ≥ 12, enquanto regionais isolados (ex.: GYN, grau 1) ficam na ponta
+  oposta. A cor por região deixa visível que **os hubs concentram-se em
+  Nordeste e Sudeste**, reforçando o insight do gráfico de pizza.
+- **Por que barras coloridas por categoria:** mantém a leitura ordenada
+  por grau (variável quantitativa) enquanto adiciona uma segunda
+  dimensão (região) via cor, sem precisar de um segundo gráfico.
+
+### 6. `plot_06_tipos_rota.png` — Conexões por tipo de rota *(EXPLANATÓRIA)*
+
+- **O que mostra:** 3 barras com a contagem de conexões por
+  `tipo_conexao` — Regional, Nacional e Hub Intrarregional.
+- **Insight:** as conexões **nacionais entre hubs dominam a malha**
+  (47 das 77 arestas), contra 22 regionais e apenas 8 hub-intrarregionais.
+  Isso reflete a regra de modelagem do grupo: todo hub se conecta a todos
+  os outros hubs do país, gerando muitas arestas "nacional", enquanto
+  "hub_intra" só ocorre entre hubs da mesma região.
+- **Por que barras categóricas:** três categorias nominais com uma
+  contagem cada — caso direto de comparação de magnitudes, sem
+  necessidade de ordenação especial.
+
 ### Resumo das métricas usadas (para o PDF do grupo)
 
 | | Ordem | Tamanho | Densidade |
@@ -82,7 +109,7 @@ da aresta = distância em km (Haversine).
 Grafo dirigido ponderado, **|V| = 3 166**, **|E| = 15 451**, densidade
 **0,0015** (esparso). Peso = `transfer_fee` em €.
 
-### 5. `parte2_hist_graus.png` — Distribuição de in/out-degree *(EXPLORATÓRIA)*
+### 7. `parte2_hist_graus.png` — Distribuição de in/out-degree *(EXPLORATÓRIA)*
 
 - **O que mostra:** dois histogramas lado a lado (eixo Y em escala log) com
   o número de transferências de saída (vendas) e de entrada (compras) por
@@ -94,7 +121,7 @@ Grafo dirigido ponderado, **|V| = 3 166**, **|E| = 15 451**, densidade
 - **Por que histograma + log:** distribuições com escala muito assimétrica
   só ficam legíveis com eixo logarítmico.
 
-### 6. `parte2_tempos.png` — Tempo por algoritmo/cenário *(EXPLANATÓRIA)*
+### 8. `parte2_tempos.png` — Tempo por algoritmo/cenário *(EXPLANATÓRIA)*
 
 - **O que mostra:** barras horizontais em escala log com o tempo (ms) de
   cada execução de BFS, DFS, Dijkstra e Bellman-Ford realizada no benchmark.
@@ -105,7 +132,7 @@ Grafo dirigido ponderado, **|V| = 3 166**, **|E| = 15 451**, densidade
   heterogêneas; escala log torna comparáveis valores que diferem em ordens
   de grandeza.
 
-### 7. `parte2_heatmap.png` — Custo Dijkstra entre top-12 clubes *(EXPLANATÓRIA)*
+### 9. `parte2_heatmap.png` — Custo Dijkstra entre top-12 clubes *(EXPLANATÓRIA)*
 
 - **O que mostra:** matriz 12×12 com o custo (em M€) do caminho mais barato
   via Dijkstra entre os 12 clubes de maior grau. Quanto mais escuro,
@@ -118,7 +145,7 @@ Grafo dirigido ponderado, **|V| = 3 166**, **|E| = 15 451**, densidade
 - **Por que heatmap:** matriz quadrada de valores numéricos é o caso
   canônico de heatmap; cor codifica magnitude sem ocupar espaço extra.
 
-### 8. `parte2_amostra_grafo.png` — Amostra circular dos top-25 clubes *(EXPLORATÓRIA)*
+### 10. `parte2_amostra_grafo.png` — Amostra circular dos top-25 clubes *(EXPLORATÓRIA)*
 
 - **O que mostra:** 25 clubes de maior grau dispostos em círculo, com as
   arestas dirigidas (cor laranja) que existem **entre eles**.
@@ -136,8 +163,8 @@ Grafo dirigido ponderado, **|V| = 3 166**, **|E| = 15 451**, densidade
 
 | Requisito do PDF | Cobertura |
 |---|---|
-| Parte 1, Seção 8: "no mínimo 4 visualizações analíticas" | `plot_01..04.png` |
-| Parte 1, Seção 10: "2 exploratórias + 2 explanatórias" | exploratórias: `plot_03`, `plot_04`; explanatórias: `plot_01`, `plot_02` |
+| Parte 1, Seção 8: "no mínimo 4 visualizações analíticas" | `plot_01..06.png` (6 entregues) |
+| Parte 1, Seção 10: "2 exploratórias + 2 explanatórias" | exploratórias: `plot_03`, `plot_04`; explanatórias: `plot_01`, `plot_02`, `plot_05`, `plot_06` |
 | Parte 2, item 4: "pelo menos uma visualização" | 4 entregues (`parte2_*.png`) |
 | Parte 2, item 6: "comparação entre algoritmos" | `parte2_tempos.png` |
 | "Título, legenda e eixos em todas" | atendido em todas as figuras |
