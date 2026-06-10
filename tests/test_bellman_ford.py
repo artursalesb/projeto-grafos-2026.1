@@ -90,3 +90,36 @@ def test_bellman_ciclo_negativo_nao_alcancavel_da_origem():
     # Nossa implementação atual relaxa todas as arestas; ciclo será detectado
     # globalmente. O importante é validar o comportamento documentado.
     assert path[0] == "S" or neg is True
+
+
+# ── Casos que espelham exatamente os do out/parte2_report.json ──────────────
+
+def test_bellman_caso_sintetico_ciclo_negativo_clubes():
+    """
+    Caso 3 do report: Ajax→Roma→Lyon→Ajax com soma -1 (nomes de clubes).
+    Esperado: has_negative_cycle = True.
+    """
+    g = Graph(directed=True)
+    g.add_edge("Ajax", "Roma", peso=1)
+    g.add_edge("Roma", "Lyon", peso=-3)
+    g.add_edge("Lyon", "Ajax", peso=1)
+    g.add_edge("Ajax", "Porto", peso=2)
+    _, _, _, _, neg = bellman_ford_full(g, "Ajax", "Porto")
+    assert neg is True
+
+
+def test_bellman_caso_sintetico_peso_negativo_sem_ciclo_clubes():
+    """
+    Caso 4 do report: Santos→Inter→Barcelona→PSG = 2 + (-3) + 1 = 0.
+    Esperado: custo 0, has_negative_cycle = False.
+    """
+    g = Graph(directed=True)
+    g.add_edge("Santos", "Barcelona", peso=4)
+    g.add_edge("Santos", "Inter", peso=2)
+    g.add_edge("Inter", "Barcelona", peso=-3)
+    g.add_edge("Barcelona", "PSG", peso=1)
+    g.add_edge("Inter", "PSG", peso=5)
+    cost, path, _, _, neg = bellman_ford_full(g, "Santos", "PSG")
+    assert neg is False
+    assert cost == 0
+    assert path == ["Santos", "Inter", "Barcelona", "PSG"]

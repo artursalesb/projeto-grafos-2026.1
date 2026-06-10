@@ -1087,6 +1087,47 @@ body,
 .res-tag.warn { background: rgba(255, 100, 100, 0.15); }
 .res-tag.warn b { color: #ff6b6b; }
 .res-tag.time { background: rgba(255, 215, 0, 0.12); }
+.res-tag.rule { background: rgba(0, 229, 255, 0.12); }
+.res-tag.rule b { color: #00e5ff; }
+
+.calc-profit-toggle {
+  margin-top: 4px;
+}
+
+.calc-profit-hint {
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px 10px;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 5px;
+  font-size: 11px;
+  color: #bff7ff;
+  line-height: 1.45;
+}
+
+.calc-profit-hint b {
+  color: #00e5ff;
+}
+
+.res-negcycle {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid rgba(255, 100, 100, 0.35);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #ffc9c9;
+  line-height: 1.5;
+}
+
+.res-negcycle b {
+  color: #ff6b6b;
+}
+
+.res-negcycle .res-jump {
+  margin-top: 10px;
+}
 
 .res-path {
   margin-top: 10px;

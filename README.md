@@ -23,6 +23,27 @@ python -m pip install -r requirements.txt
 
 ---
 
+## Reproduzir TODAS as saídas do zero
+
+Para regenerar todos os arquivos de `out/` (ordem recomendada):
+
+```bash
+# Parte 1
+python -m src.solve              # métricas, plots, HTMLs interativos
+python benchmark_algorithms.py   # benchmark dos 4 algoritmos (grafo aeroportos)
+
+# Parte 2
+python -m src.build_transfers_graph   # CSV -> frontend/public/grafo.json
+python -m src.parte2                  # parte2_report.json (~1,5 min)
+python -m src.parte2_viz              # 4 PNGs de algoritmos
+python -m src.parte2_dashboard_viz    # 8 PNGs de mercado
+
+# Testes
+python -m pytest tests/ -v       # 26 testes (todos passam)
+```
+
+---
+
 ## Parte 1 — Malha aérea brasileira
 
 Pipeline completo (métricas, gráficos PNG, HTML interativo):
@@ -96,7 +117,8 @@ Saídas em `out/`:
 
 | Arquivo | O que é |
 |---|---|
-| `parte2_report.json` | estatísticas do grafo, BFS/DFS de 3 fontes, Dijkstra de 5 pares, 4 casos de Bellman-Ford (incluindo ciclo negativo detectado), tempo + memória |
+| `parte2_report.json` | estatísticas do grafo, BFS/DFS de 3 fontes, Dijkstra de 5 pares, 4 casos de Bellman-Ford (peso negativo sem ciclo + ciclo negativo detectado), tempo + memória |
+| `bellman_ford_pesos_negativos.md` | **régua de pesos negativos** (`peso = fee - market_value`) e explicação dos 4 casos de Bellman-Ford |
 | `parte2_hist_graus.png` | distribuição de in/out-degree (log) |
 | `parte2_tempos.png` | barras comparando tempo dos 4 algoritmos |
 | `parte2_heatmap.png` | heatmap de custos Dijkstra entre top-12 clubes |
@@ -158,12 +180,12 @@ python -m src.cli --dataset ./data/dataset_parte2/ --alg DFS      --source Liver
 python -m pytest tests/ -v
 ```
 
-24 testes:
+26 testes:
 
 - **BFS** — níveis em grafo pequeno, caminho mínimo em arestas, direção respeitada em grafo dirigido.
 - **DFS** — detecção de ciclo, classificação de arestas (tree/back/forward/cross), ordem discovery/finish.
 - **Dijkstra** — caminhos corretos, **recusa peso negativo** (`NegativeWeightError`).
-- **Bellman-Ford** — pesos positivos, pesos negativos sem ciclo, **detecção de ciclo negativo** (flag).
+- **Bellman-Ford** — pesos positivos, pesos negativos sem ciclo, **detecção de ciclo negativo** (flag), e os 2 casos sintéticos que espelham o `parte2_report.json`.
 
 ---
 
@@ -202,3 +224,55 @@ projeto-grafos-2026.1/
 ├── benchmark_algorithms.py  ← benchmark 100x dos algoritmos sobre o grafo da Parte 1
 └── frontend/                ← React + react-force-graph-2d (Parte 2, bônus UX)
 ```
+
+---
+
+## Mapa dos arquivos obrigatórios (checklist do PDF)
+
+### Parte 1
+
+| Exigido pelo PDF | Onde está |
+|---|---|
+| `data/aeroportos_data.csv` | [data/aeroportos_data.csv](data/aeroportos_data.csv) |
+| `data/adjacencias_aeroportos.csv` (origem,destino,tipo_conexao,justificativa,peso) | [data/adjacencias_aeroportos.csv](data/adjacencias_aeroportos.csv) |
+| `data/rotas.csv` (≥ 5 pares) | [data/rotas.csv](data/rotas.csv) |
+| `out/global.json` | [out/global.json](out/global.json) |
+| `out/regioes.json` | [out/regioes.json](out/regioes.json) |
+| `out/ego_aeroportos.csv` | [out/ego_aeroportos.csv](out/ego_aeroportos.csv) |
+| `out/graus.csv` | [out/graus.csv](out/graus.csv) |
+| `out/distancias_rotas.csv` (inclui REC→POA e MAO→GRU) | [out/distancias_rotas.csv](out/distancias_rotas.csv) |
+| `out/arvore_percurso.html` | [out/arvore_percurso.html](out/arvore_percurso.html) |
+| `out/grafo_interativo.html` (tooltip + busca + realce) | [out/grafo_interativo.html](out/grafo_interativo.html) |
+| ≥ 4 visualizações com nota analítica | `out/plot_01..06_*.png` + [out/notas_analiticas.md](out/notas_analiticas.md) |
+
+### Parte 2
+
+| Exigido pelo PDF | Onde está |
+|---|---|
+| `data/dataset_parte2/` | [data/dataset_parte2/transferencias.csv](data/dataset_parte2/transferencias.csv) |
+| Implementação BFS/DFS/Dijkstra/Bellman-Ford (própria) | [src/graphs/algorithms.py](src/graphs/algorithms.py) |
+| BFS/DFS de ≥ 3 fontes | `bfs_dfs` em [out/parte2_report.json](out/parte2_report.json) |
+| Dijkstra ≥ 5 pares | `dijkstra` em [out/parte2_report.json](out/parte2_report.json) |
+| Bellman-Ford peso negativo SEM ciclo + COM ciclo | `bellman_ford` em [out/parte2_report.json](out/parte2_report.json) + [out/bellman_ford_pesos_negativos.md](out/bellman_ford_pesos_negativos.md) |
+| `out/parte2_report.json` (tempos + comparação) | [out/parte2_report.json](out/parte2_report.json) |
+| ≥ 1 visualização da Parte 2 | `out/parte2_*.png` |
+| Discussão crítica | seção `discussion` no report + [out/limitacoes_visualizacao.md](out/limitacoes_visualizacao.md) |
+
+### Parte 4 (código/repo/testes)
+
+| Exigido pelo PDF | Onde está |
+|---|---|
+| Estrutura `data/ src/ out/ tests/ README requirements` | raiz do repositório |
+| Testes BFS/DFS/Dijkstra/Bellman-Ford (com peso negativo + ciclo) | [tests/](tests/) — 26 testes |
+| README com instruções | este arquivo |
+
+### Documentos de apoio para o PDF técnico
+
+| Documento | Conteúdo |
+|---|---|
+| [out/notas_analiticas.md](out/notas_analiticas.md) | interpretação de cada visualização (exploratória/explanatória) |
+| [out/bellman_ford_pesos_negativos.md](out/bellman_ford_pesos_negativos.md) | régua de pesos negativos + 4 casos de BF |
+| [out/benchmark_relatorio.md](out/benchmark_relatorio.md) | metodologia + tabela de complexidade dos algoritmos |
+| [out/limitacoes_visualizacao.md](out/limitacoes_visualizacao.md) | discussão crítica AVD |
+| [GUIA_APRESENTACAO.md](GUIA_APRESENTACAO.md) | pontos-chave para todos do grupo dominarem |
+| [CHECKLIST_ENTREGA.md](CHECKLIST_ENTREGA.md) | tudo que precisa ser postado no Classroom |

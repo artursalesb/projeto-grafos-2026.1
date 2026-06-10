@@ -105,7 +105,7 @@
           "PAOK",
           "Botafogo"
         ],
-        "time_ms": 12.233,
+        "time_ms": 14.014,
         "peak_kb": 70.0
       },
       {
@@ -134,7 +134,7 @@
           "Bournemouth",
           "R. Strasbourg"
         ],
-        "time_ms": 9.486,
+        "time_ms": 10.355,
         "peak_kb": 70.2
       },
       {
@@ -163,7 +163,7 @@
           "Atlético-MG",
           "Man City"
         ],
-        "time_ms": 8.209,
+        "time_ms": 9.404,
         "peak_kb": 69.9
       }
     ],
@@ -179,8 +179,8 @@
           "forward": 3996
         },
         "discovered": 1196,
-        "time_ms": 31.652,
-        "peak_kb": 1138.1
+        "time_ms": 31.855,
+        "peak_kb": 1144.1
       },
       {
         "source": "Chelsea",
@@ -193,7 +193,7 @@
           "forward": 3913
         },
         "discovered": 1196,
-        "time_ms": 20.084,
+        "time_ms": 27.547,
         "peak_kb": 1115.4
       },
       {
@@ -207,7 +207,7 @@
           "forward": 3860
         },
         "discovered": 1196,
-        "time_ms": 17.915,
+        "time_ms": 26.403,
         "peak_kb": 990.4
       }
     ]
@@ -233,7 +233,7 @@
         ],
         "nodes_visited": 1164,
         "edges_relaxed": 12129,
-        "time_ms": 25.434,
+        "time_ms": 35.597,
         "peak_kb": 367.4,
         "error": null
       },
@@ -258,7 +258,7 @@
         ],
         "nodes_visited": 1000,
         "edges_relaxed": 10912,
-        "time_ms": 21.451,
+        "time_ms": 37.791,
         "peak_kb": 350.3,
         "error": null
       },
@@ -278,7 +278,7 @@
         ],
         "nodes_visited": 55,
         "edges_relaxed": 629,
-        "time_ms": 3.194,
+        "time_ms": 6.213,
         "peak_kb": 350.3,
         "error": null
       },
@@ -304,7 +304,7 @@
         ],
         "nodes_visited": 1058,
         "edges_relaxed": 11539,
-        "time_ms": 25.914,
+        "time_ms": 31.354,
         "peak_kb": 350.3,
         "error": null
       },
@@ -326,7 +326,7 @@
         ],
         "nodes_visited": 1102,
         "edges_relaxed": 11782,
-        "time_ms": 22.357,
+        "time_ms": 34.299,
         "peak_kb": 350.3,
         "error": null
       }
@@ -342,62 +342,77 @@
     "note": "Dijkstra recusou corretamente o peso negativo."
   },
   "bellman_ford": {
+    "regua_pesos": {
+      "formula": "peso_lucro = transfer_fee - market_value_in_eur",
+      "interpretacao_negativo": "comprador pagou abaixo do valor de mercado (bom negocio)",
+      "interpretacao_positivo": "comprador pagou acima do valor de mercado",
+      "motivacao": "O dataset original so tem transfer_fee >= 0. Derivamos peso_lucro para exercitar Bellman-Ford com pesos negativos, como exige o PDF."
+    },
     "cases": [
       {
-        "name": "Top-30 clubes com peso = fee - market_value",
+        "name": "REAL com peso negativo SEM ciclo negativo (subgrafo DAG por grau)",
         "directed": true,
         "weights_can_be_negative": true,
+        "has_negative_cycle": false,
         "source": "Benfica",
-        "target": "Monaco",
-        "has_negative_cycle": true,
-        "cost": null,
-        "path_length": 0,
-        "path": [],
-        "time_ms": 10.965,
-        "peak_kb": 39.1,
-        "interpretation": "Caminho minimiza o saldo (fee - market_value). Saldo total negativo = série de transferências em que clubes pagaram abaixo do valor de mercado."
+        "target": "Porto",
+        "cost": -2760000.0,
+        "cost_eur_fmt": "EUR -2,760,000",
+        "path_length": 5,
+        "path": [
+          "Benfica",
+          "Lyon",
+          "Roma",
+          "Ajax",
+          "Porto"
+        ],
+        "edges_relaxed": 79674,
+        "time_ms": 266.333,
+        "peak_kb": 1000.4,
+        "interpretation": "Caminho Benfica -> Porto sobre o subgrafo DAG (so arestas de clube de maior grau para menor grau, peso = fee - market_value). Custo negativo = cadeia de transferencias em que clubes pagaram abaixo do valor de mercado. has_negative_cycle=False porque um DAG nao tem ciclos."
       },
       {
-        "name": "Grafo inteiro com peso = fee - market_value",
+        "name": "REAL com ciclo negativo DETECTADO (grafo inteiro, peso = fee - market_value)",
         "directed": true,
         "weights_can_be_negative": true,
+        "has_negative_cycle": true,
         "source": "Benfica",
         "target": "Salzburg",
-        "has_negative_cycle": true,
         "cost": null,
         "path_length": 0,
-        "time_ms": 241952.012,
-        "peak_kb": 2586.3,
-        "interpretation": "Se has_negative_cycle=True, existe um ciclo de transferências em que a soma dos saldos é negativa — arbitragem de mercado."
+        "edges_relaxed": 48902415,
+        "time_ms": 135501.854,
+        "peak_kb": 2353.3,
+        "interpretation": "No grafo dirigido completo com peso_lucro, existem ciclos cuja soma de saldos e negativa (arbitragem de mercado). Bellman-Ford sinaliza has_negative_cycle=True e nao retorna caminho finito — comportamento correto, ja que o custo poderia decrescer indefinidamente."
       },
       {
-        "name": "SINTÉTICO: ciclo negativo (A→B→C→A com soma -1)",
+        "name": "SINTETICO: ciclo negativo (Ajax->Roma->Lyon->Ajax, soma -1)",
         "directed": true,
         "weights_can_be_negative": true,
-        "source": "A",
-        "target": "D",
         "has_negative_cycle": true,
+        "source": "Ajax",
+        "target": "Porto",
         "cost": null,
         "path_length": 0,
-        "time_ms": 0.115,
-        "interpretation": "Esperado has_negative_cycle=True."
+        "time_ms": 0.059,
+        "interpretation": "Esperado has_negative_cycle=True (validacao da deteccao)."
       },
       {
-        "name": "SINTÉTICO: peso negativo SEM ciclo (S→B→A→T com -1+1=0)",
+        "name": "SINTETICO: peso negativo SEM ciclo (Santos->Inter->Barca->PSG, custo 0)",
         "directed": true,
         "weights_can_be_negative": true,
-        "source": "S",
-        "target": "T",
         "has_negative_cycle": false,
+        "source": "Santos",
+        "target": "PSG",
         "cost": 0.0,
         "path": [
-          "S",
-          "B",
-          "A",
-          "T"
+          "Santos",
+          "Inter",
+          "Barcelona",
+          "PSG"
         ],
-        "time_ms": 0.047,
-        "interpretation": "Esperado: cost=0 via S→B→A→T, has_negative_cycle=False."
+        "time_ms": 0.049,
+        "interpretation": "Caminho otimo Santos->Inter->Barcelona->PSG = 2 + (-3) + 1 = 0, passando pela aresta negativa Inter->Barcelona. has_negative_cycle=False."
       }
     ]
   },

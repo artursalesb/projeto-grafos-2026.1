@@ -3,9 +3,11 @@ import { runAlgorithm } from "./algorithms.js";
 
 function fmtEUR(v) {
   if (v == null || isNaN(v)) return "—";
-  if (v >= 1e6) return `€${(v / 1e6).toFixed(2)}M`;
-  if (v >= 1e3) return `€${(v / 1e3).toFixed(0)}k`;
-  return `€${v.toFixed(0)}`;
+  const sign = v < 0 ? "−" : "";
+  const a = Math.abs(v);
+  if (a >= 1e6) return `${sign}€${(a / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${sign}€${(a / 1e3).toFixed(0)}k`;
+  return `${sign}€${a.toFixed(0)}`;
 }
 
 const ALGOS = [
@@ -24,6 +26,8 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
   const [result, setResult] = useState(null);
   const [running, setRunning] = useState(false);
   const [useFullGraph, setUseFullGraph] = useState(false);
+  // Bellman-Ford: usar peso = fee - market_value (permite negativos)
+  const [useProfit, setUseProfit] = useState(false);
 
   // Quando "useFullGraph" está marcado, roda sobre rawGraph (todas as arestas).
   // Senão, roda sobre o grafo filtrado (com filtros aplicados).
@@ -61,7 +65,20 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
     if (requiresTarget && !target) return;
     setRunning(true);
     setTimeout(() => {
-      const res = runAlgorithm(algo, activeGraph, source, target || null);
+      // Para Bellman-Ford com "peso = lucro", usamos fee - market_value
+      // (pode ser negativo). Para os demais algoritmos, peso = fee (>= 0).
+      const opts =
+        algo === "BELLMAN" && useProfit
+          ? { weightFn: (l) => (l.fee || 0) - (l.market_value || 0) }
+          : {};
+      const res = runAlgorithm(algo, activeGraph, source, target || null, opts);
+      // Anexa a régua de pesos usada, para o resultado deixar claro
+      if (res && res.ok) {
+        res.weight_rule =
+          algo === "BELLMAN" && useProfit
+            ? "fee - market_value (permite negativos)"
+            : "fee (>= 0)";
+      }
       setResult(res);
       onResult?.(res);
       setRunning(false);
@@ -173,12 +190,40 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
           />
           <span>Usar grafo completo (ignora filtros)</span>
         </label>
+
+        {algo === "BELLMAN" && (
+          <label className="calc-full-toggle calc-profit-toggle">
+            <input
+              type="checkbox"
+              checked={useProfit}
+              onChange={(e) => setUseProfit(e.target.checked)}
+            />
+            <span>
+              Usar peso = <b>fee − market_value</b> (permite negativos)
+            </span>
+          </label>
+        )}
+
         <span className="calc-scope">
           Calculando sobre <b>{activeGraph.nodes.length.toLocaleString("pt-BR")}</b> clubes
           {" e "}
           <b>{activeGraph.links.length.toLocaleString("pt-BR")}</b> transferências
           {useFullGraph ? " (sem filtros)" : " (com filtros)"}
+          {algo === "BELLMAN" && (
+            <>
+              {" · peso: "}
+              <b>{useProfit ? "fee − market_value" : "fee (≥ 0)"}</b>
+            </>
+          )}
         </span>
+
+        {algo === "BELLMAN" && useProfit && (
+          <div className="calc-profit-hint">
+            Com este peso, transferências abaixo do valor de mercado têm peso
+            negativo. Bellman-Ford lida com isso (Dijkstra não) e pode detectar
+            <b> ciclos negativos</b> no grafo.
+          </div>
+        )}
       </div>
 
       {result && (
@@ -256,6 +301,11 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
                 <span className="res-tag time">
                   tempo: <b>{result.time_ms.toFixed(2)} ms</b>
                 </span>
+                {result.weight_rule && (
+                  <span className="res-tag rule">
+                    peso: <b>{result.weight_rule}</b>
+                  </span>
+                )}
               </div>
 
               {result.path?.length > 0 && (
@@ -271,6 +321,33 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
                   </div>
                   <button className="res-jump" onClick={jumpToGraph}>
                     Ver caminho destacado no grafo
+                  </button>
+                </div>
+              )}
+
+              {/* Ciclo negativo: não existe caminho mínimo finito */}
+              {result.has_negative_cycle && (
+                <div className="res-negcycle">
+                  <b>Ciclo negativo detectado.</b> Não há caminho de custo
+                  mínimo: percorrendo o ciclo, o custo cairia indefinidamente.
+                  Por isso não há caminho para destacar no grafo — este é o
+                  comportamento correto do Bellman-Ford nesse cenário.
+                  <button
+                    className="res-jump"
+                    onClick={() =>
+                      onJumpToGraph?.({
+                        path: [result.source, result.target],
+                        source: result.source,
+                        target: result.target,
+                        algorithm: result.algorithm,
+                        cost: null,
+                        hops: 1,
+                        time_ms: result.time_ms,
+                        has_negative_cycle: true,
+                      })
+                    }
+                  >
+                    Ver origem e destino no grafo
                   </button>
                 </div>
               )}

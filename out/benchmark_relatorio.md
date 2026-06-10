@@ -26,10 +26,10 @@ eliminando ruídos de sistema operacional e cache.
 
 | Algoritmo      | Tempo Médio      | Nós Visitados | Arestas Percorridas |
 |----------------|-----------------|--------------|---------------------|
-| BFS            |       0.0057 ms |           12 |             105 |
-| DFS            |       0.0033 ms |            6 |              44 |
-| Dijkstra       |       0.0206 ms |           18 |             139 |
-| Bellman-Ford   |       0.0920 ms |           20 |             308 |
+| BFS            |       0.0119 ms |            8 |              59 |
+| DFS            |       0.0168 ms |           14 |              97 |
+| Dijkstra       |       0.0482 ms |           18 |             139 |
+| Bellman-Ford   |       0.1914 ms |           20 |             308 |
 
 ---
 
@@ -59,8 +59,8 @@ em grafos com muitas arestas. No nosso grafo de 20 nós e 77 arestas, o algoritm
 precisa iterar **até 19 vezes sobre todas as 77 arestas**, totalizando até
 1,463 operações de relaxamento.
 
-Razão de desempenho observada: **Bellman-Ford é ≈ 28.3× mais lento** que
-DFS, o algoritmo mais rápido neste benchmark.
+Razão de desempenho observada: **Bellman-Ford é ≈ 16.1× mais lento** que
+BFS, o algoritmo mais rápido neste benchmark.
 
 A vantagem do Bellman-Ford está na sua capacidade de lidar com **pesos negativos**
 e detectar **ciclos negativos** — funcionalidades desnecessárias para a malha aérea,

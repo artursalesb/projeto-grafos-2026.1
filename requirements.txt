@@ -1,3 +1,15 @@
+# Dependencias Python do projeto (Parte 1 e Parte 2).
+# Nenhuma biblioteca de algoritmos de grafo (networkx/igraph/graph-tool):
+# BFS/DFS/Dijkstra/Bellman-Ford sao implementacao propria em src/graphs/algorithms.py.
+#
+# pandas      -> leitura de CSV (I/O)
+# matplotlib  -> geracao dos graficos PNG
+# pyvis       -> grafo_interativo.html e arvore_percurso.html
+# pytest      -> testes obrigatorios (tests/)
+#
+# O bonus visual em React (frontend/) tem seu proprio gerenciador de
+# dependencias em frontend/package.json (instale com `npm install`).
+
 pandas>=2.0
 matplotlib>=3.7
 pyvis>=0.3.2

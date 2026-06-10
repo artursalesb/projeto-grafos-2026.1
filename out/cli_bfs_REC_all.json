@@ -1,0 +1,29 @@
+{
+  "algorithm": "BFS_levels",
+  "source": "REC",
+  "reachable_nodes": 20,
+  "max_level": 2,
+  "first_20_order": [
+    "REC",
+    "NAT",
+    "JPA",
+    "THE",
+    "BSB",
+    "MAO",
+    "GRU",
+    "BEL",
+    "CNF",
+    "FOR",
+    "CWB",
+    "POA",
+    "GIG",
+    "SSA",
+    "GYN",
+    "PVH",
+    "RBR",
+    "CGH",
+    "VIX",
+    "FLN"
+  ],
+  "edges_explored": 154
+}
