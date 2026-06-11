@@ -196,37 +196,62 @@
 .ad-insight-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(75, 163, 211, 0.1);
+  border-left: 3px solid #4ba3d3;
   border-radius: 10px;
-  padding: 16px 18px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  transition: background 0.15s, border-color 0.15s;
+  padding: 14px 16px;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 .ad-insight-card:hover {
   background: rgba(75, 163, 211, 0.06);
-  border-color: rgba(75, 163, 211, 0.22);
+  border-color: rgba(75, 163, 211, 0.35);
+  transform: translateY(-2px);
 }
 
-.ad-insight-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  line-height: 1;
-  margin-top: 1px;
+.ad-insight-card.ad-insight-hl {
+  grid-column: 1 / -1;
+  background: rgba(126, 200, 248, 0.08);
+  border-left-color: #ffce6e;
+  border-color: rgba(255, 206, 110, 0.35);
 }
 
-.ad-insight-title {
-  font-size: 13px;
-  font-weight: 600;
+.ad-insight-card.ad-insight-hl .ad-insight-label {
+  color: #ffce6e;
+}
+
+.ad-insight-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
   color: #7ec8f8;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .ad-insight-text {
-  font-size: 12px;
-  color: rgba(190, 215, 240, 0.72);
-  line-height: 1.6;
+  font-size: 12.5px;
+  color: rgba(200, 222, 244, 0.85);
+  line-height: 1.55;
+}
+
+.ad-insight-text b {
+  color: #7ec8f8;
+}
+
+.ad-insight-text .why {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: rgba(190, 215, 240, 0.7);
+  line-height: 1.5;
+  border-left: 2px solid rgba(126, 200, 248, 0.45);
+  padding-left: 8px;
+  font-style: italic;
+}
+
+.ad-insight-text .why b {
+  color: #9fd6ff;
+  font-style: normal;
 }
 
 /* ── Responsive ── */

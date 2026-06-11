@@ -6,6 +6,14 @@ import {
   CartesianGrid, ResponsiveContainer,
 } from "recharts";
 import { NOS, ARESTAS, COR_REG, TIPO_LABEL } from "./airportData.js";
+import {
+  regionWhy,
+  airportWhy,
+  routeTypeWhy,
+  densityWhy,
+  distanceWhy,
+  filterStateInsight,
+} from "./airportInsightContext.js";
 import "./AirportDashboard.css";
 
 const TOOLTIP_STYLE = {
@@ -103,31 +111,26 @@ export default function AirportDashboard({ minDegree = 1 }) {
       {/* ── STATS ── */}
       <section className="ad-stats">
         <div className="ad-card">
-          <div className="ad-card-icon">✈</div>
           <div className="ad-card-value">{filteredNOS.length}</div>
           <div className="ad-card-label">Aeroportos</div>
           <div className="ad-card-sub">de 20 totais</div>
         </div>
         <div className="ad-card">
-          <div className="ad-card-icon">🛤</div>
           <div className="ad-card-value">{filteredARSTAS.length}</div>
           <div className="ad-card-label">Conexões</div>
           <div className="ad-card-sub">de 77 totais</div>
         </div>
         <div className="ad-card">
-          <div className="ad-card-icon">🗺</div>
           <div className="ad-card-value">{numRegions}</div>
           <div className="ad-card-label">Regiões</div>
           <div className="ad-card-sub">N · NE · CO · SE · S</div>
         </div>
         <div className="ad-card">
-          <div className="ad-card-icon">📏</div>
           <div className="ad-card-value">~{Math.round(avgDist).toLocaleString("pt-BR")} km</div>
           <div className="ad-card-label">Distância média</div>
           <div className="ad-card-sub">por rota visível</div>
         </div>
         <div className="ad-card">
-          <div className="ad-card-icon">⭐</div>
           <div className="ad-card-value">{maxGrau}</div>
           <div className="ad-card-label">Grau máximo</div>
           <div className="ad-card-sub">{filteredNOS.filter(n => n.grau === maxGrau).map(n => n.iata).join(" · ")}</div>
@@ -263,6 +266,12 @@ export default function AirportDashboard({ minDegree = 1 }) {
   );
 }
 
+const TIPO_NOME = {
+  regional: "regional",
+  nacional: "nacional",
+  hub_intra: "hub intrarregional",
+};
+
 function AirportInsights({ filteredNOS, filteredARSTAS, minDegree }) {
   const insights = useMemo(() => {
     if (!filteredNOS.length) return [];
@@ -270,77 +279,164 @@ function AirportInsights({ filteredNOS, filteredARSTAS, minDegree }) {
     const result = [];
     const n = filteredNOS.length;
     const m = filteredARSTAS.length;
-    const maxGrauVal = Math.max(...filteredNOS.map(x => x.grau));
-    const hubs = filteredNOS.filter(x => x.grau === maxGrauVal).map(x => x.iata);
-    const avgDist = m ? (filteredARSTAS.reduce((s, a) => s + a.peso, 0) / m).toFixed(0) : 0;
-    const maxEdge = filteredARSTAS.length ? filteredARSTAS.reduce((mx, a) => a.peso > mx.peso ? a : mx, filteredARSTAS[0]) : null;
-    const minEdge = filteredARSTAS.length ? filteredARSTAS.reduce((mn, a) => a.peso < mn.peso ? a : mn, filteredARSTAS[0]) : null;
-    const density = n > 1 ? (2 * m / (n * (n - 1))).toFixed(2) : "—";
-    const regionCounts = {};
-    filteredNOS.forEach(x => { regionCounts[x.regiao] = (regionCounts[x.regiao] ?? 0) + 1; });
-    const topRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0];
+    const maxGrauVal = Math.max(...filteredNOS.map((x) => x.grau));
+    const hubs = filteredNOS.filter((x) => x.grau === maxGrauVal).map((x) => x.iata);
+    const meanGrau = n ? filteredNOS.reduce((s, x) => s + x.grau, 0) / n : 0;
+    const avgDist = m ? filteredARSTAS.reduce((s, a) => s + a.peso, 0) / m : 0;
+    const maxEdge = m
+      ? filteredARSTAS.reduce((mx, a) => (a.peso > mx.peso ? a : mx), filteredARSTAS[0])
+      : null;
+    const minEdge = m
+      ? filteredARSTAS.reduce((mn, a) => (a.peso < mn.peso ? a : mn), filteredARSTAS[0])
+      : null;
+    const density = n > 1 ? (2 * m) / (n * (n - 1)) : 0;
 
+    const regionCounts = {};
+    filteredNOS.forEach((x) => {
+      regionCounts[x.regiao] = (regionCounts[x.regiao] ?? 0) + 1;
+    });
+    const sortedRegions = Object.entries(regionCounts).sort((a, b) => b[1] - a[1]);
+    const topRegion = sortedRegions[0];
+
+    const fmt = (v) => Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+
+    // 0. Insight que reage ao estado do filtro (em destaque)
+    const fs = filterStateInsight(filteredNOS, minDegree);
+    result.push({ label: fs.label, text: fs.text, highlight: true });
+
+    // 1. Hub principal
     result.push({
-      icon: "✈",
-      title: "Hubs concentram conectividade",
-      text: `${hubs.join(", ")} ${hubs.length > 1 ? "têm" : "tem"} grau ${maxGrauVal}, sendo ${hubs.length > 1 ? "os maiores hubs" : "o maior hub"} da malha filtrada. ${n < 20 ? `Visíveis: ${n}/20 aeroportos com grau ≥ ${minDegree}.` : "Todos os 20 aeroportos estão visíveis."}`,
+      label: "Hub da rede",
+      text: (
+        <>
+          <b>{hubs.join(", ")}</b> {hubs.length > 1 ? "lideram" : "lidera"} com grau{" "}
+          <b>{maxGrauVal}</b> ({(maxGrauVal / Math.max(meanGrau, 0.001)).toFixed(1)}× a
+          média de {meanGrau.toFixed(1)} conexões por aeroporto).
+          <br />
+          <span className="why">
+            <b>Por quê?</b> {airportWhy(hubs[0])}
+          </span>
+        </>
+      ),
     });
 
+    // 2. Distribuição regional
     if (topRegion) {
       result.push({
-        icon: "🗺",
-        title: "Distribuição regional",
-        text: `A região ${topRegion[0]} lidera com ${topRegion[1]} aeroporto${topRegion[1] > 1 ? "s" : ""} visível${topRegion[1] > 1 ? "s" : ""}. ${Object.entries(regionCounts).map(([r, c]) => `${r}: ${c}`).join(" · ")}.`,
+        label: "Concentração regional",
+        text: (
+          <>
+            <b>{topRegion[0]}</b> tem mais aeroportos visíveis: <b>{topRegion[1]}</b>.
+            Distribuição: {sortedRegions.map(([r, c]) => `${r} ${c}`).join(" · ")}.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {regionWhy(topRegion[0])}
+            </span>
+          </>
+        ),
       });
     }
 
+    // 3. Extremos de distância
     if (minEdge && maxEdge) {
       result.push({
-        icon: "📏",
-        title: "Extremos de distância",
-        text: `Rota mais curta visível: ${minEdge.from} ↔ ${minEdge.to} (${minEdge.peso.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km). Mais longa: ${maxEdge.from} ↔ ${maxEdge.to} (${maxEdge.peso.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} km). Média: ~${Number(avgDist).toLocaleString("pt-BR")} km.`,
+        label: "Extremos de distância",
+        text: (
+          <>
+            Mais curta: <b>{minEdge.from} ↔ {minEdge.to}</b> ({fmt(minEdge.peso)} km).
+            Mais longa: <b>{maxEdge.from} ↔ {maxEdge.to}</b> ({fmt(maxEdge.peso)} km).
+            Média: <b>{fmt(avgDist)} km</b>.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {distanceWhy(avgDist)}
+            </span>
+          </>
+        ),
       });
     }
 
+    // 4. Densidade
     result.push({
-      icon: "⚖",
-      title: "Densidade do grafo filtrado",
-      text: `Com ${n} nó${n > 1 ? "s" : ""} e ${m} aresta${m > 1 ? "s" : ""}, a densidade é ~${density} — ${Number(density) >= 0.5 ? "acima da metade do máximo possível, indicando boa conectividade." : Number(density) >= 0.3 ? "moderada, com múltiplos caminhos alternativos." : "esparsa, refletindo a seleção de hubs isolados."}`,
+      label: "Densidade do grafo",
+      text: (
+        <>
+          Com <b>{n}</b> aeroporto{n > 1 ? "s" : ""} e <b>{m}</b> conexõe
+          {m === 1 ? "" : "s"}, a densidade é <b>{density.toFixed(2)}</b>.
+          <br />
+          <span className="why">
+            <b>Por quê?</b> {densityWhy(density)}
+          </span>
+        </>
+      ),
     });
 
+    // 5. Tipo de rota predominante
     const tipoCount = { regional: 0, nacional: 0, hub_intra: 0 };
-    filteredARSTAS.forEach(a => { tipoCount[a.tipo] = (tipoCount[a.tipo] ?? 0) + 1; });
+    filteredARSTAS.forEach((a) => {
+      tipoCount[a.tipo] = (tipoCount[a.tipo] ?? 0) + 1;
+    });
     const topTipo = Object.entries(tipoCount).sort((a, b) => b[1] - a[1])[0];
-    if (topTipo) {
+    if (topTipo && m > 0) {
       result.push({
-        icon: "🔗",
-        title: "Tipo de rota predominante",
-        text: `Das ${m} rotas visíveis, ${topTipo[1]} são do tipo ${topTipo[0] === "regional" ? "regional" : topTipo[0] === "nacional" ? "nacional" : "hub intrarregional"} (${Math.round(topTipo[1] / m * 100)}%). Regional: ${tipoCount.regional}, Nacional: ${tipoCount.nacional}, Hub: ${tipoCount.hub_intra}.`,
+        label: "Tipo de rota predominante",
+        text: (
+          <>
+            <b>{Math.round((topTipo[1] / m) * 100)}%</b> das rotas são do tipo{" "}
+            <b>{TIPO_NOME[topTipo[0]]}</b> ({topTipo[1]} de {m}). Regional:{" "}
+            {tipoCount.regional} · Nacional: {tipoCount.nacional} · Hub:{" "}
+            {tipoCount.hub_intra}.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> {routeTypeWhy(topTipo[0])}
+            </span>
+          </>
+        ),
       });
     }
 
+    // 6. Caminhos mínimos
     result.push({
-      icon: "🧭",
-      title: "Caminhos mínimos (Dijkstra)",
-      text: minDegree <= 11
-        ? "REC → POA usa rota direta (2.963 km). MAO → GRU também direto (2.698 km). A rede evita escalas desnecessárias graças à conectividade entre hubs."
-        : "Com o filtro atual, alguns caminhos pré-calculados ficam ocultos. Reduza o grau mínimo para ver os caminhos Dijkstra completos.",
+      label: "Caminhos mínimos (Dijkstra)",
+      text:
+        minDegree <= 11 ? (
+          <>
+            <b>REC → POA</b> = rota direta (2.963 km). <b>MAO → GRU</b> = direto
+            (2.698 km).
+            <br />
+            <span className="why">
+              <b>Por quê?</b> como todos os hubs se conectam entre si, quase sempre
+              existe uma aresta direta entre as capitais regionais — a rede evita
+              escalas e o caminho mínimo costuma ter 1 salto.
+            </span>
+          </>
+        ) : (
+          <>
+            Com o filtro de grau atual, alguns caminhos pré-calculados ficam
+            ocultos.
+            <br />
+            <span className="why">
+              <b>Por quê?</b> ao exigir grau mínimo alto, removemos aeroportos
+              regionais (de grau baixo) que fazem parte de alguns percursos.
+            </span>
+          </>
+        ),
     });
 
     return result;
   }, [filteredNOS, filteredARSTAS, minDegree]);
 
   if (!insights.length) {
-    return <p className="ad-section-desc">Nenhum aeroporto visível com o filtro atual.</p>;
+    return (
+      <p className="ad-section-desc">Nenhum aeroporto visível com o filtro atual.</p>
+    );
   }
 
   return (
     <div className="ad-insights-grid">
       {insights.map((ins, i) => (
-        <div className="ad-insight-card" key={i}>
-          <div className="ad-insight-icon">{ins.icon}</div>
+        <div className={`ad-insight-card ${ins.highlight ? "ad-insight-hl" : ""}`} key={i}>
           <div className="ad-insight-body">
-            <div className="ad-insight-title">{ins.title}</div>
+            <div className="ad-insight-label">{ins.label}</div>
             <div className="ad-insight-text">{ins.text}</div>
           </div>
         </div>

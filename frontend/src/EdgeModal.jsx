@@ -10,13 +10,15 @@ export default function EdgeModal({ edge, onClose }) {
 
   const source = typeof edge.source === "object" ? edge.source.id : edge.source;
   const target = typeof edge.target === "object" ? edge.target.id : edge.target;
+  const extras = edge.extras || [];
+  const total = edge.transfers_count || 1;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{edge.player}</h2>
         <div className="player-sub">
-          Transferência · Temporada {edge.season}
+          Transferência de maior valor · Temporada {edge.season}
         </div>
 
         <div className="fee">{formatEUR(edge.fee)}</div>
@@ -37,6 +39,24 @@ export default function EdgeModal({ edge, onClose }) {
           <span className="k">Valor de mercado</span>
           <span className="v">{formatEUR(edge.market_value)}</span>
         </div>
+
+        {total > 1 && (
+          <div className="modal-extras">
+            <div className="modal-extras-head">
+              Esta ligação {source} → {target} teve <b>{total} transferências</b>.
+              O grafo usa a de maior valor (acima). As demais:
+            </div>
+            <ul className="modal-extras-list">
+              {extras.map((e, i) => (
+                <li key={i}>
+                  <span className="me-player">{e.player}</span>
+                  <span className="me-fee">{formatEUR(e.fee)}</span>
+                  <span className="me-season">{e.season}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <button className="close" onClick={onClose}>
           Fechar

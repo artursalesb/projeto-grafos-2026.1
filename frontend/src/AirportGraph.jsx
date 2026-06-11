@@ -5,6 +5,7 @@ import {
   NOS, ARESTAS, CAMINHOS, COR_REG,
   GEO_FX, GEO_FY, TIPO_LABEL, FOCUS_BRIGHT,
 } from "./airportData.js";
+import { airportFicha } from "./airportInsightContext.js";
 
 function nodeSize(grau) { return 14 + grau * 2; }
 
@@ -163,6 +164,26 @@ export default function AirportGraph({ minDegree = 1, onMinDegreeChange = () => 
     const t = typeof selEdge.target === "object" ? selEdge.target.id : selEdge.target;
     return new Set([s, t]);
   }, [selEdge]);
+
+  // Dados do aeroporto focado para o painel de informações.
+  const focusedInfo = useMemo(() => {
+    if (!focusedIata) return null;
+    const node = NOS.find((n) => n.iata === focusedIata);
+    if (!node) return null;
+    // vizinhos diretos (a partir de TODAS as arestas, não só as filtradas)
+    const vizinhos = [];
+    for (const a of ARESTAS) {
+      if (a.from === focusedIata) vizinhos.push(a.to);
+      else if (a.to === focusedIata) vizinhos.push(a.from);
+    }
+    const isHub = node.grau >= 11;
+    return {
+      node,
+      ficha: airportFicha(focusedIata),
+      vizinhos: [...new Set(vizinhos)],
+      isHub,
+    };
+  }, [focusedIata]);
 
   function nodeState(nodeId) {
     if (pathEndpts.has(nodeId))  return "pathEnd";
@@ -362,7 +383,7 @@ export default function AirportGraph({ minDegree = 1, onMinDegreeChange = () => 
             ctx.arc(node.x, node.y, nodeSize(node.grau) / 2 + 6, 0, 2 * Math.PI);
             ctx.fill();
           }}
-          nodeLabel={node => `✈ ${node.iata} — ${node.cidade}\nRegião: ${node.regiao}\nGrau: ${node.grau}`}
+          nodeLabel={node => `${node.iata} — ${node.cidade}\nRegião: ${node.regiao}\nGrau: ${node.grau}`}
           linkCanvasObject={linkPaint}
           linkCanvasObjectMode={() => "replace"}
           linkLabel={link => `${link.peso} km · ${TIPO_LABEL[link.tipo] ?? link.tipo}`}
@@ -476,6 +497,59 @@ export default function AirportGraph({ minDegree = 1, onMinDegreeChange = () => 
           })}
           {pathInfo && <div className="ag-path-info">{pathInfo}</div>}
         </div>
+
+        {focusedInfo && (
+          <div className="ag-panel ag-airport-panel">
+            <div className="ag-edge-head">
+              <h3>Aeroporto selecionado</h3>
+              <button
+                className="ag-edge-close"
+                onClick={() => { setFocusedIata(null); setSelMetric("—"); }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="ag-ap-title">
+              <span
+                className="ag-dot"
+                style={{ background: COR_REG[focusedInfo.node.regiao] }}
+              />
+              <b>{focusedInfo.node.iata}</b> — {focusedInfo.node.cidade}
+            </div>
+            <div className="ag-ap-nome">{focusedInfo.ficha.nome}</div>
+
+            <div className="ag-ap-badges">
+              <span className={`ag-ap-badge ${focusedInfo.isHub ? "hub" : "regional"}`}>
+                {focusedInfo.isHub ? "HUB" : "Regional"}
+              </span>
+              <span className="ag-ap-badge">Grau {focusedInfo.node.grau}</span>
+              <span className="ag-ap-badge">{focusedInfo.node.regiao}</span>
+              <span className="ag-ap-badge">
+                ego {focusedInfo.node.densidade_ego}
+              </span>
+            </div>
+
+            <div className="ag-ap-block">
+              <div className="ag-ap-block-label">Papel na rede</div>
+              <div className="ag-ap-block-text">{focusedInfo.ficha.papel}</div>
+            </div>
+
+            <div className="ag-ap-block">
+              <div className="ag-ap-block-label">Na vida real</div>
+              <div className="ag-ap-block-text">{focusedInfo.ficha.real}</div>
+            </div>
+
+            <div className="ag-ap-block">
+              <div className="ag-ap-block-label">
+                Conecta-se a {focusedInfo.vizinhos.length} aeroporto
+                {focusedInfo.vizinhos.length !== 1 ? "s" : ""}
+              </div>
+              <div className="ag-ap-vizinhos">
+                {focusedInfo.vizinhos.join(" · ")}
+              </div>
+            </div>
+          </div>
+        )}
 
         {selEdge && (
           <div className="ag-panel ag-edge-panel">

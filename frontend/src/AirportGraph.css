@@ -216,6 +216,74 @@
 /* ── Edge info panel ── */
 .ag-edge-panel { border-color: rgba(243,156,18,0.4) !important; }
 
+/* ── Painel de aeroporto selecionado ── */
+.ag-airport-panel { border-color: rgba(126, 200, 248, 0.45) !important; }
+
+.ag-ap-title {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 3px;
+}
+.ag-ap-title b { color: #7ec8f8; }
+
+.ag-ap-nome {
+  font-size: 11px;
+  color: rgba(190, 215, 240, 0.7);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.ag-ap-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.ag-ap-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: rgba(126, 200, 248, 0.12);
+  color: #9fd6ff;
+  font-weight: 600;
+}
+
+.ag-ap-badge.hub {
+  background: rgba(243, 156, 18, 0.18);
+  color: #ffce6e;
+}
+
+.ag-ap-badge.regional {
+  background: rgba(76, 217, 100, 0.15);
+  color: #7fe09a;
+}
+
+.ag-ap-block {
+  margin-bottom: 10px;
+}
+
+.ag-ap-block-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  color: #7ec8f8;
+  margin-bottom: 3px;
+}
+
+.ag-ap-block-text {
+  font-size: 11.5px;
+  color: rgba(200, 222, 244, 0.85);
+  line-height: 1.5;
+}
+
+.ag-ap-vizinhos {
+  font-size: 11px;
+  color: rgba(190, 215, 240, 0.75);
+  line-height: 1.5;
+}
+
 .ag-edge-head {
   display: flex;
   justify-content: space-between;

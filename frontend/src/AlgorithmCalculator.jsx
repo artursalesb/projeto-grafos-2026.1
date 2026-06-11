@@ -219,9 +219,37 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
 
         {algo === "BELLMAN" && useProfit && (
           <div className="calc-profit-hint">
-            Com este peso, transferências abaixo do valor de mercado têm peso
-            negativo. Bellman-Ford lida com isso (Dijkstra não) e pode detectar
-            <b> ciclos negativos</b> no grafo.
+            <div className="cph-line">
+              <b>Como ler o peso = fee − market_value:</b>
+            </div>
+            <div className="cph-line">
+              • <b className="neg">Negativo</b> = clube pagou <b>abaixo</b> do valor de
+              mercado (bom negócio para o comprador).
+            </div>
+            <div className="cph-line">
+              • <b className="pos">Positivo</b> = pagou <b>acima</b> do valor de mercado
+              (negócio caro).
+            </div>
+            <div className="cph-line">
+              <b>Custo do caminho</b> = soma desses saldos. Um caminho de custo
+              negativo é uma cadeia de "bons negócios" em sequência; positivo, o
+              contrário.
+            </div>
+            <div className="cph-line">
+              <b>Ciclo negativo</b> = é possível sair de um clube, passar por
+              vários e voltar com saldo total negativo. Na prática, indica um
+              "loop de pechinchas" no mercado. Matematicamente, quando ele existe
+              <b> não há caminho mínimo</b> (daria pra reduzir o custo
+              infinitamente dando voltas), e o Bellman-Ford <b>detecta e avisa</b> —
+              algo que o Dijkstra nem consegue calcular.
+            </div>
+            <div className="cph-line cph-tip">
+              Dica: no <b>grafo completo</b> quase sempre existe ciclo negativo
+              (metade das arestas é negativa). Para ver um <b>caminho de custo
+              finito</b>, desmarque "grafo completo" e use o filtro de
+              <b> valor mínimo</b> alto (a partir de <b>≥ €75M</b> os ciclos somem) —
+              isso remove as transferências pequenas e quebra os ciclos.
+            </div>
           </div>
         )}
       </div>
@@ -319,6 +347,34 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
                       </span>
                     ))}
                   </div>
+
+                  {/* Interpretação do custo quando peso = lucro */}
+                  {result.weight_rule?.includes("market_value") &&
+                    result.cost != null && (
+                      <div className="res-cost-explain">
+                        {result.cost < 0 ? (
+                          <>
+                            <b className="neg">Custo negativo:</b> esta cadeia de
+                            transferências, somada, ficou <b>abaixo</b> do valor de
+                            mercado — uma sequência de bons negócios para os
+                            compradores.
+                          </>
+                        ) : result.cost > 0 ? (
+                          <>
+                            <b className="pos">Custo positivo:</b> mesmo escolhendo
+                            o caminho mais barato, a soma dos saldos ficou
+                            <b> acima</b> do valor de mercado — pagou-se caro ao
+                            longo da rota.
+                          </>
+                        ) : (
+                          <>
+                            <b>Custo zero:</b> a soma dos saldos se equilibrou
+                            (pagamentos abaixo e acima do mercado se cancelaram).
+                          </>
+                        )}
+                      </div>
+                    )}
+
                   <button className="res-jump" onClick={jumpToGraph}>
                     Ver caminho destacado no grafo
                   </button>
@@ -328,10 +384,22 @@ export default function AlgorithmCalculator({ graph, rawGraph, onResult, onJumpT
               {/* Ciclo negativo: não existe caminho mínimo finito */}
               {result.has_negative_cycle && (
                 <div className="res-negcycle">
-                  <b>Ciclo negativo detectado.</b> Não há caminho de custo
-                  mínimo: percorrendo o ciclo, o custo cairia indefinidamente.
-                  Por isso não há caminho para destacar no grafo — este é o
-                  comportamento correto do Bellman-Ford nesse cenário.
+                  <b>Ciclo negativo detectado.</b> Existe um "loop de pechinchas"
+                  no mercado: uma sequência de transferências que sai de um clube,
+                  passa por outros e volta com saldo total negativo (todos pagaram
+                  abaixo do valor de mercado).
+                  <div className="rnc-why">
+                    <b>O que isso significa?</b> Não há caminho de custo mínimo:
+                    percorrendo o ciclo, o custo cairia indefinidamente. O
+                    Bellman-Ford <b>detecta isso e avisa</b> em vez de devolver uma
+                    resposta errada — algo que o Dijkstra nem consegue calcular com
+                    pesos negativos.
+                  </div>
+                  <div className="rnc-tip">
+                    Para ver um caminho de custo finito, desmarque "grafo completo"
+                    e suba o filtro de <b>valor mínimo</b> para <b>≥ €75M</b>: com poucas
+                    transferências grandes o grafo deixa de ter ciclos negativos.
+                  </div>
                   <button
                     className="res-jump"
                     onClick={() =>

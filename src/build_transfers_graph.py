@@ -24,10 +24,42 @@ def build():
     df["to_club_name"] = df["to_club_name"].astype(str)
 
     clubes = sorted(set(df["from_club_name"]) | set(df["to_club_name"]))
-    grau = Counter()
+
+    # ── Deduplica arestas paralelas ──────────────────────────────────────────
+    # Múltiplas transferências entre o mesmo par (ex.: Barcelona→PSG: Neymar,
+    # Dembélé, Dro) viram UMA aresta "canônica" = a de MAIOR fee. As demais
+    # ficam em 'extras' para o modal listar. Isso espelha o backend Python
+    # (transfers_io.py): grafo simples ponderado, sem arestas sobrepostas.
+    # O grau passa a contar arestas únicas (não transferências).
+    canonicas = {}  # (src, tgt) -> dict da aresta canônica
+    extras = {}     # (src, tgt) -> [outras transferências]
     for _, row in df.iterrows():
-        grau[row["from_club_name"]] += 1
-        grau[row["to_club_name"]] += 1
+        src = row["from_club_name"]
+        tgt = row["to_club_name"]
+        market = row["market_value_in_eur"]
+        fee = float(row["transfer_fee"])
+        info = {
+            "player": row["player_name"],
+            "fee": fee,
+            "market_value": None if pd.isna(market) else float(market),
+            "season": row["transfer_season"],
+            "date": row["transfer_date"],
+        }
+        par = (src, tgt)
+        atual = canonicas.get(par)
+        if atual is None:
+            canonicas[par] = info
+        elif fee > atual["fee"]:
+            # nova canônica; a antiga vira extra
+            extras.setdefault(par, []).append(atual)
+            canonicas[par] = info
+        else:
+            extras.setdefault(par, []).append(info)
+
+    grau = Counter()
+    for (src, tgt) in canonicas:
+        grau[src] += 1
+        grau[tgt] += 1
 
     nodes = [
         {
@@ -40,20 +72,22 @@ def build():
     ]
 
     links = []
-    for _, row in df.iterrows():
-        market = row["market_value_in_eur"]
-        src = row["from_club_name"]
-        tgt = row["to_club_name"]
+    for (src, tgt), info in canonicas.items():
+        outras = extras.get((src, tgt), [])
+        # ordena extras do mais caro para o mais barato
+        outras_ord = sorted(outras, key=lambda x: x["fee"], reverse=True)
         links.append({
             "source": src,
             "target": tgt,
-            "player": row["player_name"],
-            "fee": float(row["transfer_fee"]),
-            "market_value": None if pd.isna(market) else float(market),
-            "season": row["transfer_season"],
-            "date": row["transfer_date"],
+            "player": info["player"],
+            "fee": info["fee"],
+            "market_value": info["market_value"],
+            "season": info["season"],
+            "date": info["date"],
             "source_league": league_of(src),
             "target_league": league_of(tgt),
+            "transfers_count": 1 + len(outras_ord),
+            "extras": outras_ord,
         })
 
     league_count = Counter(n["league"] for n in nodes)

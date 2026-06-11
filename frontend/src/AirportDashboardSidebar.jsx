@@ -10,6 +10,14 @@ import {
   CartesianGrid, ResponsiveContainer,
 } from "recharts";
 import { NOS, ARESTAS, COR_REG, TIPO_LABEL } from "./airportData.js";
+import {
+  regionWhy,
+  airportWhy,
+  routeTypeWhy,
+  densityWhy,
+  distanceWhy,
+  filterStateInsight,
+} from "./airportInsightContext.js";
 import "./AirportDashboardSidebar.css";
 
 const TOOLTIP_STYLE = {
@@ -76,10 +84,15 @@ export default function AirportDashboardSidebar({ minDegree = 1 }) {
     })),
     [filteredARSTAS]);
 
+  const insights = useMemo(
+    () => buildAirportInsights(filteredNOS, filteredARSTAS, minDegree),
+    [filteredNOS, filteredARSTAS, minDegree]
+  );
+
   return (
     <aside className="ags-side">
       <header className="ags-head">
-        <h2>Dashboard ao vivo ✈</h2>
+        <h2>Dashboard ao vivo</h2>
         <div className="ags-sub">reage ao filtro de conexões em tempo real</div>
       </header>
 
@@ -185,6 +198,129 @@ export default function AirportDashboardSidebar({ minDegree = 1 }) {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* ── INSIGHTS ── */}
+      <div className="ags-card">
+        <h4>Insights da rede (ao vivo)</h4>
+        <div className="ags-insights">
+          {insights.map((ins, i) => (
+            <div className={`ags-insight ${ins.highlight ? "ags-insight-hl" : ""}`} key={i}>
+              <div className="ags-insight-label">{ins.label}</div>
+              <div className="ags-insight-text">{ins.text}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </aside>
   );
+}
+
+const TIPO_NOME = {
+  regional: "regional",
+  nacional: "nacional",
+  hub_intra: "hub intrarregional",
+};
+
+function buildAirportInsights(filteredNOS, filteredARSTAS, minDegree) {
+  if (!filteredNOS.length) return [];
+  const n = filteredNOS.length;
+  const m = filteredARSTAS.length;
+  const maxGrauVal = Math.max(...filteredNOS.map((x) => x.grau));
+  const hubs = filteredNOS.filter((x) => x.grau === maxGrauVal).map((x) => x.iata);
+  const meanGrau = n ? filteredNOS.reduce((s, x) => s + x.grau, 0) / n : 0;
+  const avgDist = m ? filteredARSTAS.reduce((s, a) => s + a.peso, 0) / m : 0;
+  const maxEdge = m
+    ? filteredARSTAS.reduce((mx, a) => (a.peso > mx.peso ? a : mx), filteredARSTAS[0])
+    : null;
+  const minEdge = m
+    ? filteredARSTAS.reduce((mn, a) => (a.peso < mn.peso ? a : mn), filteredARSTAS[0])
+    : null;
+  const density = n > 1 ? (2 * m) / (n * (n - 1)) : 0;
+
+  const regionCounts = {};
+  filteredNOS.forEach((x) => {
+    regionCounts[x.regiao] = (regionCounts[x.regiao] ?? 0) + 1;
+  });
+  const sortedRegions = Object.entries(regionCounts).sort((a, b) => b[1] - a[1]);
+  const topRegion = sortedRegions[0];
+
+  const tipoCount = { regional: 0, nacional: 0, hub_intra: 0 };
+  filteredARSTAS.forEach((a) => {
+    tipoCount[a.tipo] = (tipoCount[a.tipo] ?? 0) + 1;
+  });
+  const topTipo = Object.entries(tipoCount).sort((a, b) => b[1] - a[1])[0];
+
+  const fmt = (v) => Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+  const out = [];
+
+  // Insight que reage ao estado do filtro (sempre primeiro, em destaque)
+  const fs = filterStateInsight(filteredNOS, minDegree);
+  out.push({ label: fs.label, text: fs.text, highlight: true });
+
+  out.push({
+    label: "Hub da rede",
+    text: (
+      <>
+        <b>{hubs.join(", ")}</b> com grau <b>{maxGrauVal}</b> (
+        {(maxGrauVal / Math.max(meanGrau, 0.001)).toFixed(1)}× a média).
+        <br />
+        <span className="why"><b>Por quê?</b> {airportWhy(hubs[0])}</span>
+      </>
+    ),
+  });
+
+  if (topRegion) {
+    out.push({
+      label: "Concentração regional",
+      text: (
+        <>
+          <b>{topRegion[0]}</b> tem mais aeroportos: <b>{topRegion[1]}</b>.
+          <br />
+          <span className="why"><b>Por quê?</b> {regionWhy(topRegion[0])}</span>
+        </>
+      ),
+    });
+  }
+
+  if (minEdge && maxEdge) {
+    out.push({
+      label: "Extremos de distância",
+      text: (
+        <>
+          Curta: <b>{minEdge.from}↔{minEdge.to}</b> ({fmt(minEdge.peso)} km). Longa:{" "}
+          <b>{maxEdge.from}↔{maxEdge.to}</b> ({fmt(maxEdge.peso)} km). Média{" "}
+          <b>{fmt(avgDist)} km</b>.
+          <br />
+          <span className="why"><b>Por quê?</b> {distanceWhy(avgDist)}</span>
+        </>
+      ),
+    });
+  }
+
+  out.push({
+    label: "Densidade do grafo",
+    text: (
+      <>
+        <b>{n}</b> nós, <b>{m}</b> arestas → densidade <b>{density.toFixed(2)}</b>.
+        <br />
+        <span className="why"><b>Por quê?</b> {densityWhy(density)}</span>
+      </>
+    ),
+  });
+
+  if (topTipo && m > 0) {
+    out.push({
+      label: "Tipo de rota predominante",
+      text: (
+        <>
+          <b>{Math.round((topTipo[1] / m) * 100)}%</b> são{" "}
+          <b>{TIPO_NOME[topTipo[0]]}</b> ({topTipo[1]} de {m}).
+          <br />
+          <span className="why"><b>Por quê?</b> {routeTypeWhy(topTipo[0])}</span>
+        </>
+      ),
+    });
+  }
+
+  return out;
 }

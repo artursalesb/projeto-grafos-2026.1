@@ -116,7 +116,7 @@ export default function Home({ onNavigate }) {
               <div className="card-pills">
                 <span className="pill">Grafo dirigido</span>
                 <span className="pill">3.166 clubes</span>
-                <span className="pill">17.458 transf.</span>
+                <span className="pill">15.451 arestas</span>
               </div>
               <div className="card-cta">
                 Explorar <span className="cta-arrow">→</span>
